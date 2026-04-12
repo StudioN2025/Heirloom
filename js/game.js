@@ -154,34 +154,56 @@ function assignStartingRegions() {
     const allIds = Object.keys(gameState.allRegions);
     if (allIds.length === 0) return;
     
+    // Перемешиваем
     const shuffled = [...allIds];
     for (let i = shuffled.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     
+    // Очищаем старые данные
+    gameState.player.regions = [];
+    gameState.ais.ai1.regions = [];
+    gameState.ais.ai2.regions = [];
+    
+    // Игрок получает 3 региона
     const playerRegions = shuffled.slice(0, 3);
     playerRegions.forEach(id => {
-        gameState.allRegions[id].owner = "player";
-        gameState.player.regions.push(id);
-        if (typeof updateRegionColor === 'function') updateRegionColor(id);
+        if (gameState.allRegions[id]) {
+            gameState.allRegions[id].owner = "player";
+            gameState.player.regions.push(id);
+            if (typeof updateRegionColor === 'function') {
+                updateRegionColor(id);
+            }
+        }
     });
     
+    // AI1 получает 3 региона
     const ai1Regions = shuffled.slice(3, 6);
     ai1Regions.forEach(id => {
-        gameState.allRegions[id].owner = "ai1";
-        gameState.ais.ai1.regions.push(id);
-        if (typeof updateRegionColor === 'function') updateRegionColor(id);
+        if (gameState.allRegions[id]) {
+            gameState.allRegions[id].owner = "ai1";
+            gameState.ais.ai1.regions.push(id);
+            if (typeof updateRegionColor === 'function') {
+                updateRegionColor(id);
+            }
+        }
     });
     
+    // AI2 получает 3 региона
     const ai2Regions = shuffled.slice(6, 9);
     ai2Regions.forEach(id => {
-        gameState.allRegions[id].owner = "ai2";
-        gameState.ais.ai2.regions.push(id);
-        if (typeof updateRegionColor === 'function') updateRegionColor(id);
+        if (gameState.allRegions[id]) {
+            gameState.allRegions[id].owner = "ai2";
+            gameState.ais.ai2.regions.push(id);
+            if (typeof updateRegionColor === 'function') {
+                updateRegionColor(id);
+            }
+        }
     });
+    
+    console.log(`Стартовые регионы: Игрок ${gameState.player.regions.length}, AI1 ${gameState.ais.ai1.regions.length}, AI2 ${gameState.ais.ai2.regions.length}`);
 }
-
 function updateUI() {
     const playerRegions = gameState.player.regions;
     const totalPop = playerRegions.reduce((sum, id) => sum + (gameState.allRegions[id]?.population || 0), 0);
