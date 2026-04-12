@@ -1,28 +1,63 @@
 // ========== HEIRLOOM - ДАННЫЕ РЕГИОНОВ ==========
-// Этот файл будет сгенерирован автоматически из твоего SVG
-// Пока создаем заглушку, которую потом заменим
 
 const ALL_REGIONS = {};
 
 // Функция для загрузки регионов из SVG
 function loadRegionsFromSVG() {
     const svg = document.getElementById('gameMap');
-    const paths = svg.querySelectorAll('path');
     
-    paths.forEach((path, index) => {
-        const id = path.id || `region_${index}`;
+    // Проверяем наличие SVG
+    if (!svg) {
+        console.error('❌ SVG элемент не найден!');
+        alert('Ошибка: SVG карта не найдена. Проверьте файл data/map.svg');
+        return {};
+    }
+    
+    // Ищем все path элементы
+    let paths = svg.querySelectorAll('path');
+    
+    // Если path нет, возможно это полигоны
+    if (paths.length === 0) {
+        paths = svg.querySelectorAll('polygon');
+        console.log('🔍 Найдены полигоны:', paths.length);
+    }
+    
+    // Если все равно 0, показываем ошибку
+    if (paths.length === 0) {
+        console.error('❌ В SVG не найдено ни одного path или polygon!');
+        console.log('Первые 500 символов SVG:', svg.innerHTML.substring(0, 500));
+        alert('Ошибка: В SVG файле нет регионов. Проверьте формат карты.');
+        return {};
+    }
+    
+    console.log(`✅ Найдено ${paths.length} регионов в SVG`);
+    
+    // Обрабатываем каждый регион
+    paths.forEach((element, index) => {
+        // Генерируем ID
+        let id = element.id;
+        if (!id || id === '') {
+            id = `region_${index}`;
+            element.id = id;
+        }
         
-        // Добавляем ID если нет
-        if (!path.id) path.id = id;
+        // Получаем имя
+        let name = element.getAttribute('data-name') || 
+                   element.getAttribute('title') || 
+                   element.getAttribute('name') ||
+                   `Регион ${index + 1}`;
         
-        // Добавляем класс
-        path.classList.add('region');
+        // Получаем цвет
+        let originalFill = element.getAttribute('fill');
+        if (!originalFill || originalFill === 'none') {
+            originalFill = '#8aad7a';
+        }
         
         // Сохраняем данные
         ALL_REGIONS[id] = {
             id: id,
-            name: path.getAttribute('data-name') || `Регион ${index}`,
-            originalFill: path.getAttribute('fill') || '#8aad7a',
+            name: name,
+            originalFill: originalFill,
             owner: null,
             population: Math.floor(Math.random() * 10) + 1,
             gold: Math.floor(Math.random() * 200) + 50,
@@ -30,45 +65,63 @@ function loadRegionsFromSVG() {
             neighbors: []
         };
         
+        // Добавляем класс и обработчик
+        element.classList.add('region');
+        element.setAttribute('title', name);
+        
         // Добавляем обработчик клика
-        path.addEventListener('click', (e) => {
+        element.addEventListener('click', (e) => {
             e.stopPropagation();
-            if (window.selectRegion) window.selectRegion(id);
+            if (window.selectRegion) {
+                window.selectRegion(id);
+            } else {
+                console.log('Клик по региону:', name, id);
+                alert(`Выбран регион: ${name}\nПока нет обработчика, но это можно исправить!`);
+            }
         });
         
-        // Тултип
-        path.setAttribute('title', ALL_REGIONS[id].name);
+        // Меняем внешний вид при наведении
+        element.style.transition = 'stroke 0.15s ease';
+        element.addEventListener('mouseenter', () => {
+            element.setAttribute('stroke', '#ffd700');
+            element.setAttribute('stroke-width', '2');
+        });
+        element.addEventListener('mouseleave', () => {
+            element.setAttribute('stroke', '#2c2b1f');
+            element.setAttribute('stroke-width', '1');
+        });
     });
     
-    // Находим соседей (упрощенно через bounding box)
+    console.log(`✅ Загружено ${Object.keys(ALL_REGIONS).length} регионов`);
+    
+    // Находим соседей
     findNeighborsByProximity();
     
-    console.log(`✅ Загружено ${Object.keys(ALL_REGIONS).length} регионов`);
     return ALL_REGIONS;
 }
 
 // Поиск соседей по пересечению bounding box'ов
 function findNeighborsByProximity() {
     const svg = document.getElementById('gameMap');
-    const paths = Array.from(svg.querySelectorAll('path'));
+    const elements = Array.from(svg.querySelectorAll('.region'));
     
-    for (let i = 0; i < paths.length; i++) {
-        const path = paths[i];
-        const id = path.id;
-        const bbox = path.getBBox();
+    for (let i = 0; i < elements.length; i++) {
+        const el = elements[i];
+        const id = el.id;
+        const bbox = el.getBBox();
         
-        for (let j = 0; j < paths.length; j++) {
+        for (let j = 0; j < elements.length; j++) {
             if (i === j) continue;
-            const otherPath = paths[j];
-            const otherBBox = otherPath.getBBox();
+            const otherEl = elements[j];
+            const otherBBox = otherEl.getBBox();
             
-            // Проверка пересечения
+            // Проверка пересечения bounding box'ов
             if (bbox.x + bbox.width > otherBBox.x &&
                 otherBBox.x + otherBBox.width > bbox.x &&
                 bbox.y + bbox.height > otherBBox.y &&
                 otherBBox.y + otherBBox.height > bbox.y) {
-                if (!ALL_REGIONS[id].neighbors.includes(otherPath.id)) {
-                    ALL_REGIONS[id].neighbors.push(otherPath.id);
+                if (!ALL_REGIONS[id].neighbors.includes(otherEl.id)) {
+                    ALL_REGIONS[id].neighbors.push(otherEl.id);
                 }
             }
         }
@@ -78,6 +131,8 @@ function findNeighborsByProximity() {
             ALL_REGIONS[id].neighbors = ALL_REGIONS[id].neighbors.slice(0, 12);
         }
     }
+    
+    console.log('🔗 Соседи найдены для всех регионов');
 }
 
 // Функции для работы с регионами
