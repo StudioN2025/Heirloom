@@ -144,7 +144,12 @@ function setRegionOwner(regionId, newOwner) {
 function updateRegionColor(regionId) {
     const region = ALL_REGIONS[regionId];
     const element = document.getElementById(regionId);
-    if (!element) return;
+    
+    // Добавляем проверку на существование
+    if (!region || !element) {
+        console.warn(`Регион ${regionId} не найден для обновления цвета`);
+        return;
+    }
     
     element.classList.remove('owner-player', 'owner-ai1', 'owner-ai2', 'neutral');
     
