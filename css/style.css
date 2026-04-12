@@ -151,34 +151,60 @@ body {
     vertical-align: middle;
 }
 
+/* ========== МОРСКОЙ ФОН ДЛЯ КАРТЫ ========== */
 .map-container {
-    background: #2d3a2a;
+    background: linear-gradient(135deg, #1a4a6e 0%, #0d2b3e 100%);
+    position: relative;
     border-radius: 16px;
     overflow: auto;
     height: 65vh;
-    position: relative;
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.3), 0 4px 15px rgba(0,0,0,0.2);
 }
 
 #gameMap {
     width: 100%;
     height: auto;
-    cursor: pointer;
+    background: transparent;
 }
 
-/* Стили для регионов на карте */
+/* ========== СТИЛИ РЕГИОНОВ ========== */
 .region {
-    transition: stroke 0.15s ease, filter 0.15s ease;
+    transition: fill 0.2s ease, stroke 0.15s ease;
     cursor: pointer;
 }
 
-.region:hover {
-    stroke: #ffd700;
-    stroke-width: 2;
-    filter: drop-shadow(0 0 4px rgba(255,215,0,0.5));
+/* Нейтральные регионы - светло-серые */
+.region.neutral {
+    fill: #c0c0c0 !important;
 }
 
-.region.player {
-    filter: drop-shadow(0 0 3px #3a86ff);
+/* Регионы игрока - синие */
+.region.owner-player {
+    fill: #3a86ff !important;
+}
+
+/* Регионы AI1 - красные */
+.region.owner-ai1 {
+    fill: #e63946 !important;
+}
+
+/* Регионы AI2 - голубые */
+.region.owner-ai2 {
+    fill: #4895ef !important;
+}
+
+/* Эффект при наведении */
+.region:hover {
+    stroke: #ffd700 !important;
+    stroke-width: 2 !important;
+    filter: drop-shadow(0 0 3px rgba(255,215,0,0.5));
+}
+
+/* Выбранный регион */
+.region.selected {
+    stroke: #ffffff !important;
+    stroke-width: 3 !important;
+    filter: drop-shadow(0 0 6px white);
 }
 
 /* ========== INFO PANEL ========== */
@@ -380,6 +406,34 @@ body {
     letter-spacing: 1px;
 }
 
+/* ========== СПИННЕР ЗАГРУЗКИ ========== */
+.loading-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 10;
+    background: rgba(0,0,0,0.8);
+    padding: 20px 30px;
+    border-radius: 16px;
+    border: 1px solid #c9a03d;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 12px;
+    border: 3px solid #c9a03d;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
 /* ========== АДАПТИВНОСТЬ ========== */
 @media (max-width: 900px) {
     .game-main {
@@ -418,16 +472,6 @@ body {
     }
 }
 
-/* ========== АНИМАЦИИ ========== */
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-}
-
-.loading {
-    animation: pulse 1s infinite;
-}
-
 /* ========== СКРОЛЛБАР ========== */
 ::-webkit-scrollbar {
     width: 6px;
@@ -442,35 +486,4 @@ body {
 ::-webkit-scrollbar-thumb {
     background: #c9a03d;
     border-radius: 3px;
-}
-/* Спиннер загрузки */
-.loading-spinner {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    z-index: 10;
-    background: rgba(0,0,0,0.8);
-    padding: 20px 30px;
-    border-radius: 16px;
-    border: 1px solid #c9a03d;
-}
-
-.spinner {
-    width: 40px;
-    height: 40px;
-    margin: 0 auto 12px;
-    border: 3px solid #c9a03d;
-    border-top-color: transparent;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-.map-container {
-    position: relative;
 }
