@@ -1,29 +1,23 @@
 // ========== HEIRLOOM - ИНТЕГРАЦИЯ С OPENROUTER ==========
-// 🔑 Получи свой API ключ на https://openrouter.io/keys
 
 const OPENROUTER_CONFIG = {
-    apiKey: null,  // Вставь сюда свой ключ или введи через интерфейс
-    model: "google/gemini-2.0-flash-exp:free",  // Бесплатная модель
+    apiKey: null,
+    model: "minimax/minimax-m2.5:free",
     siteUrl: window.location.origin,
     siteName: "Heirloom"
 };
 
-// Инициализация API
 function initOpenRouter() {
-    // Проверяем сохраненный ключ
     const savedKey = localStorage.getItem('heirloom_api_key');
     if (savedKey) {
         OPENROUTER_CONFIG.apiKey = savedKey;
         updateAIStatus(true, "ИИ готов");
         return true;
     }
-    
-    // Если нет ключа, создаем интерфейс для ввода
     showAPIKeyModal();
     return false;
 }
 
-// Показать модальное окно для ввода API ключа
 function showAPIKeyModal() {
     const modal = document.createElement('div');
     modal.id = 'apiKeyModal';
@@ -65,7 +59,6 @@ function showAPIKeyModal() {
     };
 }
 
-// Обновление статуса ИИ в интерфейсе
 function updateAIStatus(connected, message) {
     const dot = document.getElementById('aiStatusDot');
     const text = document.getElementById('aiStatusText');
@@ -76,7 +69,6 @@ function updateAIStatus(connected, message) {
     }
 }
 
-// Запрос к ИИ для дипломатии
 async function askAIForDiplomacy(aiId, playerAction, gameContext) {
     if (!OPENROUTER_CONFIG.apiKey) {
         return { response: "API ключ не настроен", success: false };
@@ -86,21 +78,20 @@ async function askAIForDiplomacy(aiId, playerAction, gameContext) {
     const player = gameContext.player;
     
     const systemPrompt = `Ты — правитель ${ai.name} в стратегической игре Heirloom.
-Твоя задача — принимать дипломатические решения на основе текущей ситуации.
+Твоя задача — принимать дипломатические решения.
 
 Текущее состояние:
 - Твоя казна: ${ai.treasury}
-- Твоя стабильность: ${ai.stability}
 - У тебя ${ai.regions.length} регионов
 - У игрока ${player.regions.length} регионов, казна ${player.treasury}
 
 Игрок совершил действие: "${playerAction}"
 
-Ответь КРАТКО (1-2 предложения) и в конце укажи решение в формате:
+Ответь КРАТКО и в конце укажи решение в формате:
 ===DECISION===
 [accept/decline/counter]
 ===MESSAGE===
-[твой ответ игроку]`;
+[твой ответ]`;
 
     try {
         const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -123,15 +114,13 @@ async function askAIForDiplomacy(aiId, playerAction, gameContext) {
         const data = await response.json();
         const content = data.choices[0].message.content;
         
-        // Парсим решение
         const decisionMatch = content.match(/===DECISION===\n(\w+)/);
         const messageMatch = content.match(/===MESSAGE===\n([\s\S]+?)(?=\n===|$)/);
         
         return {
             success: true,
             decision: decisionMatch ? decisionMatch[1] : 'decline',
-            message: messageMatch ? messageMatch[1].trim() : content,
-            raw: content
+            message: messageMatch ? messageMatch[1].trim() : content
         };
     } catch (error) {
         console.error("OpenRouter error:", error);
@@ -140,26 +129,16 @@ async function askAIForDiplomacy(aiId, playerAction, gameContext) {
     }
 }
 
-// Запрос к ИИ для хода AI
 async function askAIForTurn(aiId, gameContext) {
-    if (!OPENROUTER_CONFIG.apiKey) {
-        return null;
-    }
+    if (!OPENROUTER_CONFIG.apiKey) return null;
     
     const ai = gameContext.ais[aiId];
-    const player = gameContext.player;
     const neutralRegions = Object.values(gameContext.allRegions).filter(r => r.owner === null);
     
     const systemPrompt = `Ты — правитель ${ai.name}. Прими решение на этот ход.
-Выбери одно действие из:
-1. Захватить ближайший нейтральный регион
-2. Укрепить оборону
-3. Накопить золото
-
 Ответь ТОЛЬКО JSON:
-{"action": "conquer/war/defense/build", "target": "region_id или null", "reason": "кратко"}
+{"action": "conquer/defense/build", "target": "region_id или null", "reason": "кратко"}
 
-Твои регионы: ${ai.regions.slice(0,5).join(', ')}...
 Нейтральные регионы рядом: ${neutralRegions.slice(0,5).map(r => r.name).join(', ')}`;
 
     try {
@@ -184,9 +163,7 @@ async function askAIForTurn(aiId, gameContext) {
         const content = data.choices[0].message.content;
         const jsonMatch = content.match(/\{[\s\S]*\}/);
         
-        if (jsonMatch) {
-            return JSON.parse(jsonMatch[0]);
-        }
+        if (jsonMatch) return JSON.parse(jsonMatch[0]);
         return null;
     } catch (error) {
         console.error("OpenRouter AI turn error:", error);
@@ -194,7 +171,6 @@ async function askAIForTurn(aiId, gameContext) {
     }
 }
 
-// Экспорт
 window.initOpenRouter = initOpenRouter;
 window.askAIForDiplomacy = askAIForDiplomacy;
 window.askAIForTurn = askAIForTurn;
