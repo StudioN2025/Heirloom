@@ -1,0 +1,445 @@
+/* ========== RESET & BASE ========== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%);
+    font-family: 'Segoe UI', 'Roboto', 'Playfair Display', system-ui, serif;
+    min-height: 100vh;
+    color: #e8e0c8;
+}
+
+/* ========== WRAPPER ========== */
+.game-wrapper {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+/* ========== HEADER ========== */
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(25, 20, 15, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 24px;
+    padding: 12px 24px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(200, 180, 120, 0.3);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.logo {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.logo-icon {
+    font-size: 32px;
+    filter: drop-shadow(0 0 4px #c9a03d);
+}
+
+.logo h1 {
+    font-size: 28px;
+    letter-spacing: 4px;
+    background: linear-gradient(135deg, #e8d5a8, #c9a03d, #8b6914);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 600;
+}
+
+.logo-sub {
+    font-size: 11px;
+    color: #c9a03d;
+    letter-spacing: 2px;
+    font-style: italic;
+}
+
+.header-stats {
+    display: flex;
+    gap: 16px;
+}
+
+.stat-badge {
+    background: rgba(0,0,0,0.5);
+    padding: 6px 14px;
+    border-radius: 40px;
+    text-align: center;
+    border: 1px solid rgba(200, 180, 120, 0.2);
+}
+
+.stat-label {
+    font-size: 11px;
+    color: #c9a03d;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: block;
+}
+
+.stat-value {
+    font-size: 20px;
+    font-weight: bold;
+    color: #f0e8d0;
+}
+
+.stat-unit {
+    font-size: 11px;
+    margin-left: 2px;
+    color: #aaa;
+}
+
+/* ========== MAIN LAYOUT ========== */
+.game-main {
+    display: flex;
+    gap: 20px;
+}
+
+/* ========== MAP PANEL ========== */
+.map-panel {
+    flex: 2.5;
+    background: rgba(20, 18, 14, 0.6);
+    backdrop-filter: blur(4px);
+    border-radius: 24px;
+    padding: 16px;
+    border: 1px solid rgba(200, 180, 120, 0.2);
+}
+
+.map-toolbar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.map-btn {
+    background: #2d2418;
+    border: 1px solid #c9a03d;
+    color: #e8d5a8;
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.map-btn:hover {
+    background: #c9a03d;
+    color: #1a1a2e;
+}
+
+.map-legend {
+    margin-left: auto;
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    border-radius: 4px;
+    margin-right: 4px;
+    vertical-align: middle;
+}
+
+.map-container {
+    background: #2d3a2a;
+    border-radius: 16px;
+    overflow: auto;
+    height: 65vh;
+    position: relative;
+}
+
+#gameMap {
+    width: 100%;
+    height: auto;
+    cursor: pointer;
+}
+
+/* Стили для регионов на карте */
+.region {
+    transition: stroke 0.15s ease, filter 0.15s ease;
+    cursor: pointer;
+}
+
+.region:hover {
+    stroke: #ffd700;
+    stroke-width: 2;
+    filter: drop-shadow(0 0 4px rgba(255,215,0,0.5));
+}
+
+.region.player {
+    filter: drop-shadow(0 0 3px #3a86ff);
+}
+
+/* ========== INFO PANEL ========== */
+.info-panel {
+    flex: 1.2;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.card {
+    background: rgba(25, 22, 18, 0.85);
+    backdrop-filter: blur(8px);
+    border-radius: 20px;
+    padding: 18px;
+    border: 1px solid rgba(200, 180, 120, 0.2);
+}
+
+.card h3 {
+    font-size: 16px;
+    color: #c9a03d;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+    border-left: 3px solid #c9a03d;
+    padding-left: 12px;
+}
+
+/* Регион детали */
+.region-details {
+    background: rgba(0,0,0,0.3);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 12px;
+}
+
+.region-details p {
+    margin: 6px 0;
+    font-size: 14px;
+}
+
+.region-details strong {
+    color: #c9a03d;
+    font-size: 16px;
+}
+
+.placeholder {
+    color: #888;
+    text-align: center;
+    padding: 20px;
+}
+
+/* Кнопки */
+.btn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #c9a03d, #8b6914);
+    color: #1a1a2e;
+    width: 100%;
+}
+
+.btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(201,160,61,0.3);
+}
+
+.btn-primary:disabled {
+    background: #4a3a20;
+    color: #888;
+    cursor: not-allowed;
+}
+
+.btn-war {
+    background: #8b3a3a;
+    color: #ffd0d0;
+    flex: 1;
+}
+
+.btn-war:hover {
+    background: #a04040;
+}
+
+.btn-peace {
+    background: #2a4b7c;
+    color: #d0e0ff;
+    flex: 1;
+}
+
+.btn-peace:hover {
+    background: #3a5b8c;
+}
+
+.btn-turn {
+    background: #c9a03d;
+    color: #1a1a2e;
+    grid-column: span 2;
+}
+
+.btn-save, .btn-load, .btn-reset {
+    background: #2d2418;
+    color: #e8d5a8;
+    border: 1px solid #c9a03d;
+}
+
+.btn-save:hover, .btn-load:hover, .btn-reset:hover {
+    background: #c9a03d;
+    color: #1a1a2e;
+}
+
+/* Дипломатия */
+.diplomacy-select {
+    width: 100%;
+    padding: 10px;
+    background: #1a1814;
+    border: 1px solid #c9a03d;
+    border-radius: 12px;
+    color: #e8d5a8;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.diplomacy-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.controls-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+/* Лог */
+.log-container {
+    height: 180px;
+    overflow-y: auto;
+    font-size: 12px;
+    font-family: 'Courier New', monospace;
+}
+
+.log-entry {
+    padding: 6px 8px;
+    border-bottom: 1px solid rgba(200, 180, 120, 0.1);
+    color: #c0b8a0;
+}
+
+.log-entry.conquer {
+    color: #c9a03d;
+    border-left: 2px solid #c9a03d;
+}
+
+.log-entry.war {
+    color: #e63946;
+}
+
+.log-entry.peace {
+    color: #6bff6b;
+}
+
+.log-entry.system {
+    color: #888;
+    font-style: italic;
+}
+
+/* ========== FOOTER ========== */
+.game-footer {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background: rgba(0,0,0,0.4);
+    border-radius: 16px;
+    font-size: 12px;
+}
+
+.connection-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#aiStatusDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.credits {
+    color: #666;
+    letter-spacing: 1px;
+}
+
+/* ========== АДАПТИВНОСТЬ ========== */
+@media (max-width: 900px) {
+    .game-main {
+        flex-direction: column;
+    }
+    
+    .header-stats {
+        gap: 8px;
+    }
+    
+    .stat-value {
+        font-size: 16px;
+    }
+    
+    .logo h1 {
+        font-size: 20px;
+    }
+    
+    .logo-sub {
+        display: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .game-header {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .controls-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .btn-turn {
+        grid-column: auto;
+    }
+}
+
+/* ========== АНИМАЦИИ ========== */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.loading {
+    animation: pulse 1s infinite;
+}
+
+/* ========== СКРОЛЛБАР ========== */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1a1814;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c9a03d;
+    border-radius: 3px;
+}
