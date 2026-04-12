@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Heirloom — построй империю, которая переживет века</title>
     <meta name="description" content="Геополитическая стратегия с ИИ. Захватывай регионы, управляй империей, пиши историю.">
-    <meta name="author" content="Heirloom Studio">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👑</text></svg>">
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -54,13 +53,16 @@
                     </div>
                 </div>
                 <div class="map-container" id="mapContainer">
+                    <div class="loading-spinner" id="loadingSpinner">
+                        <div class="spinner"></div>
+                        <p>Загрузка карты...</p>
+                    </div>
                     <svg id="gameMap" viewBox="0 0 1000 562"></svg>
                 </div>
             </div>
 
             <!-- Правая панель -->
             <div class="info-panel">
-                <!-- Выбранный регион -->
                 <div class="card region-card">
                     <h3>🔍 Выбранный регион</h3>
                     <div id="selectedRegionPanel" class="region-details">
@@ -69,7 +71,6 @@
                     <button id="conquerBtn" class="btn btn-primary" disabled>⚔️ Захватить</button>
                 </div>
 
-                <!-- Дипломатия -->
                 <div class="card diplomacy-card">
                     <h3>🤝 Дипломатия</h3>
                     <select id="aiSelect" class="diplomacy-select">
@@ -82,16 +83,13 @@
                     </div>
                 </div>
 
-                <!-- Журнал событий -->
                 <div class="card log-card">
                     <h3>📜 Хроника</h3>
                     <div id="logContainer" class="log-container">
-                        <div class="log-entry system">Добро пожаловать в Heirloom</div>
-                        <div class="log-entry system">Кликни на регион, чтобы начать</div>
+                        <div class="log-entry system">Загрузка Heirloom...</div>
                     </div>
                 </div>
 
-                <!-- Управление -->
                 <div class="card controls-card">
                     <div class="controls-grid">
                         <button id="endTurnBtn" class="btn btn-turn">⏭️ Следующий ход</button>
@@ -103,11 +101,10 @@
             </div>
         </div>
 
-        <!-- Нижняя панель -->
         <footer class="game-footer">
             <div class="connection-status">
                 <span id="aiStatusDot">⚪</span>
-                <span id="aiStatusText">ИИ готов</span>
+                <span id="aiStatusText">Загрузка...</span>
             </div>
             <div class="credits">
                 HEIRLOOM — build your eternal empire
