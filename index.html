@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Heirloom — построй империю, которая переживет века</title>
+    <meta name="description" content="Геополитическая стратегия с ИИ. Захватывай регионы, управляй империей, пиши историю.">
+    <meta name="author" content="Heirloom Studio">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👑</text></svg>">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="game-wrapper">
+        <!-- Верхняя панель -->
+        <header class="game-header">
+            <div class="logo">
+                <span class="logo-icon">👑</span>
+                <h1>HEIRLOOM</h1>
+                <span class="logo-sub">— legacy beyond time —</span>
+            </div>
+            <div class="header-stats">
+                <div class="stat-badge">
+                    <span class="stat-label">Ход</span>
+                    <span class="stat-value" id="turnCount">0</span>
+                </div>
+                <div class="stat-badge">
+                    <span class="stat-label">💰 Казна</span>
+                    <span class="stat-value" id="treasury">500</span>
+                </div>
+                <div class="stat-badge">
+                    <span class="stat-label">🏰 Регионов</span>
+                    <span class="stat-value" id="regionCount">0</span>
+                </div>
+                <div class="stat-badge">
+                    <span class="stat-label">👥 Население</span>
+                    <span class="stat-value" id="totalPop">0</span>
+                    <span class="stat-unit">M</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Основной контент -->
+        <div class="game-main">
+            <!-- Карта -->
+            <div class="map-panel">
+                <div class="map-toolbar">
+                    <button id="zoomInBtn" class="map-btn" title="Приблизить">🔍+</button>
+                    <button id="zoomOutBtn" class="map-btn" title="Отдалить">🔍-</button>
+                    <button id="resetViewBtn" class="map-btn" title="Сбросить вид">⟳</button>
+                    <div class="map-legend">
+                        <span class="legend-color" style="background: #3a86ff"></span> Мои
+                        <span class="legend-color" style="background: #e63946"></span> Враги
+                        <span class="legend-color" style="background: #8aad7a"></span> Нейтралы
+                    </div>
+                </div>
+                <div class="map-container" id="mapContainer">
+                    <svg id="gameMap" viewBox="0 0 1000 562"></svg>
+                </div>
+            </div>
+
+            <!-- Правая панель -->
+            <div class="info-panel">
+                <!-- Выбранный регион -->
+                <div class="card region-card">
+                    <h3>🔍 Выбранный регион</h3>
+                    <div id="selectedRegionPanel" class="region-details">
+                        <p class="placeholder">Кликните на карту</p>
+                    </div>
+                    <button id="conquerBtn" class="btn btn-primary" disabled>⚔️ Захватить</button>
+                </div>
+
+                <!-- Дипломатия -->
+                <div class="card diplomacy-card">
+                    <h3>🤝 Дипломатия</h3>
+                    <select id="aiSelect" class="diplomacy-select">
+                        <option value="ai1">⚔️ Красная Империя</option>
+                        <option value="ai2">🌊 Синее Королевство</option>
+                    </select>
+                    <div class="diplomacy-buttons">
+                        <button id="declareWarBtn" class="btn btn-war">📜 Объявить войну</button>
+                        <button id="peaceBtn" class="btn btn-peace">🕊️ Предложить мир</button>
+                    </div>
+                </div>
+
+                <!-- Журнал событий -->
+                <div class="card log-card">
+                    <h3>📜 Хроника</h3>
+                    <div id="logContainer" class="log-container">
+                        <div class="log-entry system">Добро пожаловать в Heirloom</div>
+                        <div class="log-entry system">Кликни на регион, чтобы начать</div>
+                    </div>
+                </div>
+
+                <!-- Управление -->
+                <div class="card controls-card">
+                    <div class="controls-grid">
+                        <button id="endTurnBtn" class="btn btn-turn">⏭️ Следующий ход</button>
+                        <button id="saveGameBtn" class="btn btn-save">💾 Сохранить</button>
+                        <button id="loadGameBtn" class="btn btn-load">📂 Загрузить</button>
+                        <button id="resetGameBtn" class="btn btn-reset">🔄 Новая игра</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Нижняя панель -->
+        <footer class="game-footer">
+            <div class="connection-status">
+                <span id="aiStatusDot">⚪</span>
+                <span id="aiStatusText">ИИ готов</span>
+            </div>
+            <div class="credits">
+                HEIRLOOM — build your eternal empire
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/regions.js"></script>
+    <script src="js/openrouter.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
