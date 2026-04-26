@@ -487,3 +487,31 @@ body {
     background: #c9a03d;
     border-radius: 3px;
 }
+/* Переопределение цвета для st0 класса - важно для перекраски */
+polygon.st0,
+path.st0 {
+    transition: fill 0.2s ease;
+}
+
+/* Убираем !important из общих правил, чтобы style работал */
+.region {
+    transition: fill 0.2s ease, stroke 0.15s ease;
+    cursor: pointer;
+}
+
+/* Цвета регионов через style (приоритет выше) */
+.owner-player {
+    /* цвет задается через style.fill, не через CSS */
+}
+
+.owner-ai1 {
+    /* цвет задается через style.fill, не через CSS */
+}
+
+.owner-ai2 {
+    /* цвет задается через style.fill, не через CSS */
+}
+
+.neutral {
+    /* цвет задается через style.fill, не через CSS */
+}
