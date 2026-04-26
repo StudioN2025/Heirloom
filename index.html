@@ -7,10 +7,74 @@
     <meta name="description" content="Геополитическая стратегия с ИИ. Захватывай регионы, управляй империей, пиши историю.">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👑</text></svg>">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/menu.css">
 </head>
 <body>
-    <div class="game-wrapper">
-        <!-- Верхняя панель -->
+    <!-- Главное меню -->
+    <div id="mainMenu" class="main-menu">
+        <div class="menu-container">
+            <div class="menu-logo">
+                <span class="logo-icon">👑</span>
+                <h1>HEIRLOOM</h1>
+                <p class="menu-tagline">— legacy beyond time —</p>
+            </div>
+            
+            <div class="menu-buttons">
+                <button id="newGameBtn" class="menu-btn primary">⚔️ Новая игра</button>
+                <button id="continueGameBtn" class="menu-btn">📂 Продолжить</button>
+                <button id="settingsBtn" class="menu-btn">⚙️ Настройки</button>
+                <button id="creditsBtn" class="menu-btn">📜 Об игре</button>
+            </div>
+            
+            <div class="menu-footer">
+                <div class="version">v1.0.0</div>
+                <div class="openrouter-status" id="menuOpenRouterStatus">
+                    <span id="menuApiDot"></span>
+                    <span id="menuApiText">Проверка API...</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Модальное окно настроек -->
+        <div id="settingsModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h2>⚙️ Настройки</h2>
+                <div class="setting-group">
+                    <label>🔑 OpenRouter API Key:</label>
+                    <input type="password" id="apiKeyInput" placeholder="sk-or-v1-...">
+                    <button id="saveApiKeyBtn" class="small-btn">Сохранить</button>
+                    <p class="setting-hint"><a href="https://openrouter.io/keys" target="_blank">Получить ключ</a></p>
+                </div>
+                <div class="setting-group">
+                    <label>🎵 Звук:</label>
+                    <button id="soundToggleBtn" class="small-btn">🔊 Включен</button>
+                </div>
+                <button id="closeSettingsBtn" class="close-modal-btn">Закрыть</button>
+            </div>
+        </div>
+        
+        <!-- Модальное окно "Об игре" -->
+        <div id="creditsModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h2>📜 HEIRLOOM</h2>
+                <p>Геополитическая стратегия, вдохновленная Hearts of Iron.</p>
+                <p>Захватывай регионы, управляй экономикой, заключай союзы и войны.</p>
+                <p>Построй империю, которая переживет века!</p>
+                <br>
+                <p><strong>Управление:</strong></p>
+                <p>• Клик по региону — выбор</p>
+                <p>• Захват — кнопка справа</p>
+                <p>• Дипломатия — выбор оппонента</p>
+                <p>• Следующий ход — завершение раунда</p>
+                <br>
+                <p style="font-size: 12px; color: #888;">© 2024 Heirloom Game</p>
+                <button id="closeCreditsBtn" class="close-modal-btn">Закрыть</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Игровой интерфейс (скрыт по умолчанию) -->
+    <div id="gameUI" class="game-wrapper" style="display: none;">
         <header class="game-header">
             <div class="logo">
                 <span class="logo-icon">👑</span>
@@ -35,12 +99,11 @@
                     <span class="stat-value" id="totalPop">0</span>
                     <span class="stat-unit">M</span>
                 </div>
+                <button id="menuExitBtn" class="menu-exit-btn" title="В главное меню">🏠</button>
             </div>
         </header>
 
-        <!-- Основной контент -->
         <div class="game-main">
-            <!-- Карта -->
             <div class="map-panel">
                 <div class="map-toolbar">
                     <button id="zoomInBtn" class="map-btn" title="Приблизить">🔍+</button>
@@ -49,6 +112,7 @@
                     <div class="map-legend">
                         <span class="legend-color" style="background: #3a86ff"></span> Мои
                         <span class="legend-color" style="background: #e63946"></span> Враги
+                        <span class="legend-color" style="background: #4895ef"></span> Союзники
                         <span class="legend-color" style="background: #c0c0c0"></span> Нейтралы
                     </div>
                 </div>
@@ -61,7 +125,6 @@
                 </div>
             </div>
 
-            <!-- Правая панель -->
             <div class="info-panel">
                 <div class="card region-card">
                     <h3>🔍 Выбранный регион</h3>
@@ -86,7 +149,7 @@
                 <div class="card log-card">
                     <h3>📜 Хроника</h3>
                     <div id="logContainer" class="log-container">
-                        <div class="log-entry system">Загрузка Heirloom...</div>
+                        <div class="log-entry system">Добро пожаловать в Heirloom</div>
                     </div>
                 </div>
 
@@ -103,7 +166,7 @@
 
         <footer class="game-footer">
             <div class="connection-status">
-                <span id="aiStatusDot">⚪</span>
+                <span id="aiStatusDot" class="status-dot"></span>
                 <span id="aiStatusText">Загрузка...</span>
             </div>
             <div class="credits">
@@ -114,6 +177,10 @@
 
     <script src="js/regions.js"></script>
     <script src="js/openrouter.js"></script>
-    <script src="js/game.js"></script>
+    <script src="js/mapRenderer.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/diplomacy.js"></script>
+    <script src="js/gameCore.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
