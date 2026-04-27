@@ -32,6 +32,7 @@ function updateAllRegionColors() {
     for (const regionId of Object.keys(window.gameState.allRegions)) {
         updateRegionColor(regionId);
     }
+    console.log('🎨 Цвета всех регионов обновлены');
 }
 
 function bindRegionClick(regionId) {
@@ -82,6 +83,7 @@ function setupMapInteractivity(regions) {
     console.log('🖱️ Интерактивность карты настроена');
 }
 
+// Экспорт в глобальную область
 window.updateRegionColor = updateRegionColor;
 window.updateAllRegionColors = updateAllRegionColors;
 window.bindRegionClick = bindRegionClick;
