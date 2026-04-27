@@ -1,15 +1,15 @@
 // ========== ИИ ЛОГИКА ==========
 
 function aiTurn() {
+    if (!window.gameState) return;
+    
     for (const [aiId, ai] of Object.entries(window.gameState.ais)) {
         if (!ai.regions.length) continue;
         
-        // Доход
         const aiIncome = ai.regions.reduce((sum, id) => 
             sum + (window.gameState.allRegions[id]?.gold || 0), 0);
         ai.treasury += aiIncome;
         
-        // Поиск целей для захвата
         const possibleTargets = [];
         
         for (const regionId of ai.regions) {
@@ -23,17 +23,14 @@ function aiTurn() {
                         id: neighborId,
                         cost: neighbor.defense * 2,
                         value: neighbor.gold,
-                        defense: neighbor.defense,
                         name: neighbor.name
                     });
                 }
             }
         }
         
-        // Сортируем по выгоде
         possibleTargets.sort((a, b) => (b.value / b.cost) - (a.value / a.cost));
         
-        // Захват
         for (const target of possibleTargets) {
             if (ai.treasury >= target.cost) {
                 ai.treasury -= target.cost;
@@ -48,7 +45,6 @@ function aiTurn() {
             }
         }
         
-        // Военные действия
         if (window.gameState.wars[aiId]) {
             performWarAction(aiId, ai);
         }
@@ -76,7 +72,6 @@ function performWarAction(aiId, ai) {
         }
     }
     
-    // Уникальные цели
     const uniqueTargets = [...new Map(enemyRegions.map(r => [r.id, r])).values()];
     
     if (uniqueTargets.length > 0 && ai.treasury >= 100) {
@@ -88,7 +83,6 @@ function performWarAction(aiId, ai) {
             ai.treasury -= cost;
             const oldOwner = target.owner;
             
-            // Удаляем у старого владельца
             if (oldOwner === "player") {
                 const index = window.gameState.player.regions.indexOf(target.id);
                 if (index !== -1) window.gameState.player.regions.splice(index, 1);
@@ -97,7 +91,6 @@ function performWarAction(aiId, ai) {
                 if (index !== -1) window.gameState.ais[oldOwner].regions.splice(index, 1);
             }
             
-            // Передаем атакующему AI
             targetRegion.owner = aiId;
             ai.regions.push(target.id);
             if (typeof updateRegionColor === 'function') {
@@ -108,7 +101,7 @@ function performWarAction(aiId, ai) {
             
             if (oldOwner === "player") {
                 addLog(`⚠️ Вы потеряли регион!`, "war");
-                updateUI();
+                if (typeof updateUI === 'function') updateUI();
             }
         }
     }
