@@ -2,7 +2,7 @@
 
 function declareWar() {
     const select = document.getElementById('aiSelect');
-    if (!select) return;
+    if (!select || !window.gameState) return;
     
     const target = select.value;
     
@@ -17,7 +17,7 @@ function declareWar() {
 
 function makePeace() {
     const select = document.getElementById('aiSelect');
-    if (!select) return;
+    if (!select || !window.gameState) return;
     
     const target = select.value;
     
