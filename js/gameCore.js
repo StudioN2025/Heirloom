@@ -20,10 +20,53 @@ function initGameState() {
     };
 }
 
+// ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
+
+function getRegionArea(regionId) {
+    const element = document.getElementById(regionId);
+    if (!element) return 100; // значение по умолчанию
+    
+    try {
+        const bbox = element.getBBox();
+        const area = bbox.width * bbox.height;
+        return Math.max(50, Math.min(5000, area)); // ограничиваем от 50 до 5000
+    } catch(e) {
+        return 100;
+    }
+}
+
+function calculateConquerCost(region) {
+    // Площадь региона (чем больше, тем дороже)
+    const area = getRegionArea(region.id);
+    
+    // Базовая стоимость от площади
+    let cost = Math.floor(area / 3);
+    
+    // Модификатор от защиты
+    cost = Math.floor(cost * (1 + region.defense / 100));
+    
+    // Бонус от населения
+    cost = Math.floor(cost + region.population * 5);
+    
+    // Штраф за экспансию (чем больше у тебя регионов, тем дороже)
+    const regionCount = window.gameState.player.regions.length;
+    const expansionPenalty = Math.floor(regionCount * 1.5);
+    cost = Math.floor(cost + expansionPenalty);
+    
+    // Минимальная и максимальная стоимость
+    cost = Math.max(30, Math.min(800, cost));
+    
+    return cost;
+}
+
 function canConquerRegion(regionId) {
     if (!window.gameState) return false;
     const region = window.gameState.allRegions[regionId];
     if (!region || region.owner === "player") return false;
+    
+    // Нельзя захватывать союзников (если не в войне)
+    if (region.owner === 'ai1' && !window.gameState.wars.ai1) return false;
+    if (region.owner === 'ai2' && !window.gameState.wars.ai2) return false;
     
     return region.neighbors.some(neighborId => {
         const neighbor = window.gameState.allRegions[neighborId];
@@ -58,7 +101,8 @@ function updateUI() {
     if (!window.gameState) return;
     
     const playerRegions = window.gameState.player.regions;
-    const totalPop = playerRegions.reduce((sum, id) => sum + (window.gameState.allRegions[id]?.population || 0), 0);
+    const totalPop = playerRegions.reduce((sum, id) => 
+        sum + (window.gameState.allRegions[id]?.population || 0), 0);
     
     const turnEl = document.getElementById('turnCount');
     const treasuryEl = document.getElementById('treasury');
@@ -85,13 +129,15 @@ function updateWarStatus() {
     const aiName = window.gameState?.ais[target]?.name || '';
     
     if (isAtWar) {
-        statusDiv.innerHTML = `⚔️ ВОЙНА с ${aiName}!`;
+        statusDiv.innerHTML = `⚔️ ВОЙНА с ${aiName}! Атакуй их регионы!`;
         statusDiv.className = 'war-status at-war';
     } else {
-        statusDiv.innerHTML = `🕊️ Мир с ${aiName}`;
+        statusDiv.innerHTML = `🕊️ Мир с ${aiName}. Объяви войну для атаки их регионов.`;
         statusDiv.className = 'war-status at-peace';
     }
 }
+
+// ========== ОСНОВНЫЕ ИГРОВЫЕ ДЕЙСТВИЯ ==========
 
 function conquerRegion() {
     if (!window.selectedRegionId || window.isProcessing || !window.gameState) return;
@@ -100,23 +146,31 @@ function conquerRegion() {
     if (!region || region.owner === "player") return;
     if (!canConquerRegion(window.selectedRegionId)) return;
     
-    const cost = region.defense * 3;
+    // РАСЧЕТ СТОИМОСТИ ОТ ПЛОЩАДИ
+    const cost = calculateConquerCost(region);
+    const area = getRegionArea(region.id);
+    
     if (window.gameState.player.treasury < cost) {
-        addLog(`❌ Не хватает ${cost} золота для захвата ${region.name}!`, "war");
+        addLog(`❌ Не хватает ${cost} золота для захвата ${region.name}! (${area.toFixed(0)} км², защита ${region.defense})`, "war");
         return;
     }
     
     window.isProcessing = true;
     window.gameState.player.treasury -= cost;
     
+    // Запоминаем старого владельца для лога
+    const oldOwner = region.owner;
+    
+    // Удаляем у старого владельца
     if (region.owner && region.owner !== "player") {
-        const oldOwner = window.gameState.ais[region.owner];
-        if (oldOwner) {
-            const index = oldOwner.regions.indexOf(window.selectedRegionId);
-            if (index !== -1) oldOwner.regions.splice(index, 1);
+        const oldOwnerObj = window.gameState.ais[region.owner];
+        if (oldOwnerObj) {
+            const index = oldOwnerObj.regions.indexOf(window.selectedRegionId);
+            if (index !== -1) oldOwnerObj.regions.splice(index, 1);
         }
     }
     
+    // Передаем игроку
     region.owner = "player";
     window.gameState.player.regions.push(window.selectedRegionId);
     
@@ -124,7 +178,7 @@ function conquerRegion() {
         updateRegionColor(window.selectedRegionId);
     }
     
-    addLog(`✅ Захвачен ${region.name}! Потрачено ${cost}💰`, "conquer");
+    addLog(`✅ Захвачен ${region.name}! Потрачено ${cost}💰 (${area.toFixed(0)} км²)`, "conquer");
     
     updateUI();
     if (typeof selectRegion === 'function') {
@@ -154,12 +208,39 @@ function endTurn() {
     
     window.gameState.turn++;
     
-    const income = window.gameState.player.regions.reduce((sum, id) => 
-        sum + (window.gameState.allRegions[id]?.gold || 0), 0);
-    window.gameState.player.treasury += income;
+    // РАСЧЕТ ДОХОДА ОТ ПЛОЩАДИ (большие регионы приносят больше)
+    let totalIncome = 0;
+    let largestRegion = { name: "", area: 0 };
     
-    addLog(`📅 Ход ${window.gameState.turn} завершен. Доход: +${income}💰 (${window.gameState.player.regions.length} регионов)`, "system");
+    for (const id of window.gameState.player.regions) {
+        const region = window.gameState.allRegions[id];
+        if (region) {
+            const area = getRegionArea(id);
+            // Доход зависит от площади и золота региона
+            let income = Math.floor(region.gold * (area / 500));
+            income = Math.max(5, Math.min(150, income));
+            totalIncome += income;
+            
+            if (area > largestRegion.area) {
+                largestRegion = { name: region.name, area: area };
+            }
+        }
+    }
     
+    // Штраф за коррупцию (чем больше регионов, тем меньше эффективность)
+    const regionCount = window.gameState.player.regions.length;
+    const corruption = Math.min(0.7, regionCount / 300);
+    const finalIncome = Math.floor(totalIncome * (1 - corruption));
+    
+    window.gameState.player.treasury += finalIncome;
+    
+    addLog(`📅 Ход ${window.gameState.turn} завершен.`, "system");
+    addLog(`   💰 Доход: +${finalIncome} (${regionCount} регионов, коррупция ${Math.floor(corruption*100)}%)`, "system");
+    if (largestRegion.area > 0) {
+        addLog(`   🏔️ Крупнейший регион: ${largestRegion.name} (${largestRegion.area.toFixed(0)} км²)`, "system");
+    }
+    
+    // Ход ИИ
     if (typeof aiTurn === 'function') {
         aiTurn();
     }
@@ -172,11 +253,13 @@ function endTurn() {
     window.isProcessing = false;
 }
 
+// ========== СОХРАНЕНИЕ И ЗАГРУЗКА ==========
+
 function saveGame() {
     if (!window.gameState) return;
     
     const saveData = {
-        version: "1.0",
+        version: "2.0",
         timestamp: Date.now(),
         gameState: {
             player: window.gameState.player,
@@ -209,6 +292,7 @@ function loadGame() {
         window.gameState.turn = loaded.gameState.turn;
         window.gameState.wars = loaded.gameState.wars;
         
+        // Сбрасываем владельцев
         for (const id in window.gameState.allRegions) {
             window.gameState.allRegions[id].owner = null;
         }
@@ -217,6 +301,7 @@ function loadGame() {
             ai.regions = [];
         }
         
+        // Восстанавливаем владельцев
         for (const [id, owner] of Object.entries(loaded.regionsOwners)) {
             if (window.gameState.allRegions[id]) {
                 window.gameState.allRegions[id].owner = owner;
@@ -276,6 +361,8 @@ function resetGame() {
     addLog("🔄 Игра сброшена! Начинаем новую эпоху.", "system");
 }
 
+// ========== UI И ВЫБОР РЕГИОНА ==========
+
 function selectRegion(regionId) {
     if (!window.gameState) return;
     
@@ -287,8 +374,10 @@ function selectRegion(regionId) {
     const conquerBtn = document.getElementById('conquerBtn');
     
     if (region.owner === "player") {
+        const area = getRegionArea(regionId);
         panel.innerHTML = `
             <p><strong>${region.name}</strong> <span style="color:#3a86ff">(ваш)</span></p>
+            <p><span>📐 Площадь:</span> <span>${area.toFixed(0)} км²</span></p>
             <p><span>👥 Население:</span> <span>${region.population}M</span></p>
             <p><span>💰 Золото:</span> <span>+${region.gold}/ход</span></p>
             <p><span>🛡️ Оборона:</span> <span>${region.defense}</span></p>
@@ -301,10 +390,12 @@ function selectRegion(regionId) {
     } else {
         const canConquer = canConquerRegion(regionId);
         const ownerName = getOwnerName(region.owner);
-        const cost = region.defense * 3;
+        const cost = calculateConquerCost(region);
+        const area = getRegionArea(regionId);
         
         panel.innerHTML = `
             <p><strong>${region.name}</strong></p>
+            <p><span>📐 Площадь:</span> <span>${area.toFixed(0)} км²</span></p>
             <p><span>👑 Владелец:</span> <span>${ownerName}</span></p>
             <p><span>👥 Население:</span> <span>${region.population}M</span></p>
             <p><span>💰 Золото:</span> <span>${region.gold}</span></p>
@@ -314,10 +405,12 @@ function selectRegion(regionId) {
         `;
         if (conquerBtn) {
             conquerBtn.disabled = !canConquer;
-            conquerBtn.textContent = canConquer ? `⚔️ Захватить (${cost})` : "❌ Нет соседнего региона";
+            conquerBtn.textContent = canConquer ? `⚔️ Захватить (${cost}💰)` : "❌ Нет соседнего региона";
         }
     }
 }
+
+// ========== СТАРТОВОЕ РАСПРЕДЕЛЕНИЕ ==========
 
 function assignStartingRegions() {
     if (!window.gameState) return;
@@ -328,12 +421,25 @@ function assignStartingRegions() {
         return;
     }
     
-    const shuffled = [...allIds];
-    for (let i = shuffled.length - 1; i > 0; i--) {
+    // Сортируем по площади (большие регионы AI получает, игроку - маленькие для сложности)
+    const regionsWithArea = allIds.map(id => ({
+        id: id,
+        area: getRegionArea(id)
+    }));
+    
+    regionsWithArea.sort((a, b) => b.area - a.area);
+    
+    // AI получают самые большие регионы
+    const bigRegions = regionsWithArea.slice(0, 6).map(r => r.id);
+    const remainingRegions = regionsWithArea.slice(6).map(r => r.id);
+    
+    // Перемешиваем оставшиеся
+    for (let i = remainingRegions.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        [remainingRegions[i], remainingRegions[j]] = [remainingRegions[j], remainingRegions[i]];
     }
     
+    // Очищаем
     window.gameState.player.regions = [];
     window.gameState.ais.ai1.regions = [];
     window.gameState.ais.ai2.regions = [];
@@ -342,26 +448,35 @@ function assignStartingRegions() {
         window.gameState.allRegions[id].owner = null;
     }
     
-    shuffled.slice(0, 3).forEach(id => {
-        window.gameState.allRegions[id].owner = "player";
-        window.gameState.player.regions.push(id);
-        if (typeof updateRegionColor === 'function') updateRegionColor(id);
-    });
-    
-    shuffled.slice(3, 6).forEach(id => {
+    // AI1 - 3 больших региона
+    bigRegions.slice(0, 3).forEach(id => {
         window.gameState.allRegions[id].owner = "ai1";
         window.gameState.ais.ai1.regions.push(id);
         if (typeof updateRegionColor === 'function') updateRegionColor(id);
     });
     
-    shuffled.slice(6, 9).forEach(id => {
+    // AI2 - 3 больших региона
+    bigRegions.slice(3, 6).forEach(id => {
         window.gameState.allRegions[id].owner = "ai2";
         window.gameState.ais.ai2.regions.push(id);
         if (typeof updateRegionColor === 'function') updateRegionColor(id);
     });
     
-    console.log(`Стартовые регионы: Игрок ${window.gameState.player.regions.length}, AI1 ${window.gameState.ais.ai1.regions.length}, AI2 ${window.gameState.ais.ai2.regions.length}`);
+    // Игрок - 3 маленьких региона
+    const playerRegions = remainingRegions.slice(0, 3);
+    playerRegions.forEach(id => {
+        window.gameState.allRegions[id].owner = "player";
+        window.gameState.player.regions.push(id);
+        if (typeof updateRegionColor === 'function') updateRegionColor(id);
+    });
+    
+    console.log(`📊 Стартовые регионы:`);
+    console.log(`   Игрок: ${playerRegions.map(id => `${window.gameState.allRegions[id]?.name} (${getRegionArea(id).toFixed(0)} км²)`).join(', ')}`);
+    console.log(`   AI1: ${bigRegions.slice(0,3).map(id => `${window.gameState.allRegions[id]?.name} (${getRegionArea(id).toFixed(0)} км²)`).join(', ')}`);
+    console.log(`   AI2: ${bigRegions.slice(3,6).map(id => `${window.gameState.allRegions[id]?.name} (${getRegionArea(id).toFixed(0)} км²)`).join(', ')}`);
 }
+
+// ========== ДИПЛОМАТИЯ ==========
 
 function declareWar() {
     const select = document.getElementById('aiSelect');
@@ -375,7 +490,7 @@ function declareWar() {
     }
     
     window.gameState.wars[target] = true;
-    addLog(`⚔️ Объявлена война ${window.gameState.ais[target].name}!`, "war");
+    addLog(`⚔️ ${window.gameState.player.name} объявляет войну ${window.gameState.ais[target].name}!`, "war");
     updateWarStatus();
 }
 
@@ -391,11 +506,12 @@ function makePeace() {
     }
     
     window.gameState.wars[target] = false;
-    addLog(`🕊️ Мир с ${window.gameState.ais[target].name}`, "peace");
+    addLog(`🕊️ Заключен мир с ${window.gameState.ais[target].name}`, "peace");
     updateWarStatus();
 }
 
-// Экспорт всех функций
+// ========== ЭКСПОРТ ==========
+
 window.initGameState = initGameState;
 window.canConquerRegion = canConquerRegion;
 window.getOwnerName = getOwnerName;
@@ -412,5 +528,7 @@ window.assignStartingRegions = assignStartingRegions;
 window.declareWar = declareWar;
 window.makePeace = makePeace;
 window.updateWarStatus = updateWarStatus;
+window.getRegionArea = getRegionArea;
+window.calculateConquerCost = calculateConquerCost;
 window.isProcessing = false;
 window.selectedRegionId = null;
