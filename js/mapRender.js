@@ -1,23 +1,47 @@
 // ========== ОТРИСОВКА КАРТЫ И ЦВЕТА РЕГИОНОВ ==========
 
 function updateRegionColor(regionId) {
-    if (!window.gameState) return;
+    console.log('🎨 updateRegionColor вызван для', regionId);
+    
+    if (!window.gameState) {
+        console.warn('gameState не инициализирован');
+        return;
+    }
+    
     const region = window.gameState.allRegions[regionId];
     const element = document.getElementById(regionId);
-    if (!region || !element) return;
+    
+    if (!region) {
+        console.warn('Регион не найден в gameState:', regionId);
+        return;
+    }
+    
+    if (!element) {
+        console.warn('Элемент SVG не найден:', regionId);
+        return;
+    }
     
     let newColor;
-    if (region.owner === 'player') newColor = '#3a86ff';
-    else if (region.owner === 'ai1') newColor = '#e63946';
-    else if (region.owner === 'ai2') newColor = '#4895ef';
-    else newColor = '#c0c0c0';
+    if (region.owner === 'player') {
+        newColor = '#3a86ff';
+    } else if (region.owner === 'ai1') {
+        newColor = '#e63946';
+    } else if (region.owner === 'ai2') {
+        newColor = '#4895ef';
+    } else {
+        newColor = '#c0c0c0';
+    }
+    
+    console.log(`   ${region.name} → ${region.owner || 'neutral'} → ${newColor}`);
     
     element.style.fill = newColor;
     element.setAttribute('fill', newColor);
 }
 
 function updateAllRegionColors() {
+    console.log('🎨 Обновление цветов всех регионов');
     if (!window.gameState?.allRegions) return;
+    
     for (const id of Object.keys(window.gameState.allRegions)) {
         updateRegionColor(id);
     }
@@ -26,19 +50,27 @@ function updateAllRegionColors() {
 function setupMapInteractivity(regions) {
     console.log('🖱️ Настройка интерактивности для', Object.keys(regions).length, 'регионов');
     
+    let clickableCount = 0;
+    
     for (const regionId of Object.keys(regions)) {
         const element = document.getElementById(regionId);
-        if (!element) continue;
         
-        // Очищаем старые обработчики
-        element.removeEventListener('click', element._clickHandler);
+        if (!element) {
+            console.warn(`Элемент ${regionId} не найден в DOM`);
+            continue;
+        }
         
-        // Создаем новый обработчик
-        const clickHandler = (e) => {
+        // Удаляем старые обработчики
+        const oldHandler = element._clickHandler;
+        if (oldHandler) {
+            element.removeEventListener('click', oldHandler);
+        }
+        
+        // Создаем новый обработчик клика
+        const clickHandler = function(e) {
             e.stopPropagation();
             e.preventDefault();
-            
-            console.log('🔘 Клик по региону:', regionId);
+            console.log('🔘 КЛИК по региону:', regionId, regions[regionId]?.name);
             
             // Убираем выделение со всех
             document.querySelectorAll('.region').forEach(r => {
@@ -55,13 +87,18 @@ function setupMapInteractivity(regions) {
             // Вызываем функцию выбора
             if (window.selectRegion) {
                 window.selectRegion(regionId);
+            } else {
+                console.error('selectRegion не определена!');
             }
         };
         
         element._clickHandler = clickHandler;
         element.addEventListener('click', clickHandler);
         
-        // Эффекты наведения
+        // Делаем курсор указателем
+        element.style.cursor = 'pointer';
+        
+        // Добавляем эффекты наведения
         element.addEventListener('mouseenter', () => {
             if (!element.classList.contains('selected')) {
                 element.style.stroke = '#ffd700';
@@ -76,13 +113,17 @@ function setupMapInteractivity(regions) {
             }
         });
         
-        // Убеждаемся, что курсор - указатель
-        element.style.cursor = 'pointer';
+        clickableCount++;
     }
     
-    console.log('✅ Интерактивность настроена');
+    console.log(`✅ Настроено ${clickableCount} кликабельных регионов`);
+    
+    if (clickableCount === 0) {
+        console.error('❌ НЕТ КЛИКАБЕЛЬНЫХ РЕГИОНОВ! Проверьте SVG и ID элементов.');
+    }
 }
 
+// Экспорт
 window.updateRegionColor = updateRegionColor;
 window.updateAllRegionColors = updateAllRegionColors;
 window.setupMapInteractivity = setupMapInteractivity;
