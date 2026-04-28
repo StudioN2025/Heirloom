@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="css/menu.css">
 </head>
 <body>
-    <!-- Главное меню -->
+    <!-- ГЛАВНОЕ МЕНЮ -->
     <div id="mainMenu" class="main-menu">
         <div class="menu-container">
             <div class="menu-logo">
@@ -45,10 +45,6 @@
                     <button id="saveApiKeyBtn" class="small-btn">Сохранить</button>
                     <p class="setting-hint"><a href="https://openrouter.io/keys" target="_blank">Получить ключ</a></p>
                 </div>
-                <div class="setting-group">
-                    <label>🎵 Звук:</label>
-                    <button id="soundToggleBtn" class="small-btn">🔊 Включен</button>
-                </div>
                 <button id="closeSettingsBtn" class="close-modal-btn">Закрыть</button>
             </div>
         </div>
@@ -73,7 +69,7 @@
         </div>
     </div>
     
-    <!-- Игровой интерфейс (скрыт по умолчанию) -->
+    <!-- ИГРОВОЙ ИНТЕРФЕЙС -->
     <div id="gameUI" class="game-wrapper" style="display: none;">
         <header class="game-header">
             <div class="logo">
@@ -82,37 +78,21 @@
                 <span class="logo-sub">— legacy beyond time —</span>
             </div>
             <div class="header-stats">
-                <div class="stat-badge">
-                    <span class="stat-label">Ход</span>
-                    <span class="stat-value" id="turnCount">0</span>
-                </div>
-                <div class="stat-badge">
-                    <span class="stat-label">💰 Казна</span>
-                    <span class="stat-value" id="treasury">500</span>
-                </div>
-                <div class="stat-badge">
-                    <span class="stat-label">🏰 Регионов</span>
-                    <span class="stat-value" id="regionCount">0</span>
-                </div>
-                <div class="stat-badge">
-                    <span class="stat-label">👥 Население</span>
-                    <span class="stat-value" id="totalPop">0</span>
-                    <span class="stat-unit">M</span>
-                </div>
-                <button id="menuExitBtn" class="menu-exit-btn" title="В главное меню">🏠</button>
+                <button id="menuExitBtn" class="menu-exit-btn" title="В главное меню">🏠 Выход</button>
             </div>
         </header>
 
         <div class="game-main">
+            <!-- Панель карты -->
             <div class="map-panel">
                 <div class="map-toolbar">
                     <button id="zoomInBtn" class="map-btn" title="Приблизить">🔍+</button>
                     <button id="zoomOutBtn" class="map-btn" title="Отдалить">🔍-</button>
                     <button id="resetViewBtn" class="map-btn" title="Сбросить вид">⟳</button>
                     <div class="map-legend">
-                        <span class="legend-color" style="background: #3a86ff"></span> Мои
-                        <span class="legend-color" style="background: #e63946"></span> Враги
-                        <span class="legend-color" style="background: #4895ef"></span> Союзники
+                        <span class="legend-color" style="background: #3a86ff"></span> Ваши
+                        <span class="legend-color" style="background: #e63946"></span> Красная империя
+                        <span class="legend-color" style="background: #4895ef"></span> Синее королевство
                         <span class="legend-color" style="background: #c0c0c0"></span> Нейтралы
                     </div>
                 </div>
@@ -125,40 +105,81 @@
                 </div>
             </div>
 
+            <!-- Правая информационная панель -->
             <div class="info-panel">
-                <div class="card region-card">
-                    <h3>🔍 Выбранный регион</h3>
-                    <div id="selectedRegionPanel" class="region-details">
-                        <p class="placeholder">Кликните на карту</p>
+                <!-- Экономика -->
+                <div class="card economy-card">
+                    <div class="economy-stats">
+                        <div class="eco-item">
+                            <span class="eco-icon">💰</span>
+                            <span class="eco-value" id="treasury">500</span>
+                            <span class="eco-label">золота</span>
+                        </div>
+                        <div class="eco-item">
+                            <span class="eco-icon">🏰</span>
+                            <span class="eco-value" id="regionCount">0</span>
+                            <span class="eco-label">регионов</span>
+                        </div>
+                        <div class="eco-item">
+                            <span class="eco-icon">👥</span>
+                            <span class="eco-value" id="totalPop">0</span>
+                            <span class="eco-label">населения</span>
+                        </div>
+                        <div class="eco-item">
+                            <span class="eco-icon">📅</span>
+                            <span class="eco-value" id="turnCount">0</span>
+                            <span class="eco-label">ход</span>
+                        </div>
                     </div>
-                    <button id="conquerBtn" class="btn btn-primary" disabled>⚔️ Захватить</button>
                 </div>
 
+                <!-- Выбранный регион -->
+                <div class="card region-card">
+                    <div class="card-header">
+                        <span class="card-icon">🏰</span>
+                        <h3>Выбранный регион</h3>
+                    </div>
+                    <div id="selectedRegionPanel" class="region-details">
+                        <div class="placeholder">Кликните на карту</div>
+                    </div>
+                    <button id="conquerBtn" class="btn btn-conquer" disabled>⚔️ Захватить</button>
+                </div>
+
+                <!-- Дипломатия -->
                 <div class="card diplomacy-card">
-                    <h3>🤝 Дипломатия</h3>
+                    <div class="card-header">
+                        <span class="card-icon">🤝</span>
+                        <h3>Дипломатия</h3>
+                    </div>
                     <select id="aiSelect" class="diplomacy-select">
-                        <option value="ai1">⚔️ Красная Империя</option>
-                        <option value="ai2">🌊 Синее Королевство</option>
+                        <option value="ai1">🔴 Красная Империя</option>
+                        <option value="ai2">🔵 Синее Королевство</option>
                     </select>
                     <div class="diplomacy-buttons">
-                        <button id="declareWarBtn" class="btn btn-war">📜 Объявить войну</button>
-                        <button id="peaceBtn" class="btn btn-peace">🕊️ Предложить мир</button>
+                        <button id="declareWarBtn" class="btn btn-war">⚔️ Война</button>
+                        <button id="peaceBtn" class="btn btn-peace">🕊️ Мир</button>
                     </div>
+                    <div id="warStatus" class="war-status"></div>
                 </div>
 
-                <div class="card log-card">
-                    <h3>📜 Хроника</h3>
-                    <div id="logContainer" class="log-container">
-                        <div class="log-entry system">Добро пожаловать в Heirloom</div>
-                    </div>
-                </div>
-
+                <!-- Управление -->
                 <div class="card controls-card">
                     <div class="controls-grid">
                         <button id="endTurnBtn" class="btn btn-turn">⏭️ Следующий ход</button>
                         <button id="saveGameBtn" class="btn btn-save">💾 Сохранить</button>
                         <button id="loadGameBtn" class="btn btn-load">📂 Загрузить</button>
-                        <button id="resetGameBtn" class="btn btn-reset">🔄 Новая игра</button>
+                    </div>
+                    <button id="resetGameBtn" class="btn btn-reset-full">🔄 Сбросить игру</button>
+                </div>
+
+                <!-- Лог событий -->
+                <div class="card log-card">
+                    <div class="card-header">
+                        <span class="card-icon">📜</span>
+                        <h3>Хроника событий</h3>
+                    </div>
+                    <div id="logContainer" class="log-container">
+                        <div class="log-entry system">Добро пожаловать в Heirloom</div>
                     </div>
                 </div>
             </div>
@@ -175,12 +196,12 @@
         </footer>
     </div>
 
+    <!-- Подключение скриптов -->
     <script src="js/regions.js"></script>
-    <script src="js/openrouter.js"></script>
     <script src="js/mapRenderer.js"></script>
     <script src="js/ai.js"></script>
-    <script src="js/diplomacy.js"></script>
     <script src="js/gameCore.js"></script>
+    <script src="js/openrouter.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>
