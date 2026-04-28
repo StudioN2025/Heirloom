@@ -8,6 +8,48 @@ const OPENROUTER_CONFIG = {
     siteName: "Heirloom Game"
 };
 
+// Функция для повторных запросов с экспоненциальной задержкой
+async function fetchWithRetry(url, options, maxRetries = 10, baseDelay = 2000) {
+    let lastError;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const response = await fetch(url, options);
+            
+            if (response.status === 429) {
+                const delayMs = baseDelay * Math.pow(1.5, attempt - 1);
+                console.log(`⏳ Rate limit (429), попытка ${attempt}/${maxRetries}, ждем ${Math.floor(delayMs/1000)}с...`);
+                
+                if (typeof addLog === 'function') {
+                    addLog(`⏳ OpenRouter перегружен, повтор через ${Math.floor(delayMs/1000)}с... (${attempt}/${maxRetries})`, "system");
+                }
+                
+                await delay(delayMs);
+                continue;
+            }
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            return response;
+        } catch (error) {
+            lastError = error;
+            if (attempt === maxRetries) throw error;
+            
+            const delayMs = baseDelay * Math.pow(1.5, attempt - 1);
+            console.log(`⚠️ Ошибка, попытка ${attempt}/${maxRetries}, ждем ${Math.floor(delayMs/1000)}с...`, error);
+            await delay(delayMs);
+        }
+    }
+    
+    throw lastError;
+}
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 function initOpenRouter() {
     console.log('🤖 Инициализация OpenRouter...');
     
@@ -32,7 +74,6 @@ function initOpenRouter() {
 }
 
 function showAPIKeyModal() {
-    // Проверяем, не открыто ли уже окно
     if (document.getElementById('apiKeyModal')) return;
     
     const modal = document.createElement('div');
@@ -56,6 +97,9 @@ function showAPIKeyModal() {
             <p style="margin-bottom: 20px; color: #ccc; font-size: 14px;">
                 Для дипломатии ИИ нужен API ключ<br>
                 <span style="color: #888;">(можно получить бесплатно на openrouter.io)</span>
+            </p>
+            <p style="margin-bottom: 10px; font-size: 12px; color: #ffaa00;">
+                ⚠️ Бесплатные модели имеют лимит ~20 запросов/день
             </p>
             <p style="margin-bottom: 10px; font-size: 12px; color: #c9a03d;">
                 🎲 Или играйте в ДЕМО-режиме без ИИ
@@ -132,7 +176,6 @@ function updateAIStatus(connected, message) {
 }
 
 async function askAIForDiplomacy(aiId, playerAction, gameContext) {
-    // ДЕМО-режим: случайные ответы
     const isDemoMode = localStorage.getItem('heirloom_demo_mode') === 'true';
     
     if (!OPENROUTER_CONFIG.apiKey && !isDemoMode) {
@@ -140,7 +183,6 @@ async function askAIForDiplomacy(aiId, playerAction, gameContext) {
     }
     
     if (isDemoMode) {
-        // Демо-режим: случайные решения
         const decisions = ['accept', 'decline', 'counter'];
         const decision = decisions[Math.floor(Math.random() * decisions.length)];
         const messages = {
@@ -148,11 +190,7 @@ async function askAIForDiplomacy(aiId, playerAction, gameContext) {
             decline: "К сожалению, мы вынуждены отказаться.",
             counter: "Предлагаем обсудить другие условия."
         };
-        return {
-            success: true,
-            decision: decision,
-            message: messages[decision]
-        };
+        return { success: true, decision: decision, message: messages[decision] };
     }
     
     const ai = gameContext.ais[aiId];
@@ -175,7 +213,7 @@ async function askAIForDiplomacy(aiId, playerAction, gameContext) {
 [твой ответ]`;
 
     try {
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        const response = await fetchWithRetry("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${OPENROUTER_CONFIG.apiKey}`,
@@ -193,12 +231,6 @@ async function askAIForDiplomacy(aiId, playerAction, gameContext) {
         });
         
         const data = await response.json();
-        
-        if (!response.ok) {
-            console.error('OpenRouter API error:', data);
-            throw new Error(data.error?.message || 'API error');
-        }
-        
         const content = data.choices[0].message.content;
         
         const decisionMatch = content.match(/===DECISION===\n(\w+)/);
@@ -211,15 +243,13 @@ async function askAIForDiplomacy(aiId, playerAction, gameContext) {
         };
     } catch (error) {
         console.error("OpenRouter error:", error);
-        updateAIStatus(false, "Ошибка связи");
         
-        // Fallback: случайное решение при ошибке
         const decisions = ['accept', 'decline', 'counter'];
         const decision = decisions[Math.floor(Math.random() * decisions.length)];
         return {
             success: true,
             decision: decision,
-            message: `(Оффлайн режим) ${decision === 'accept' ? 'Мы согласны' : decision === 'decline' ? 'Мы отказываемся' : 'Предлагаем обсудить'}`
+            message: `(Оффлайн) ${decision === 'accept' ? 'Мы согласны' : decision === 'decline' ? 'Мы отказываемся' : 'Предлагаем обсудить'}`
         };
     }
 }
@@ -231,63 +261,47 @@ async function askAIForTurn(aiId, gameContext) {
     
     const ai = gameContext.ais[aiId];
     
-    // Находим нейтральные регионы рядом с ИИ
-    const nearbyNeutral = [];
+    // Находим доступные цели
+    const nearbyTargets = [];
     for (const regionId of ai.regions) {
         const region = gameContext.allRegions[regionId];
         if (!region) continue;
         for (const neighborId of region.neighbors) {
             const neighbor = gameContext.allRegions[neighborId];
-            if (neighbor && neighbor.owner === null) {
-                nearbyNeutral.push({
+            if (!neighbor) continue;
+            
+            if (neighbor.owner === null) {
+                const area = typeof getRegionArea === 'function' ? getRegionArea(neighborId) : 100;
+                nearbyTargets.push({
                     id: neighborId,
                     name: neighbor.name,
                     gold: neighbor.gold,
-                    defense: neighbor.defense
+                    defense: neighbor.defense,
+                    area: area,
+                    type: 'neutral'
+                });
+            } else if (neighbor.owner === "player" && gameContext.wars[aiId]) {
+                const area = typeof getRegionArea === 'function' ? getRegionArea(neighborId) : 100;
+                nearbyTargets.push({
+                    id: neighborId,
+                    name: neighbor.name,
+                    gold: neighbor.gold,
+                    defense: neighbor.defense,
+                    area: area,
+                    type: 'enemy',
+                    owner: neighbor.owner
                 });
             }
         }
     }
     
-    // Поиск вражеских регионов (если в войне)
-    const nearbyEnemy = [];
-    if (gameContext.wars[aiId]) {
-        for (const regionId of ai.regions) {
-            const region = gameContext.allRegions[regionId];
-            if (!region) continue;
-            for (const neighborId of region.neighbors) {
-                const neighbor = gameContext.allRegions[neighborId];
-                if (neighbor && (neighbor.owner === "player" || 
-                    (neighbor.owner === "ai2" && aiId === "ai1" && gameContext.wars.ai2) ||
-                    (neighbor.owner === "ai1" && aiId === "ai2" && gameContext.wars.ai1))) {
-                    nearbyEnemy.push({
-                        id: neighborId,
-                        name: neighbor.name,
-                        gold: neighbor.gold,
-                        defense: neighbor.defense,
-                        owner: neighbor.owner
-                    });
-                }
-            }
-        }
-    }
-    
     if (isDemoMode) {
-        // Демо-режим: сначала пытаемся захватить нейтральные, потом вражеские
-        if (nearbyNeutral.length > 0 && ai.treasury > 50) {
-            const randomTarget = nearbyNeutral[Math.floor(Math.random() * nearbyNeutral.length)];
+        if (nearbyTargets.length > 0 && ai.treasury > 50) {
+            const bestTarget = nearbyTargets.sort((a, b) => (b.gold / b.defense) - (a.gold / a.defense))[0];
             return {
-                action: "conquer",
-                target: randomTarget.id,
-                reason: "Случайный выбор нейтрального региона (демо-режим)"
-            };
-        }
-        if (nearbyEnemy.length > 0 && ai.treasury > 100 && gameContext.wars[aiId]) {
-            const randomTarget = nearbyEnemy[Math.floor(Math.random() * nearbyEnemy.length)];
-            return {
-                action: "war",
-                target: randomTarget.id,
-                reason: "Атака на врага (демо-режим)"
+                action: bestTarget.type === 'enemy' ? 'war' : 'conquer',
+                target: bestTarget.id,
+                reason: `Стратегический захват ${bestTarget.name} (демо-режим)`
             };
         }
         return { action: "defense", target: null, reason: "Нет целей (демо-режим)" };
@@ -296,26 +310,18 @@ async function askAIForTurn(aiId, gameContext) {
     const systemPrompt = `Ты — правитель ${ai.name} в стратегической игре.
 У тебя ${ai.regions.length} регионов и ${ai.treasury} золота.
 
-Рядом с тобой нейтральные регионы: ${nearbyNeutral.map(r => `${r.name}(защита:${r.defense}, золото:${r.gold})`).join(', ') || 'нет'}.
+Доступные цели:
+${nearbyTargets.map(t => `- ${t.name} (${t.type}): защита ${t.defense}, золото ${t.gold}, площадь ${t.area.toFixed(0)} км²`).join('\n') || 'нет целей'}
 
-Рядом с тобой вражеские регионы (ты в войне): ${nearbyEnemy.map(r => `${r.name}(защита:${r.defense}, владелец:${r.owner === 'player' ? 'игрок' : 'другой ИИ'})`).join(', ') || 'нет'}.
-
-Ответь ТОЛЬКО JSON (без лишнего текста):
+Ответь ТОЛЬКО JSON:
 {
     "action": "conquer/war/defense",
     "target_id": "id региона или null",
     "reason": "почему"
-}
-
-Правила:
-- conquer - захватить нейтральный регион (стоит defense*2 золота)
-- war - атаковать вражеский регион в войне (стоит defense*3 золота)
-- defense - укрепить оборону
-
-Выбирай регион с лучшим соотношением ценности к стоимости.`;
+}`;
 
     try {
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        const response = await fetchWithRetry("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${OPENROUTER_CONFIG.apiKey}`,
@@ -325,7 +331,7 @@ async function askAIForTurn(aiId, gameContext) {
                 model: OPENROUTER_CONFIG.model,
                 messages: [
                     { role: "system", content: systemPrompt },
-                    { role: "user", content: "Какой регион захватить или атаковать в этом ходу?" }
+                    { role: "user", content: "Какой регион захватить в этом ходу?" }
                 ],
                 temperature: 0.7,
                 max_tokens: 200
@@ -333,12 +339,6 @@ async function askAIForTurn(aiId, gameContext) {
         });
         
         const data = await response.json();
-        
-        if (!response.ok) {
-            console.error('OpenRouter API error:', data);
-            throw new Error(data.error?.message || 'API error');
-        }
-        
         const content = data.choices[0].message.content;
         const jsonMatch = content.match(/\{[\s\S]*\}/);
         
@@ -346,7 +346,6 @@ async function askAIForTurn(aiId, gameContext) {
             const decision = JSON.parse(jsonMatch[0]);
             console.log(`🤖 ${ai.name} решил:`, decision);
             
-            // Проверяем, существует ли целевой регион
             if (decision.target_id && gameContext.allRegions[decision.target_id]) {
                 return {
                     action: decision.action,
@@ -358,15 +357,16 @@ async function askAIForTurn(aiId, gameContext) {
         return null;
     } catch (error) {
         console.error("OpenRouter error:", error);
-        updateAIStatus(false, "Ошибка связи");
         
-        // Fallback: базовое решение при ошибке
-        if (nearbyNeutral.length > 0 && ai.treasury > 50) {
-            const bestTarget = nearbyNeutral.sort((a, b) => (b.gold / b.defense) - (a.gold / a.defense))[0];
+        // Fallback: захват лучшего нейтрального
+        const bestNeutral = nearbyTargets.filter(t => t.type === 'neutral').sort((a, b) => 
+            (b.gold / b.defense) - (a.gold / a.defense))[0];
+        
+        if (bestNeutral && ai.treasury > bestNeutral.defense * 2) {
             return {
                 action: "conquer",
-                target: bestTarget.id,
-                reason: "Выбор лучшего нейтрального региона (оффлайн)"
+                target: bestNeutral.id,
+                reason: "Стандартная стратегия (API временно недоступен)"
             };
         }
         return null;
@@ -378,3 +378,4 @@ window.initOpenRouter = initOpenRouter;
 window.askAIForDiplomacy = askAIForDiplomacy;
 window.askAIForTurn = askAIForTurn;
 window.updateAIStatus = updateAIStatus;
+window.fetchWithRetry = fetchWithRetry;
