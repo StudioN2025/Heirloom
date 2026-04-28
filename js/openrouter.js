@@ -1,5 +1,5 @@
 // ========== HEIRLOOM - ИНТЕГРАЦИЯ С OPENROUTER ==========
-// Используем бесплатную модель baidu/qianfan-ocr-fast
+// Используем бесплатную модель baidu/qianfan-ocr-fast:free
 
 const OPENROUTER_CONFIG = {
     apiKey: null,
@@ -87,7 +87,9 @@ function showAPIKeyModal() {
             localStorage.removeItem('heirloom_demo_mode');
             updateAIStatus(true, "ИИ готов");
             modal.remove();
-            addLog("🤖 OpenRouter AI активирован!", "system");
+            if (typeof addLog === 'function') {
+                addLog("🤖 OpenRouter AI активирован!", "system");
+            }
         } else if (key) {
             alert('❌ Неверный формат ключа. Должен начинаться с sk-or-v1-');
         } else {
@@ -100,7 +102,9 @@ function showAPIKeyModal() {
         localStorage.removeItem('heirloom_api_key');
         updateAIStatus(true, "ДЕМО-режим");
         modal.remove();
-        addLog("🎲 ДЕМО-режим: ИИ будет принимать случайные решения", "system");
+        if (typeof addLog === 'function') {
+            addLog("🎲 ДЕМО-режим: ИИ будет принимать случайные решения", "system");
+        }
     };
     
     document.getElementById('closeApiModalBtn').onclick = () => {
@@ -225,20 +229,90 @@ async function askAIForTurn(aiId, gameContext) {
     
     if (!OPENROUTER_CONFIG.apiKey && !isDemoMode) return null;
     
-    if (isDemoMode) {
-        const actions = ['conquer', 'defense', 'build'];
-        const action = actions[Math.floor(Math.random() * actions.length)];
-        return { action: action, target: null, reason: "Случайное решение" };
+    const ai = gameContext.ais[aiId];
+    
+    // Находим нейтральные регионы рядом с ИИ
+    const nearbyNeutral = [];
+    for (const regionId of ai.regions) {
+        const region = gameContext.allRegions[regionId];
+        if (!region) continue;
+        for (const neighborId of region.neighbors) {
+            const neighbor = gameContext.allRegions[neighborId];
+            if (neighbor && neighbor.owner === null) {
+                nearbyNeutral.push({
+                    id: neighborId,
+                    name: neighbor.name,
+                    gold: neighbor.gold,
+                    defense: neighbor.defense
+                });
+            }
+        }
     }
     
-    const ai = gameContext.ais[aiId];
-    const neutralRegions = Object.values(gameContext.allRegions).filter(r => r.owner === null);
+    // Поиск вражеских регионов (если в войне)
+    const nearbyEnemy = [];
+    if (gameContext.wars[aiId]) {
+        for (const regionId of ai.regions) {
+            const region = gameContext.allRegions[regionId];
+            if (!region) continue;
+            for (const neighborId of region.neighbors) {
+                const neighbor = gameContext.allRegions[neighborId];
+                if (neighbor && (neighbor.owner === "player" || 
+                    (neighbor.owner === "ai2" && aiId === "ai1" && gameContext.wars.ai2) ||
+                    (neighbor.owner === "ai1" && aiId === "ai2" && gameContext.wars.ai1))) {
+                    nearbyEnemy.push({
+                        id: neighborId,
+                        name: neighbor.name,
+                        gold: neighbor.gold,
+                        defense: neighbor.defense,
+                        owner: neighbor.owner
+                    });
+                }
+            }
+        }
+    }
     
-    const systemPrompt = `Ты — правитель ${ai.name}. Прими решение на этот ход.
-Ответь ТОЛЬКО JSON:
-{"action": "conquer/defense/build", "target": "region_id или null", "reason": "кратко"}
+    if (isDemoMode) {
+        // Демо-режим: сначала пытаемся захватить нейтральные, потом вражеские
+        if (nearbyNeutral.length > 0 && ai.treasury > 50) {
+            const randomTarget = nearbyNeutral[Math.floor(Math.random() * nearbyNeutral.length)];
+            return {
+                action: "conquer",
+                target: randomTarget.id,
+                reason: "Случайный выбор нейтрального региона (демо-режим)"
+            };
+        }
+        if (nearbyEnemy.length > 0 && ai.treasury > 100 && gameContext.wars[aiId]) {
+            const randomTarget = nearbyEnemy[Math.floor(Math.random() * nearbyEnemy.length)];
+            return {
+                action: "war",
+                target: randomTarget.id,
+                reason: "Атака на врага (демо-режим)"
+            };
+        }
+        return { action: "defense", target: null, reason: "Нет целей (демо-режим)" };
+    }
+    
+    const systemPrompt = `Ты — правитель ${ai.name} в стратегической игре.
+У тебя ${ai.regions.length} регионов и ${ai.treasury} золота.
 
-Нейтральные регионы рядом: ${neutralRegions.slice(0,5).map(r => r.name).join(', ')}`;
+Рядом с тобой нейтральные регионы: ${nearbyNeutral.map(r => `${r.name}(защита:${r.defense}, золото:${r.gold})`).join(', ') || 'нет'}.
+
+Рядом с тобой вражеские регионы (ты в войне): ${nearbyEnemy.map(r => `${r.name}(защита:${r.defense}, владелец:${r.owner === 'player' ? 'игрок' : 'другой ИИ'})`).join(', ') || 'нет'}.
+
+Ответь ТОЛЬКО JSON (без лишнего текста):
+{
+    "action": "conquer/war/defense",
+    "target_id": "id региона или null",
+    "reason": "почему"
+}
+
+Правила:
+- conquer - захватить нейтральный регион (стоит defense*2 золота)
+- war - атаковать вражеский регион в войне (стоит defense*3 золота)
+- defense - укрепить оборону
+
+Выбирай регион с лучшим соотношением ценности к стоимости.`;
 
     try {
         const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -251,21 +325,50 @@ async function askAIForTurn(aiId, gameContext) {
                 model: OPENROUTER_CONFIG.model,
                 messages: [
                     { role: "system", content: systemPrompt },
-                    { role: "user", content: "Что мне делать в этом ходу?" }
+                    { role: "user", content: "Какой регион захватить или атаковать в этом ходу?" }
                 ],
                 temperature: 0.7,
-                max_tokens: 150
+                max_tokens: 200
             })
         });
         
         const data = await response.json();
+        
+        if (!response.ok) {
+            console.error('OpenRouter API error:', data);
+            throw new Error(data.error?.message || 'API error');
+        }
+        
         const content = data.choices[0].message.content;
         const jsonMatch = content.match(/\{[\s\S]*\}/);
         
-        if (jsonMatch) return JSON.parse(jsonMatch[0]);
+        if (jsonMatch) {
+            const decision = JSON.parse(jsonMatch[0]);
+            console.log(`🤖 ${ai.name} решил:`, decision);
+            
+            // Проверяем, существует ли целевой регион
+            if (decision.target_id && gameContext.allRegions[decision.target_id]) {
+                return {
+                    action: decision.action,
+                    target: decision.target_id,
+                    reason: decision.reason
+                };
+            }
+        }
         return null;
     } catch (error) {
-        console.error("OpenRouter AI turn error:", error);
+        console.error("OpenRouter error:", error);
+        updateAIStatus(false, "Ошибка связи");
+        
+        // Fallback: базовое решение при ошибке
+        if (nearbyNeutral.length > 0 && ai.treasury > 50) {
+            const bestTarget = nearbyNeutral.sort((a, b) => (b.gold / b.defense) - (a.gold / a.defense))[0];
+            return {
+                action: "conquer",
+                target: bestTarget.id,
+                reason: "Выбор лучшего нейтрального региона (оффлайн)"
+            };
+        }
         return null;
     }
 }
