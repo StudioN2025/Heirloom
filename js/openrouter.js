@@ -1,24 +1,40 @@
 // ========== HEIRLOOM - ИНТЕГРАЦИЯ С OPENROUTER ==========
+// Используем бесплатную модель baidu/qianfan-ocr-fast
 
 const OPENROUTER_CONFIG = {
     apiKey: null,
-    model: "minimax/minimax-m2.5:free",
+    model: "baidu/qianfan-ocr-fast:free",
     siteUrl: window.location.origin,
-    siteName: "Heirloom"
+    siteName: "Heirloom Game"
 };
 
 function initOpenRouter() {
+    console.log('🤖 Инициализация OpenRouter...');
+    
     const savedKey = localStorage.getItem('heirloom_api_key');
-    if (savedKey) {
+    if (savedKey && savedKey.startsWith('sk-or-v1-')) {
         OPENROUTER_CONFIG.apiKey = savedKey;
-        updateAIStatus(true, "ИИ готов");
+        updateAIStatus(true, "ИИ готов (qianfan-ocr-fast)");
+        console.log('✅ API ключ загружен, модель:', OPENROUTER_CONFIG.model);
         return true;
     }
+    
+    // Проверяем demo-режим
+    const demoKey = localStorage.getItem('heirloom_demo_mode');
+    if (demoKey === 'true') {
+        updateAIStatus(true, "ДЕМО-режим (без API)");
+        return true;
+    }
+    
+    updateAIStatus(false, "API ключ не настроен");
     showAPIKeyModal();
     return false;
 }
 
 function showAPIKeyModal() {
+    // Проверяем, не открыто ли уже окно
+    if (document.getElementById('apiKeyModal')) return;
+    
     const modal = document.createElement('div');
     modal.id = 'apiKeyModal';
     modal.style.cssText = `
@@ -27,7 +43,7 @@ function showAPIKeyModal() {
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0,0,0,0.9);
+        background: rgba(0,0,0,0.95);
         z-index: 10000;
         display: flex;
         justify-content: center;
@@ -35,12 +51,29 @@ function showAPIKeyModal() {
     `;
     
     modal.innerHTML = `
-        <div style="background: #2d2418; padding: 32px; border-radius: 24px; max-width: 400px; text-align: center; border: 2px solid #c9a03d;">
-            <h2 style="color: #c9a03d; margin-bottom: 16px;">🔑 API Ключ OpenRouter</h2>
-            <p style="margin-bottom: 20px; color: #ccc;">Для работы ИИ необходим бесплатный API ключ</p>
-            <input type="text" id="apiKeyInput" placeholder="sk-or-v1-..." style="width: 100%; padding: 12px; background: #1a1814; border: 1px solid #c9a03d; border-radius: 12px; color: white; margin-bottom: 16px;">
-            <button id="saveApiKeyBtn" style="background: #c9a03d; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; cursor: pointer;">Сохранить</button>
-            <p style="margin-top: 16px; font-size: 12px; color: #888;">Получить ключ: <a href="https://openrouter.io/keys" target="_blank" style="color: #c9a03d;">openrouter.io/keys</a></p>
+        <div style="background: linear-gradient(135deg, #2d2418, #1a1814); padding: 32px; border-radius: 24px; max-width: 450px; text-align: center; border: 2px solid #c9a03d;">
+            <h2 style="color: #c9a03d; margin-bottom: 16px;">🤖 OpenRouter AI</h2>
+            <p style="margin-bottom: 20px; color: #ccc; font-size: 14px;">
+                Для дипломатии ИИ нужен API ключ<br>
+                <span style="color: #888;">(можно получить бесплатно на openrouter.io)</span>
+            </p>
+            <p style="margin-bottom: 10px; font-size: 12px; color: #c9a03d;">
+                🎲 Или играйте в ДЕМО-режиме без ИИ
+            </p>
+            <input type="text" id="apiKeyInput" placeholder="sk-or-v1-..." style="width: 100%; padding: 12px; background: #1a1814; border: 1px solid #c9a03d; border-radius: 12px; color: white; margin-bottom: 16px; font-family: monospace;">
+            <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                <button id="saveApiKeyBtn" style="flex: 1; background: #c9a03d; border: none; padding: 12px; border-radius: 12px; font-weight: bold; cursor: pointer;">💾 Сохранить ключ</button>
+                <button id="demoModeBtn" style="flex: 1; background: #2a4b7c; border: none; padding: 12px; border-radius: 12px; font-weight: bold; cursor: pointer;">🎲 ДЕМО-режим</button>
+            </div>
+            <button id="closeApiModalBtn" style="background: #5a2a2a; border: none; padding: 10px; border-radius: 12px; cursor: pointer; width: 100%;">❌ Закрыть</button>
+            <p style="margin-top: 16px; font-size: 11px; color: #666;">
+                <a href="https://openrouter.io/keys" target="_blank" style="color: #c9a03d;">🔑 Получить ключ</a>
+                &nbsp;|&nbsp;
+                <a href="https://openrouter.io/models" target="_blank" style="color: #c9a03d;">📚 Доступные модели</a>
+            </p>
+            <p style="margin-top: 12px; font-size: 10px; color: #555;">
+                Используется модель: <strong>baidu/qianfan-ocr-fast</strong> (бесплатно)
+            </p>
         </div>
     `;
     
@@ -48,30 +81,74 @@ function showAPIKeyModal() {
     
     document.getElementById('saveApiKeyBtn').onclick = () => {
         const key = document.getElementById('apiKeyInput').value.trim();
-        if (key.startsWith('sk-or-v1-')) {
+        if (key && key.startsWith('sk-or-v1-')) {
             OPENROUTER_CONFIG.apiKey = key;
             localStorage.setItem('heirloom_api_key', key);
+            localStorage.removeItem('heirloom_demo_mode');
             updateAIStatus(true, "ИИ готов");
             modal.remove();
+            addLog("🤖 OpenRouter AI активирован!", "system");
+        } else if (key) {
+            alert('❌ Неверный формат ключа. Должен начинаться с sk-or-v1-');
         } else {
-            alert('Неверный формат ключа. Должен начинаться с sk-or-v1-');
+            alert('❌ Введите API ключ');
         }
+    };
+    
+    document.getElementById('demoModeBtn').onclick = () => {
+        localStorage.setItem('heirloom_demo_mode', 'true');
+        localStorage.removeItem('heirloom_api_key');
+        updateAIStatus(true, "ДЕМО-режим");
+        modal.remove();
+        addLog("🎲 ДЕМО-режим: ИИ будет принимать случайные решения", "system");
+    };
+    
+    document.getElementById('closeApiModalBtn').onclick = () => {
+        modal.remove();
+        updateAIStatus(false, "API отключен");
     };
 }
 
 function updateAIStatus(connected, message) {
     const dot = document.getElementById('aiStatusDot');
     const text = document.getElementById('aiStatusText');
+    const menuDot = document.getElementById('menuApiDot');
+    const menuText = document.getElementById('menuApiText');
+    
     if (dot && text) {
-        dot.style.background = connected ? '#6bff6b' : '#e63946';
+        dot.style.backgroundColor = connected ? '#6bff6b' : '#e63946';
         dot.style.boxShadow = connected ? '0 0 8px #6bff6b' : 'none';
         text.textContent = message || (connected ? 'ИИ готов' : 'ИИ отключен');
+    }
+    
+    if (menuDot && menuText) {
+        menuDot.style.backgroundColor = connected ? '#6bff6b' : '#e63946';
+        menuText.textContent = message || (connected ? 'API активирован' : 'API не настроен');
     }
 }
 
 async function askAIForDiplomacy(aiId, playerAction, gameContext) {
-    if (!OPENROUTER_CONFIG.apiKey) {
-        return { response: "API ключ не настроен", success: false };
+    // ДЕМО-режим: случайные ответы
+    const isDemoMode = localStorage.getItem('heirloom_demo_mode') === 'true';
+    
+    if (!OPENROUTER_CONFIG.apiKey && !isDemoMode) {
+        return { success: false, error: "API ключ не настроен" };
+    }
+    
+    if (isDemoMode) {
+        // Демо-режим: случайные решения
+        const decisions = ['accept', 'decline', 'counter'];
+        const decision = decisions[Math.floor(Math.random() * decisions.length)];
+        const messages = {
+            accept: "Мы принимаем ваше предложение.",
+            decline: "К сожалению, мы вынуждены отказаться.",
+            counter: "Предлагаем обсудить другие условия."
+        };
+        return {
+            success: true,
+            decision: decision,
+            message: messages[decision]
+        };
     }
     
     const ai = gameContext.ais[aiId];
@@ -106,12 +183,18 @@ async function askAIForDiplomacy(aiId, playerAction, gameContext) {
                     { role: "system", content: systemPrompt },
                     { role: "user", content: playerAction }
                 ],
-                temperature: 0.8,
+                temperature: 0.7,
                 max_tokens: 200
             })
         });
         
         const data = await response.json();
+        
+        if (!response.ok) {
+            console.error('OpenRouter API error:', data);
+            throw new Error(data.error?.message || 'API error');
+        }
+        
         const content = data.choices[0].message.content;
         
         const decisionMatch = content.match(/===DECISION===\n(\w+)/);
@@ -125,12 +208,28 @@ async function askAIForDiplomacy(aiId, playerAction, gameContext) {
     } catch (error) {
         console.error("OpenRouter error:", error);
         updateAIStatus(false, "Ошибка связи");
-        return { success: false, error: error.message };
+        
+        // Fallback: случайное решение при ошибке
+        const decisions = ['accept', 'decline', 'counter'];
+        const decision = decisions[Math.floor(Math.random() * decisions.length)];
+        return {
+            success: true,
+            decision: decision,
+            message: `(Оффлайн режим) ${decision === 'accept' ? 'Мы согласны' : decision === 'decline' ? 'Мы отказываемся' : 'Предлагаем обсудить'}`
+        };
     }
 }
 
 async function askAIForTurn(aiId, gameContext) {
-    if (!OPENROUTER_CONFIG.apiKey) return null;
+    const isDemoMode = localStorage.getItem('heirloom_demo_mode') === 'true';
+    
+    if (!OPENROUTER_CONFIG.apiKey && !isDemoMode) return null;
+    
+    if (isDemoMode) {
+        const actions = ['conquer', 'defense', 'build'];
+        const action = actions[Math.floor(Math.random() * actions.length)];
+        return { action: action, target: null, reason: "Случайное решение" };
+    }
     
     const ai = gameContext.ais[aiId];
     const neutralRegions = Object.values(gameContext.allRegions).filter(r => r.owner === null);
@@ -171,6 +270,7 @@ async function askAIForTurn(aiId, gameContext) {
     }
 }
 
+// Экспорт
 window.initOpenRouter = initOpenRouter;
 window.askAIForDiplomacy = askAIForDiplomacy;
 window.askAIForTurn = askAIForTurn;
