@@ -1,4 +1,4 @@
-// ========== ОСНОВНАЯ ИГРОВАЯ ЛОГИКА ==========
+// ========== HEIRLOOM - ОСНОВНАЯ ИГРОВАЯ ЛОГИКА ==========
 
 window.gameState = null;
 
@@ -69,6 +69,28 @@ function updateUI() {
     if (treasuryEl) treasuryEl.textContent = window.gameState.player.treasury;
     if (regionCountEl) regionCountEl.textContent = playerRegions.length;
     if (totalPopEl) totalPopEl.textContent = totalPop.toFixed(1);
+    
+    updateWarStatus();
+}
+
+function updateWarStatus() {
+    const statusDiv = document.getElementById('warStatus');
+    if (!statusDiv) return;
+    
+    const select = document.getElementById('aiSelect');
+    if (!select) return;
+    
+    const target = select.value;
+    const isAtWar = window.gameState?.wars[target];
+    const aiName = window.gameState?.ais[target]?.name || '';
+    
+    if (isAtWar) {
+        statusDiv.innerHTML = `⚔️ ВОЙНА с ${aiName}!`;
+        statusDiv.className = 'war-status at-war';
+    } else {
+        statusDiv.innerHTML = `🕊️ Мир с ${aiName}`;
+        statusDiv.className = 'war-status at-peace';
+    }
 }
 
 function conquerRegion() {
@@ -249,7 +271,7 @@ function resetGame() {
     window.selectedRegionId = null;
     
     const panel = document.getElementById('selectedRegionPanel');
-    if (panel) panel.innerHTML = '<p class="placeholder">Кликните на карту</p>';
+    if (panel) panel.innerHTML = '<div class="placeholder">Кликните на карту</div>';
     
     addLog("🔄 Игра сброшена! Начинаем новую эпоху.", "system");
 }
@@ -266,11 +288,11 @@ function selectRegion(regionId) {
     
     if (region.owner === "player") {
         panel.innerHTML = `
-            <p><strong>🏰 ${region.name}</strong> <span style="color:#3a86ff">(ваш)</span></p>
-            <p>👥 Население: ${region.population}M</p>
-            <p>💰 Золото: ${region.gold} (+${region.gold}/ход)</p>
-            <p>🛡️ Оборона: ${region.defense}</p>
-            <p>🔗 Соседей: ${region.neighbors.length}</p>
+            <p><strong>${region.name}</strong> <span style="color:#3a86ff">(ваш)</span></p>
+            <p><span>👥 Население:</span> <span>${region.population}M</span></p>
+            <p><span>💰 Золото:</span> <span>+${region.gold}/ход</span></p>
+            <p><span>🛡️ Оборона:</span> <span>${region.defense}</span></p>
+            <p><span>🔗 Соседей:</span> <span>${region.neighbors.length}</span></p>
         `;
         if (conquerBtn) {
             conquerBtn.disabled = true;
@@ -282,17 +304,17 @@ function selectRegion(regionId) {
         const cost = region.defense * 3;
         
         panel.innerHTML = `
-            <p><strong>🏰 ${region.name}</strong></p>
-            <p>👥 Население: ${region.population}M</p>
-            <p>💰 Золото: ${region.gold}</p>
-            <p>🛡️ Оборона: ${region.defense}</p>
-            <p>👑 Владелец: ${ownerName}</p>
-            <p>💰 Стоимость: ${cost}</p>
-            <p>🔗 Соседей: ${region.neighbors.length}</p>
+            <p><strong>${region.name}</strong></p>
+            <p><span>👑 Владелец:</span> <span>${ownerName}</span></p>
+            <p><span>👥 Население:</span> <span>${region.population}M</span></p>
+            <p><span>💰 Золото:</span> <span>${region.gold}</span></p>
+            <p><span>🛡️ Оборона:</span> <span>${region.defense}</span></p>
+            <p><span>💰 Стоимость:</span> <span>${cost}</span></p>
+            <p><span>🔗 Соседей:</span> <span>${region.neighbors.length}</span></p>
         `;
         if (conquerBtn) {
             conquerBtn.disabled = !canConquer;
-            conquerBtn.textContent = canConquer ? `⚔️ Захватить (${cost}💰)` : "❌ Нет соседнего региона";
+            conquerBtn.textContent = canConquer ? `⚔️ Захватить (${cost})` : "❌ Нет соседнего региона";
         }
     }
 }
@@ -341,6 +363,39 @@ function assignStartingRegions() {
     console.log(`Стартовые регионы: Игрок ${window.gameState.player.regions.length}, AI1 ${window.gameState.ais.ai1.regions.length}, AI2 ${window.gameState.ais.ai2.regions.length}`);
 }
 
+function declareWar() {
+    const select = document.getElementById('aiSelect');
+    if (!select || !window.gameState) return;
+    
+    const target = select.value;
+    
+    if (window.gameState.wars[target]) {
+        addLog(`⚠️ Уже в войне с ${window.gameState.ais[target].name}!`, "war");
+        return;
+    }
+    
+    window.gameState.wars[target] = true;
+    addLog(`⚔️ Объявлена война ${window.gameState.ais[target].name}!`, "war");
+    updateWarStatus();
+}
+
+function makePeace() {
+    const select = document.getElementById('aiSelect');
+    if (!select || !window.gameState) return;
+    
+    const target = select.value;
+    
+    if (!window.gameState.wars[target]) {
+        addLog(`ℹ️ Нет войны с ${window.gameState.ais[target].name}`, "system");
+        return;
+    }
+    
+    window.gameState.wars[target] = false;
+    addLog(`🕊️ Мир с ${window.gameState.ais[target].name}`, "peace");
+    updateWarStatus();
+}
+
+// Экспорт всех функций
 window.initGameState = initGameState;
 window.canConquerRegion = canConquerRegion;
 window.getOwnerName = getOwnerName;
@@ -354,5 +409,8 @@ window.loadGame = loadGame;
 window.resetGame = resetGame;
 window.selectRegion = selectRegion;
 window.assignStartingRegions = assignStartingRegions;
+window.declareWar = declareWar;
+window.makePeace = makePeace;
+window.updateWarStatus = updateWarStatus;
 window.isProcessing = false;
 window.selectedRegionId = null;
