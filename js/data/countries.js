@@ -20,7 +20,12 @@ export const countries = {
     "latvia": { name: "Латвия", color: "#8b0000", leader: "Карлис Улманис", ideology: "Нейтралитет" },
     "estonia": { name: "Эстония", color: "#4682b4", leader: "Константин Пятс", ideology: "Нейтралитет" },
     "yugoslavia": { name: "Югославия", color: "#1e3a8a", leader: "Пётр II Карагеоргиевич", ideology: "Нейтралитет" },
-    "greece": { name: "Греция", color: "#60a5fa", leader: "Иоаннис Метаксас", ideology: "Нейтралитет" }
+    "greece": { name: "Греция", color: "#60a5fa", leader: "Иоаннис Метаксас", ideology: "Нейтралитет" },
+    "czechoslovakia": { name: "Чехословакия", color: "#3b82f6", leader: "Эдвард Бенеш", ideology: "Демократия" },
+    "austria": { name: "Австрия", color: "#ef4444", leader: "Курт Шушниг", ideology: "Нейтралитет" },
+    "denmark": { name: "Дания", color: "#ef4444", leader: "Кристиан X", ideology: "Демократия" },
+    "norway": { name: "Норвегия", color: "#dc2626", leader: "Хокон VII", ideology: "Демократия" },
+    "sweden": { name: "Швеция", color: "#3b82f6", leader: "Густав V", ideology: "Нейтралитет" }
 };
 
 export function generateColor(str) {
