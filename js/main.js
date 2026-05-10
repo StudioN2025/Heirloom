@@ -241,41 +241,46 @@ function showCountrySelect() {
     domCache.playMenu.style.display = 'flex';
 }
 
-// Глобальные функции для HTML
-window.startGame = startGame;
-window.openFocusTree = openFocusTree;
-window.startFocus = (id) => {
-    const countryFocuses = nationalFocuses[state.myCountryId] || [];
-    const f = countryFocuses.find(x => x.id === id);
-    if (f) {
-        state.activeFocus = { ...f, daysLeft: CONFIG.FOCUS_DURATION };
-        updateFocusUI();
-    }
+// Глобальные функции для HTML (должны быть доступны до загрузки модуля)
+const exposeFunctions = () => {
+    window.startGame = startGame;
+    window.openFocusTree = openFocusTree;
+    window.startFocus = (id) => {
+        const countryFocuses = nationalFocuses[state.myCountryId] || [];
+        const f = countryFocuses.find(x => x.id === id);
+        if (f) {
+            state.activeFocus = { ...f, daysLeft: CONFIG.FOCUS_DURATION };
+            updateFocusUI();
+        }
+    };
+    window.startResearch = (type, level) => {
+        state.activeResearch = { type, level, daysLeft: CONFIG.RESEARCH_DURATION };
+        domCache.researchIndicator.classList.remove('hidden');
+    };
+    window.selectBuildType = (type) => {
+        const b = getBuildingStats().factory;
+        if (state.playerResources.equipment < b.costEquipment) {
+            createAlert("НЕДОСТАТОЧНО СНАРЯЖЕНИЯ", 3, 'war');
+            return;
+        }
+        state.buildModeType = type;
+        closeWindow();
+        domCache.buildHint.classList.remove('hidden');
+    };
+    window.startRecruitment = (type) => {
+        state.recruitMode = type;
+        closeWindow();
+        domCache.recruitHint.classList.remove('hidden');
+    };
+    window.setSpeed = setSpeed;
+    window.openWindow = openWindow;
+    window.closeWindow = closeWindow;
+    window.resetMapMode = resetMapMode;
+    window.closePlayMenu = () => { domCache.playMenu.style.display = 'none'; };
 };
-window.startResearch = (type, level) => {
-    state.activeResearch = { type, level, daysLeft: CONFIG.RESEARCH_DURATION };
-    domCache.researchIndicator.classList.remove('hidden');
-};
-window.selectBuildType = (type) => {
-    const b = getBuildingStats().factory;
-    if (state.playerResources.equipment < b.costEquipment) {
-        createAlert("НЕДОСТАТОЧНО СНАРЯЖЕНИЯ", 3, 'war');
-        return;
-    }
-    state.buildModeType = type;
-    closeWindow();
-    domCache.buildHint.classList.remove('hidden');
-};
-window.startRecruitment = (type) => {
-    state.recruitMode = type;
-    closeWindow();
-    domCache.recruitHint.classList.remove('hidden');
-};
-window.setSpeed = setSpeed;
-window.openWindow = openWindow;
-window.closeWindow = closeWindow;
-window.resetMapMode = resetMapMode;
-window.closePlayMenu = () => { domCache.playMenu.style.display = 'none'; };
+
+// Экспортируем функции сразу при загрузке модуля
+exposeFunctions();
 
 // Обработчики событий
 window.addEventListener('keydown', e => {
