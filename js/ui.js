@@ -281,3 +281,9 @@ export function setSpeed(s) {
         btn.classList.toggle('active', (s === 0 && i === 0) || (s === 1 && i === 1) || (s === 3 && i === 2) || (s === 5 && i === 3));
     });
 }
+
+export function resetMapMode() {
+    state.diplomaticModeTarget = null;
+    document.getElementById('btn-map-normal').classList.add('hidden');
+    document.getElementById('intel-sidebar').style.display = 'none';
+}
