@@ -282,6 +282,30 @@ const exposeFunctions = () => {
 // Экспортируем функции сразу при загрузке модуля
 exposeFunctions();
 
+// Обработчики событий для кнопок меню
+document.getElementById('btn-start-game').addEventListener('click', startGame);
+document.getElementById('btn-close-play').addEventListener('click', () => { domCache.playMenu.style.display = 'none'; });
+
+// Обработчики для кнопок скорости
+document.getElementById('btn-pause').addEventListener('click', () => setSpeed(0));
+document.getElementById('btn-speed-1').addEventListener('click', () => setSpeed(1));
+document.getElementById('btn-speed-3').addEventListener('click', () => setSpeed(3));
+document.getElementById('btn-speed-5').addEventListener('click', () => setSpeed(5));
+
+// Обработчик для кнопки закрытия окна
+document.getElementById('btn-close-window').addEventListener('click', closeWindow);
+
+// Обработчик для кнопки обычного режима карты
+document.getElementById('btn-map-normal').addEventListener('click', resetMapMode);
+
+// Обработчики для вкладок
+document.querySelectorAll('.hoi-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const tab = btn.getAttribute('data-tab');
+        if (tab) openWindow(tab);
+    });
+});
+
 // Обработчики событий
 window.addEventListener('keydown', e => {
     if (e.code === 'Space' && state.isGameMode) {
