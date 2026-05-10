@@ -207,12 +207,18 @@ export async function startGame() {
 async function initGameAfterCountrySelect() {
     domCache.gameContainer.classList.remove('hidden');
     
-    // Карта уже загружена в initGame(), просто центрируем камеру
+    // Карта уже загружена в initGame(), просто центрируем камеру еще раз для надежности
     centerCameraOnMap();
+    
+    // Инициализируем карту (рассчитываем границы, если нужно)
+    initMap();
     
     domCache.uiWrapper.classList.add('hidden-panel');
     domCache.gameTabs.classList.remove('hidden');
-    gameLoop(0);
+    
+    // Запускаем игровой цикл с корректным временем
+    lastTime = performance.now();
+    requestAnimationFrame(gameLoop);
 }
 
 function showCountrySelect() {
