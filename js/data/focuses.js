@@ -144,5 +144,69 @@ export const nationalFocuses = {
                 }
             }
         }
+    ],
+    "france": [
+        {
+            id: 'fra_maginot',
+            name: "Линия Мажино",
+            description: "Укрепление границы с Германией",
+            effect: (state, utils) => {
+                utils.createAlert("ЛИНИЯ МАЖИНО: ГРАНИЦА УКРЕПЛЕНА", 10, 'diplo');
+            }
+        },
+        {
+            id: 'fra_army',
+            name: "Модернизация армии",
+            description: "+2 пехотные дивизии",
+            effect: (state, utils) => {
+                let franceCells = Object.keys(state.gridData).filter(k => state.gridData[k] === 'france');
+                for (let i = 0; i < 2; i++) {
+                    const pos = franceCells[Math.floor(Math.random() * franceCells.length)];
+                    state.units.push({
+                        id: Math.random().toString(36).substr(2, 9),
+                        pos: pos,
+                        owner: 'france',
+                        type: 'infantry',
+                        trainingDaysLeft: 0,
+                        hp: 100,
+                        path: []
+                    });
+                }
+                utils.createAlert("АРМИЯ МОДЕРНИЗИРОВАНА: +2 ДИВИЗИИ", 10, 'diplo');
+            }
+        }
+    ],
+    "poland": [
+        {
+            id: 'pol_defense',
+            name: "Оборона страны",
+            description: "Мобилизация 3 пехотных дивизий",
+            effect: (state, utils) => {
+                let polandCells = Object.keys(state.gridData).filter(k => state.gridData[k] === 'poland');
+                for (let i = 0; i < 3; i++) {
+                    const pos = polandCells[Math.floor(Math.random() * polandCells.length)];
+                    state.units.push({
+                        id: Math.random().toString(36).substr(2, 9),
+                        pos: pos,
+                        owner: 'poland',
+                        type: 'infantry',
+                        trainingDaysLeft: 0,
+                        hp: 100,
+                        path: []
+                    });
+                }
+                utils.createAlert("МОБИЛИЗАЦИЯ: +3 ПЕХОТНЫЕ ДИВИЗИИ", 10, 'diplo');
+            }
+        }
+    ],
+    "uk": [
+        {
+            id: 'uk_navy',
+            name: "Королевский флот",
+            description: "Усиление военно-морских сил",
+            effect: (state, utils) => {
+                utils.createAlert="ФЛОТ ЕГО ВЕЛИЧЕСТВА: УСИЛЕН", 10, 'diplo');
+            }
+        }
     ]
 };
