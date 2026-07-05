@@ -14,6 +14,7 @@ import { EconomySystem } from './systems/EconomySystem.js';
 import { CombatSystem } from './systems/CombatSystem.js';
 import { ProductionSystem } from './systems/ProductionSystem.js';
 import { MovementSystem } from './systems/MovementSystem.js';
+import { ArmyManager } from './systems/ArmyManager.js';
 import { SupplySystem } from './systems/SupplySystem.js';
 import { DiplomacySystem } from './systems/DiplomacySystem.js';
 import { TechSystem } from './systems/TechSystem.js';
@@ -34,6 +35,7 @@ let notifications = null;
 let economy = null;
 let combat = null;
 let movement = null;
+let armyManager = null;
 let production = null;
 let supply = null;
 let diplomacy = null;
@@ -63,6 +65,8 @@ async function init() {
     combat = new CombatSystem(world, entities, gameState);
     production = new ProductionSystem(world, entities, gameState, combat);
     movement = new MovementSystem(world, entities, gameState);
+    armyManager = new ArmyManager(entities, gameState);
+    window._armyManager = armyManager;
     supply = new SupplySystem(world, entities, gameState);
     diplomacy = new DiplomacySystem(gameState, world, entities);
     tech = new TechSystem(gameState);
@@ -253,8 +257,33 @@ function setupEvents() {
     };
     
     window.createArmy = () => {
-        addNotification('Система армий в разработке', 'info');
+        if (!armyManager) return;
+        const selected = gameState._selectedUnits || [];
+        if (selected.length < 2) {
+            addNotification('Выделите минимум 2 юнита (ПКМ для выбора)', 'war');
+            return;
+        }
+        armyManager.createArmy(selected);
+        gameState._selectedUnits = [];
+        uiManager.openWindow('commanders');
     };
+
+    window.disbandArmy = (armyId) => {
+        if (armyManager) armyManager.disbandArmy(armyId);
+        uiManager.openWindow('commanders');
+    };
+
+    window.selectArmy = (armyId) => {
+        if (!armyManager) return;
+        gameState._selectedArmyId = armyId;
+        const army = armyManager.armies.find(a => a.id === armyId);
+        if (army) addNotification(`🎖️ ${army.name} выбрана — ЛКМ по карте для приказа`, 'info');
+    };
+
+    // Множественный выбор юнитов ПКМ
+    window._selectedUnits = [];
+    gameState._selectedUnits = [];
+    gameState._selectedArmyId = null;
 }
 
 function handleCanvasClick(e) {
@@ -284,6 +313,17 @@ function handleCanvasClick(e) {
         }
         window._pendingBuild = null;
         document.getElementById('build-hint')?.classList.add('hidden');
+        return;
+    }
+
+    // Есть выбранная армия → приказ всей армии
+    if (gameState._selectedArmyId && armyManager) {
+        const army = armyManager.armies.find(a => a.id === gameState._selectedArmyId);
+        if (army) {
+            armyManager.giveArmyOrder(army.id, worldPos.x, worldPos.y, movement);
+        }
+        gameState._selectedArmyId = null;
+        document.getElementById('order-hint')?.classList.add('hidden');
         return;
     }
 
@@ -325,22 +365,37 @@ function handleCanvasRightClick(e) {
         return;
     }
 
-    // Если юнит уже выбран — снимаем выбор
-    if (gameState.selectedUnitId !== null) {
+    // ПКМ по пустому месту — очистить выбор
+    const worldPos = renderer.screenToWorld(e.clientX, e.clientY);
+    const unitId = entities.getUnitAt(worldPos.x, worldPos.y);
+
+    if (unitId === null || entities.owner[unitId] !== gameState.myCountryId) {
         gameState.selectedUnitId = null;
+        gameState._selectedUnits = [];
+        gameState._selectedArmyId = null;
         document.getElementById('order-hint')?.classList.add('hidden');
         return;
     }
 
-    // ПКМ по юниту игрока — выбрать его
-    const worldPos = renderer.screenToWorld(e.clientX, e.clientY);
-    const unitId = entities.getUnitAt(worldPos.x, worldPos.y);
-    if (unitId !== null && entities.owner[unitId] === gameState.myCountryId) {
-        gameState.selectedUnitId = unitId;
-        document.getElementById('order-hint')?.classList.remove('hidden');
-        addNotification('Юнит выбран — ЛКМ чтобы указать цель', 'info');
-        return;
+    // ПКМ по юниту — добавить/убрать из множественного выбора
+    const sel = gameState._selectedUnits;
+    const idx = sel.indexOf(unitId);
+    if (idx >= 0) {
+        sel.splice(idx, 1);
+    } else {
+        sel.push(unitId);
     }
+
+    if (sel.length === 1) {
+        gameState.selectedUnitId = sel[0];
+    } else {
+        gameState.selectedUnitId = null;
+    }
+
+    if (sel.length > 0) {
+        addNotification(`Выбрано: ${sel.length} юнитов (Откройте АРМИИ → Создать)`, 'info');
+    }
+}
 
     // ПКМ по чужой клетке — инфо о стране
     const cellOwner = world.getCell(worldPos.x, worldPos.y);
@@ -428,6 +483,7 @@ function startGameLoop() {
             if (supply) supply.update();
             if (combat) combat.update();
             if (movement) movement.update();
+            if (armyManager) armyManager.update();
             if (aiController) aiController.update();
             if (tech) tech.update();
             if (focus) focus.update();
@@ -609,6 +665,8 @@ function loadGame() {
         economy = new EconomySystem(world, entities, gameState);
         combat = new CombatSystem(world, entities, gameState);
         movement = new MovementSystem(world, entities, gameState);
+        armyManager = new ArmyManager(entities, gameState);
+        window._armyManager = armyManager;
         supply = new SupplySystem(world, entities, gameState);
         diplomacy = new DiplomacySystem(gameState, world, entities);
         tech = new TechSystem(gameState);

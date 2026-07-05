@@ -354,19 +354,38 @@ export class WindowsManager {
     }
     
     renderCommandersWindow(content) {
-        let html = `
+        const myId = this.gameState.myCountryId;
+        const armies = window._armyManager ? window._armyManager.getArmiesForCountry(myId) : [];
+
+        let armyList = '';
+        if (armies.length) {
+            for (const army of armies) {
+                armyList += `
+                    <div style="background:#1f2937;border-left:4px solid ${army.color};padding:10px;border-radius:6px;margin-bottom:6px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span style="font-weight:bold;color:${army.color};">${army.name}</span>
+                            <span style="font-size:11px;color:#9ca3af;">${army.unitIds.size} юнитов</span>
+                        </div>
+                        <div style="display:flex;gap:4px;margin-top:6px;">
+                            <button onclick="window.selectArmy(${army.id})" style="background:#374151;color:white;padding:4px 8px;border-radius:4px;font-size:10px;cursor:pointer;">🎖️ Выбрать</button>
+                            <button onclick="window.disbandArmy(${army.id})" style="background:#991b1b;color:white;padding:4px 8px;border-radius:4px;font-size:10px;cursor:pointer;">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            }
+        } else {
+            armyList = '<div class="text-center text-gray-500 py-4 text-sm">Нет армий. Создайте первую!</div>';
+        }
+
+        content.innerHTML = `
             <div class="space-y-4">
                 <button onclick="window.createArmy()" style="background:#15803d;color:white;padding:12px;border-radius:8px;font-weight:bold;width:100%;cursor:pointer;">
-                    🆕 СОЗДАТЬ АРМИЮ
+                    🆕 СОЗДАТЬ АРМИЮ из выделенных юнитов
                 </button>
-                <div class="text-center text-gray-500 py-8">
-                    Система армий в разработке...
-                    <div class="text-xs mt-2">Выберите юнитов в окне АРМИЯ, затем создайте армию</div>
-                </div>
+                <div style="font-size:11px;color:#9ca3af;text-align:center;">ПКМ по юнитам → выделить несколько → Создать</div>
+                ${armyList}
             </div>
         `;
-        
-        content.innerHTML = html;
     }
     
     renderSaveWindow(content) {

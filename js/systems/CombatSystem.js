@@ -40,10 +40,6 @@ export class CombatSystem {
         this.battles = new Map();
         // org[unitId]
         this.org = new Float32Array(entities.maxEntities || 50000);
-
-        // Кэш для BFS retreat (избегаем аллокаций каждый вызов)
-        this._retreatVisited = new Set();
-        this._retreatQueue = [];
     }
 
     initUnit(uid) {
@@ -326,14 +322,18 @@ export class CombatSystem {
         return 1.0;
     }
 
-    // ── Отступление защитника ────────────────────────────────────────────────
+    // ── Гибель защитника — клетка захвачена ──────────────────────────────────
 
     _defenderRouted(b, cellKey) {
         const e = this.entities;
         const [cx, cy] = cellKey.split(',').map(Number);
 
-        // Все защитники отступают
-        for (const uid of b.defenders) this._retreatUnit(uid);
+        // Все защитники погибают
+        for (const uid of b.defenders) {
+            if (e.active[uid]) {
+                e.removeEntity(uid);
+            }
+        }
 
         // Захватываем клетку
         this.world.setCell(cx, cy, b.attackerCountry);
@@ -349,69 +349,35 @@ export class CombatSystem {
 
         const my = this.gs.myCountryId;
         if (b.attackerCountry === my || b.defenderCountry === my) {
-            addNotification(`🏳️ ${b.defenderCountry} отступает! ${b.attackerCountry} занимает клетку.`, 'war');
+            addNotification(`💀 ${b.defenderCountry} уничтожен! ${b.attackerCountry} захватывает клетку.`, 'war');
         }
 
         this._checkCapitulation(b.defenderCountry, b.attackerCountry);
     }
 
-    // ── Отступление атакующего ───────────────────────────────────────────────
+    // ── Гибель атакующего ───────────────────────────────────────────────────
 
     _attackerRouted(b) {
-        for (const uid of b.attackers) this._retreatUnit(uid);
+        const e = this.entities;
+        for (const uid of b.attackers) {
+            if (e.active[uid]) {
+                e.removeEntity(uid);
+            }
+        }
         this._endBattle(b);
 
         const my = this.gs.myCountryId;
         if (b.attackerCountry === my || b.defenderCountry === my) {
-            addNotification(`🏳️ ${b.attackerCountry} отступает!`, 'war');
+            addNotification(`💀 Атака ${b.attackerCountry} провалилась!`, 'war');
         }
     }
 
-    // ── Отступление юнита (BFS глубина 8) ────────────────────────────────────
+    // ── Гибель юнита ────────────────────────────────────────────────────────
 
     _retreatUnit(uid) {
         const e = this.entities;
         if (!e.active[uid]) return;
-        e.inCombat[uid] = 0;
-        const s = UNIT_STATS[e.type[uid]] || UNIT_STATS[0];
-        this.org[uid] = s.maxOrg * 0.15;
-
-        const ownerId = e.owner[uid];
-        const ux = e.x[uid], uy = e.y[uid];
-
-        // BFS — ближайшая своя свободная клетка (глубина 8), переиспользуем буферы
-        const visited = this._retreatVisited;
-        const queue = this._retreatQueue;
-        visited.clear();
-        queue.length = 0;
-        queue.push(ux, uy, 0); // flat: x, y, depth
-        visited.add(`${ux},${uy}`);
-        let retreated = false;
-
-        while (queue.length) {
-            const d = queue.pop();
-            const cy = queue.pop();
-            const cx = queue.pop();
-            if (d > 0 && this.world.getCell(cx, cy) === ownerId && !e.getUnitAt(cx, cy)) {
-                e.moveTo(uid, cx, cy);
-                retreated = true;
-                break;
-            }
-            if (d >= 8) continue;
-            const nd = d + 1;
-            for (const [dx, dy] of [[1,0],[-1,0],[0,1],[0,-1]]) {
-                const k = `${cx+dx},${cy+dy}`;
-                if (!visited.has(k)) {
-                    visited.add(k);
-                    queue.push(cx+dx, cy+dy, nd);
-                }
-            }
-        }
-
-        if (!retreated) {
-            e.removeEntity(uid);
-            addNotification(`💀 Юнит ${ownerId} окружён и уничтожен!`, 'war');
-        }
+        e.removeEntity(uid);
     }
 
     // ── Очистка боя ──────────────────────────────────────────────────────────

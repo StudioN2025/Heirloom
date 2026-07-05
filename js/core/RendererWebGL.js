@@ -29,6 +29,9 @@ export class RendererWebGL {
             italy: 'assets/army/italian_soldier.png',
             poland: 'assets/army/poland_soldier.png',
             czechoslovakia: 'assets/army/czechoslovakia_soldier.png',
+            estonia: 'assets/army/estonia_soldier.png',
+            romania: 'assets/army/romania_soldier.png',
+            turkey: 'assets/army/turckey_soldier.png',
         };
         for (const [country, src] of Object.entries(imageMap)) {
             const img = new Image();
@@ -207,6 +210,23 @@ export class RendererWebGL {
                 ctx.fillStyle = hp > 0.5 ? '#22c55e' : hp > 0.25 ? '#eab308' : '#ef4444';
                 ctx.fillRect(screenX + (size - bw) / 2, screenY + size - 3, bw * hp, 3);
             }
+
+            // Подсветка армии — цветная полоска снизу
+            if (window._armyManager && owner === gameState.myCountryId) {
+                const army = window._armyManager.getArmyForUnit(i);
+                if (army) {
+                    ctx.fillStyle = army.color;
+                    ctx.fillRect(screenX, screenY + size - 2, size, 3);
+                }
+            }
+
+            // Множественный выбор — жёлтая рамка
+            if (gameState._selectedUnits && gameState._selectedUnits.includes(i)) {
+                ctx.strokeStyle = '#fbbf24';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(screenX - 1, screenY - 1, size + 2, size + 2);
+            }
+
             unitsDrawn++;
         }
 
