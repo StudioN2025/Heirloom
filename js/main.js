@@ -65,7 +65,7 @@ async function init() {
     combat = new CombatSystem(world, entities, gameState);
     production = new ProductionSystem(world, entities, gameState, combat);
     movement = new MovementSystem(world, entities, gameState);
-    armyManager = new ArmyManager(entities, gameState);
+    armyManager = new ArmyManager(entities, gameState, world);
     window._armyManager = armyManager;
     supply = new SupplySystem(world, entities, gameState);
     diplomacy = new DiplomacySystem(gameState, world, entities);
@@ -658,7 +658,7 @@ function loadGame() {
         economy = new EconomySystem(world, entities, gameState);
         combat = new CombatSystem(world, entities, gameState);
         movement = new MovementSystem(world, entities, gameState);
-        armyManager = new ArmyManager(entities, gameState);
+    armyManager = new ArmyManager(entities, gameState, world);
         window._armyManager = armyManager;
         supply = new SupplySystem(world, entities, gameState);
         diplomacy = new DiplomacySystem(gameState, world, entities);

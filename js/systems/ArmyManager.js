@@ -9,9 +9,10 @@ const ARMY_COLORS = [
 ];
 
 export class ArmyManager {
-    constructor(entities, gameState) {
+    constructor(entities, gameState, world) {
         this.entities = entities;
         this.gs = gameState;
+        this.world = world;
         this.armies = []; // { id, color, name, unitIds: Set }
         this.nextId = 1;
         this.nextColorIdx = 0;
@@ -94,21 +95,54 @@ export class ArmyManager {
         return army ? army.color : null;
     }
 
-    // Отдать приказ всей армии
+    // Отдать приказ всей армии — юниты встают линией рядом с целью
     giveArmyOrder(armyId, targetX, targetY, movementSystem) {
         const army = this.armies.find(a => a.id === armyId);
         if (!army) return false;
+        const e = this.entities;
+
+        const units = [...army.unitIds].filter(id => e.active[id] && !e.inCombat[id]);
+        if (!units.length) return false;
+
+        // Определяем направление от центра армии к цели
+        let avgX = 0, avgY = 0;
+        for (const uid of units) { avgX += e.x[uid]; avgY += e.y[uid]; }
+        avgX /= units.length; avgY /= units.length;
+
+        const dirX = targetX - avgX;
+        const dirY = targetY - avgY;
+        const len = Math.sqrt(dirX * dirX + dirY * dirY) || 1;
+        // Перпендикуляр к направлению движения — для линии фронта
+        const perpX = -dirY / len;
+        const perpY = dirX / len;
+
+        // Цель — вражеская? Тогда атакуем линией перед целью
+        const targetOwner = this.world.getCell(targetX, targetY);
+        const isAttack = targetOwner && targetOwner !== army.ownerId
+            && this.gs.isAtWar(army.ownerId, targetOwner);
 
         let moved = 0;
-        for (const uid of army.unitIds) {
-            if (!this.entities.active[uid]) continue;
-            if (this.entities.inCombat[uid]) continue;
+        const count = units.length;
+        for (let i = 0; i < count; i++) {
+            const uid = units[i];
+            const offset = (i - (count - 1) / 2); // -2, -1, 0, 1, 2 для 5 юнитов
 
-            // Распределяем юнитов вокруг цели
-            const angle = (moved / army.unitIds.size) * Math.PI * 2;
-            const radius = Math.min(army.unitIds.size, 4);
-            const tx = targetX + Math.round(Math.cos(angle) * radius);
-            const ty = targetY + Math.round(Math.sin(angle) * radius);
+            let tx, ty;
+            if (isAttack) {
+                // Атака: линия перед целью, перпендикулярно направлению
+                tx = targetX + Math.round(perpX * offset);
+                ty = targetY + Math.round(perpY * offset);
+            } else {
+                // Обычный приказ: линия у цели
+                tx = targetX + Math.round(perpX * offset * 1.5);
+                ty = targetY + Math.round(perpY * offset * 1.5);
+            }
+
+            // Не даём уйти за границу карты
+            if (this.world.getCell(tx, ty) === 0) {
+                tx = targetX + Math.round(perpX * offset * 0.5);
+                ty = targetY + Math.round(perpY * offset * 0.5);
+            }
 
             if (movementSystem.giveOrder(uid, tx, ty)) {
                 moved++;
@@ -116,7 +150,8 @@ export class ArmyManager {
         }
 
         if (moved > 0) {
-            addNotification(`🎖️ ${army.name}: приказ ${moved} юнитам`, 'info');
+            const verb = isAttack ? 'атакует' : 'перемещается';
+            addNotification(`🎖️ ${army.name}: ${verb} (${moved} юнитов)`, 'info');
         }
         return moved > 0;
     }
