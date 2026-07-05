@@ -25,6 +25,9 @@ export class RendererWebGL {
             germany: 'assets/army/germany_soldier.png',
             france: 'assets/army/france_soldier.png',
             ussr: 'assets/army/soviet_soldier.png',
+            uk: 'assets/army/british_soldier.png',
+            italy: 'assets/army/italian_soldier.png',
+            poland: 'assets/army/poland_soldier.png',
         };
         for (const [country, src] of Object.entries(imageMap)) {
             const img = new Image();
@@ -177,7 +180,7 @@ export class RendererWebGL {
             const img = this.unitImages[owner];
 
             if (img && unitType === 0) {
-                const iconSize = size * 0.85;
+                const iconSize = size * 1.2;
                 const off = (size - iconSize) / 2;
                 if (gameState.isAtWar && gameState.isAtWar(gameState.myCountryId, owner)) {
                     ctx.globalAlpha = 0.3;
