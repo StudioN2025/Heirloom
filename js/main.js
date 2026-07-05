@@ -397,13 +397,6 @@ function handleCanvasRightClick(e) {
     }
 }
 
-    // ПКМ по чужой клетке — инфо о стране
-    const cellOwner = world.getCell(worldPos.x, worldPos.y);
-    if (cellOwner !== 0) {
-        uiManager.showCountryInfo(cellOwner, { x: worldPos.x, y: worldPos.y });
-    }
-}
-
 function handleCanvasWheel(e) {
     e.preventDefault();
     renderer.zoom(e.deltaY, e.clientX, e.clientY);
