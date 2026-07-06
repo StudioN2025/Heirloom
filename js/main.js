@@ -163,6 +163,29 @@ function setupEvents() {
         canvas.addEventListener('click', handleCanvasClick);
         canvas.addEventListener('contextmenu', handleCanvasRightClick);
         canvas.addEventListener('wheel', handleCanvasWheel);
+
+        // Shift+drag — рисуем как кисточкой при найме/стройке
+        let shiftDragging = false;
+        canvas.addEventListener('mousedown', (e) => {
+            if (e.button === 0 && e.shiftKey && (window._recruitMode || window._pendingBuild)) {
+                shiftDragging = true;
+            }
+        });
+        canvas.addEventListener('mousemove', (e) => {
+            if (!shiftDragging) return;
+            if (window._recruitMode || window._pendingBuild) {
+                const worldPos = renderer.screenToWorld(e.clientX, e.clientY);
+                const cellOwner = world.getCell(worldPos.x, worldPos.y);
+                if (cellOwner === gameState.myCountryId) {
+                    if (window._recruitMode) {
+                        production.enqueueTraining(worldPos.x, worldPos.y, window._recruitMode);
+                    } else if (window._pendingBuild) {
+                        production.enqueueBuilding(worldPos.x, worldPos.y, window._pendingBuild);
+                    }
+                }
+            }
+        });
+        canvas.addEventListener('mouseup', () => { shiftDragging = false; });
     }
     
     // Клавиши
@@ -176,7 +199,7 @@ function setupEvents() {
         const hint = document.getElementById('recruit-hint');
         if (hint) {
             const costs = { infantry: '100 снаряж. / 1000 манмощи / 30 дней', tank: '800 снаряж. / 500 манмощи / 60 дней' };
-            hint.innerHTML = `🪖 Выберите клетку для обучения (${costs[type] || type}) — ЛКМ`;
+            hint.innerHTML = `🪖 Выберите клетку (${costs[type] || type}) — ЛКМ | Shift+ЛКМ — несколько`;
             hint.classList.remove('hidden');
         }
         addNotification(`Выберите провинцию для обучения ${type}`, 'info');
@@ -192,7 +215,7 @@ function setupEvents() {
         const hint = document.getElementById('build-hint');
         if (hint) {
             const costs = { factory: '500 снаряж. / 90 дней', port: '300 снаряж. / 60 дней' };
-            hint.innerHTML = `🏗️ Выберите клетку для строительства (${costs[type] || type}) — ЛКМ`;
+            hint.innerHTML = `🏗️ Выберите клетку (${costs[type] || type}) — ЛКМ | Shift+ЛКМ — несколько`;
             hint.classList.remove('hidden');
         }
         addNotification(`Выберите провинцию для строительства`, 'info');
@@ -300,28 +323,30 @@ function handleCanvasClick(e) {
     const worldPos = renderer.screenToWorld(e.clientX, e.clientY);
     const cellOwner = world.getCell(worldPos.x, worldPos.y);
 
-    // Режим найма → теперь через очередь обучения
+    // Режим найма
     if (window._recruitMode) {
         if (cellOwner === gameState.myCountryId) {
             production.enqueueTraining(worldPos.x, worldPos.y, window._recruitMode);
-        } else {
-            addNotification('Можно нанимать только на своей территории!', 'war');
         }
-        window._recruitMode = null;
-        document.getElementById('recruit-hint')?.classList.add('hidden');
+        // Без Shift — выходим из режима
+        if (!e.shiftKey) {
+            window._recruitMode = null;
+            document.getElementById('recruit-hint')?.classList.add('hidden');
+        }
         return;
     }
 
-    // Режим строительства → через очередь строительства
+    // Режим строительства
     if (window._pendingBuild) {
         if (cellOwner === gameState.myCountryId) {
             production.enqueueBuilding(worldPos.x, worldPos.y, window._pendingBuild);
-        } else {
-            addNotification('Можно строить только на своей территории!', 'war');
         }
-        window._pendingBuild = null;
-        document.getElementById('build-hint')?.classList.add('hidden');
+        if (!e.shiftKey) {
+            window._pendingBuild = null;
+            document.getElementById('build-hint')?.classList.add('hidden');
+        }
         return;
+    }
     }
 
     // Есть выбранная армия → приказ всей армии
