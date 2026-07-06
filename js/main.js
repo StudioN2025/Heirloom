@@ -17,7 +17,7 @@ import { MovementSystem } from './systems/MovementSystem.js';
 import { ArmyManager } from './systems/ArmyManager.js';
 import { SupplySystem } from './systems/SupplySystem.js';
 import { DiplomacySystem } from './systems/DiplomacySystem.js';
-import { TechSystem } from './systems/TechSystem.js';
+import { TechSystem, TECH_TREE, TECH_BRANCHES } from './systems/TechSystem.js';
 import { FocusSystem } from './systems/FocusSystem.js';
 import { QueueSystem, TRAIN_DEFS, BUILD_DEFS } from './systems/QueueSystem.js';
 import { addNotification } from './utils/helpers.js';
@@ -239,8 +239,8 @@ function setupEvents() {
         }, 15000);
     };
 
-    window.startResearch = (type, level) => {
-        tech.startResearch(type, level);
+    window.startResearch = (techId) => {
+        tech.startResearch(gameState.myCountryId, techId);
         uiManager.openWindow('research');
     };
     
@@ -732,7 +732,9 @@ function loadGame() {
         window._armyManager = armyManager;
         supply = new SupplySystem(world, entities, gameState);
         diplomacy = new DiplomacySystem(gameState, world, entities);
-        tech = new TechSystem(gameState);
+    tech = new TechSystem(gameState);
+    window._TECH_TREE = TECH_TREE;
+    window._TECH_BRANCHES = TECH_BRANCHES;
         focus = new FocusSystem(gameState, world, entities);
         
         addNotification(`📂 Игра загружена! День ${gameState.days}`, 'info');

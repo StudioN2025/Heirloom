@@ -122,51 +122,62 @@ export class WindowsManager {
     }
     
     renderResearchWindow(content) {
-        const tech = this.gameState.tech;
-        
-        let html = `
-            <div class="space-y-4">
-                <div class="section-title" style="font-size:14px;font-weight:bold;color:#eab308;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #374151;">🔬 ДЕРЕВО ТЕХНОЛОГИЙ</div>
-                <div class="space-y-3">
-                    <div class="bg-gray-700 p-4 rounded-lg border-l-4 border-blue-500">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="font-bold text-blue-400">🏭 Промышленность</span>
-                            <span class="text-sm">Уровень ${tech.industry}/5</span>
-                        </div>
-                        <div class="progress-bar" style="width:100%;height:6px;background:#4b5563;border-radius:3px;overflow:hidden;">
-                            <div class="progress-fill-blue" style="width: ${tech.industry * 20}%;height:100%;background:#3b82f6;"></div>
-                        </div>
-                        <div class="text-xs text-gray-400 mt-2">+5% производство за уровень</div>
-                        ${tech.industry < 5 ? `<button onclick="window.startResearch('industry', ${tech.industry + 1})" class="mt-3 bg-blue-700 hover:bg-blue-600 px-3 py-1 text-xs rounded" style="background:#1d4ed8;padding:4px 12px;border-radius:4px;cursor:pointer;">ИССЛЕДОВАТЬ УР.${tech.industry + 1}</button>` : '<div class="text-green-400 text-xs mt-3">✅ Максимальный уровень</div>'}
-                    </div>
-                    
-                    <div class="bg-gray-700 p-4 rounded-lg border-l-4 border-green-500">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="font-bold text-green-400">💂 Пехота</span>
-                            <span class="text-sm">Уровень ${tech.infantry}/5</span>
-                        </div>
-                        <div class="progress-bar" style="width:100%;height:6px;background:#4b5563;border-radius:3px;overflow:hidden;">
-                            <div class="progress-fill-blue" style="width: ${tech.infantry * 20}%;height:100%;background:#3b82f6;"></div>
-                        </div>
-                        <div class="text-xs text-gray-400 mt-2">+5% атака/защита пехоты за уровень</div>
-                        ${tech.infantry < 5 ? `<button onclick="window.startResearch('infantry', ${tech.infantry + 1})" class="mt-3 bg-blue-700 hover:bg-blue-600 px-3 py-1 text-xs rounded" style="background:#1d4ed8;padding:4px 12px;border-radius:4px;cursor:pointer;">ИССЛЕДОВАТЬ УР.${tech.infantry + 1}</button>` : '<div class="text-green-400 text-xs mt-3">✅ Максимальный уровень</div>'}
-                    </div>
-                    
-                    <div class="bg-gray-700 p-4 rounded-lg border-l-4 border-yellow-500">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="font-bold text-yellow-400">🚜 Танки</span>
-                            <span class="text-sm">Уровень ${tech.tank}/5</span>
-                        </div>
-                        <div class="progress-bar" style="width:100%;height:6px;background:#4b5563;border-radius:3px;overflow:hidden;">
-                            <div class="progress-fill-blue" style="width: ${tech.tank * 20}%;height:100%;background:#3b82f6;"></div>
-                        </div>
-                        <div class="text-xs text-gray-400 mt-2">+5% атака/защита танков за уровень</div>
-                        ${tech.tank < 5 ? `<button onclick="window.startResearch('tank', ${tech.tank + 1})" class="mt-3 bg-blue-700 hover:bg-blue-600 px-3 py-1 text-xs rounded" style="background:#1d4ed8;padding:4px 12px;border-radius:4px;cursor:pointer;">ИССЛЕДОВАТЬ УР.${tech.tank + 1}</button>` : '<div class="text-green-400 text-xs mt-3">✅ Максимальный уровень</div>'}
-                    </div>
-                </div>
-            </div>
-        `;
-        
+        const techTree = window._TECH_TREE || {};
+        const branches = window._TECH_BRANCHES || {};
+
+        const unlocked = tech.getPlayerTech ? tech.getPlayerTech() : new Set();
+        const activeResearch = tech.getPlayerResearch ? tech.getPlayerResearch() : null;
+
+        let html = `<div style="padding:8px;">`;
+        html += `<div style="font-size:14px;font-weight:bold;color:#eab308;margin-bottom:12px;text-align:center;">🔬 ДЕРЕВО ТЕХНОЛОГИЙ</div>`;
+
+        if (activeResearch) {
+            const rt = techTree[activeResearch.techId];
+            if (rt) {
+                html += `<div style="background:#1e3a5f;border:1px solid #3b82f6;border-radius:6px;padding:10px;margin-bottom:12px;text-align:center;">
+                    <div style="color:#60a5fa;font-size:11px;">ИССЛЕДУЕТСЯ</div>
+                    <div style="font-weight:bold;margin:4px 0;">${rt.icon} ${rt.name}</div>
+                    <div style="color:#9ca3af;font-size:11px;">Осталось ${activeResearch.daysLeft} дней</div>
+                </div>`;
+            }
+        }
+
+        for (const [branchId, branch] of Object.entries(branches)) {
+            html += `<div style="margin-bottom:16px;">`;
+            html += `<div style="color:${branch.color};font-weight:bold;font-size:12px;margin-bottom:8px;padding-bottom:4px;border-bottom:1px solid #374151;">${branch.icon} ${branch.name.toUpperCase()}</div>`;
+            html += `<div style="display:flex;flex-wrap:wrap;gap:6px;">`;
+
+            const branchTechs = Object.values(techTree).filter(t => t.branch === branchId).sort((a, b) => a.tier - b.tier);
+
+            for (const t of branchTechs) {
+                const isUnlocked = unlocked.has(t.id);
+                const canResearch = !isUnlocked && !activeResearch && t.prereqs.every(p => unlocked.has(p));
+                const isResearching = activeResearch && activeResearch.techId === t.id;
+
+                let borderColor = '#374151';
+                let bgColor = '#1f2937';
+                if (isUnlocked) { borderColor = '#22c55e'; bgColor = '#14532d'; }
+                else if (isResearching) { borderColor = '#3b82f6'; bgColor = '#1e3a5f'; }
+                else if (canResearch) { borderColor = '#eab308'; bgColor = '#422006'; }
+
+                html += `<div style="background:${bgColor};border:1px solid ${borderColor};border-radius:6px;padding:8px;width:140px;cursor:${canResearch ? 'pointer' : 'default'};opacity:${canResearch || isUnlocked || isResearching ? 1 : 0.5};"`;
+                if (canResearch) {
+                    html += ` onclick="window.startResearch('${t.id}')"`;
+                }
+                html += `>`;
+                html += `<div style="font-size:16px;text-align:center;">${t.icon}</div>`;
+                html += `<div style="font-size:10px;font-weight:bold;text-align:center;margin:4px 0;">${t.name}</div>`;
+                html += `<div style="font-size:8px;color:#9ca3af;text-align:center;">${t.desc}</div>`;
+                if (isUnlocked) html += `<div style="font-size:8px;color:#22c55e;text-align:center;margin-top:4px;">✅</div>`;
+                else if (isResearching) html += `<div style="font-size:8px;color:#3b82f6;text-align:center;margin-top:4px;">⏳ ${activeResearch.daysLeft}д</div>`;
+                else if (canResearch) html += `<div style="font-size:8px;color:#eab308;text-align:center;margin-top:4px;">🔬 ${t.cost}д</div>`;
+                html += `</div>`;
+            }
+
+            html += `</div></div>`;
+        }
+
+        html += `</div>`;
         content.innerHTML = html;
     }
     
