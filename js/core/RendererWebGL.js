@@ -78,7 +78,7 @@ export class RendererWebGL {
             const wh = (bounds.maxY - bounds.minY + 2) * 20;
             this.camera.x = ((bounds.minX + bounds.maxX) / 2) * 20;
             this.camera.y = ((bounds.minY + bounds.maxY) / 2) * 20;
-            this.camera.zoom = Math.min(this.canvas.width / ww, this.canvas.height / wh, 0.5) * 0.9;
+            this.camera.zoom = Math.min(this.canvas.width / ww, this.canvas.height / wh, 0.8) * 0.9;
             this.cameraInitialized = true;
         }
 
