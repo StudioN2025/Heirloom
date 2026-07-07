@@ -35,6 +35,7 @@ export class CombatSystem {
         this.world    = world;
         this.entities = entities;
         this.gs       = gameState;
+        this.tech     = null; // устанавливается из main.js
 
         // cellKey → Battle
         this.battles = new Map();
@@ -181,12 +182,18 @@ export class CombatSystem {
             const aRawAttack = this._totalAttack(b.attackers, b.defenders, b.cell);
             const aOrgDmg = (aRawAttack / b.defenders.length) * breakthroughBonus * numAdvA * aPenalty;
 
-            // Средняя защита защищающихся (defense + terrain)
+            // Средняя защита защищающихся (defense + terrain + tech)
             const avgDefDefense = this._avgStat(b.defenders, 'defense');
 
+            // Бонус защиты из технодерева
+            let defTechMult = 1.0;
+            if (this.tech) {
+                const defOwner = b.defenderCountry;
+                defTechMult += this.tech.getEffect(defOwner, 'infantryDefense');
+            }
+
             for (const uid of b.defenders) {
-                // Урон снижается защитой и рельефом
-                const reduction = avgDefDefense * terrainBonus * 0.15;
+                const reduction = avgDefDefense * terrainBonus * 0.15 * defTechMult;
                 const netOrgDmg = Math.max(1, aOrgDmg - reduction) * rng();
                 this.org[uid] = Math.max(0, this.org[uid] - netOrgDmg);
 
@@ -201,12 +208,16 @@ export class CombatSystem {
             const dRawAttack = this._totalAttack(b.defenders, b.attackers, b.cell);
             const dOrgDmg = (dRawAttack / b.attackers.length) * numAdvD * dPenalty;
 
-            // Средний breakthrough атакующих снижают урон
+            // Breakthrough атакующих + бонус из технодерева
             const avgAttackBreakthrough = this._avgStat(b.attackers, 'breakthrough');
+            let atkTechMult = 1.0;
+            if (this.tech) {
+                const atkOwner = b.attackerCountry;
+                atkTechMult += this.tech.getEffect(atkOwner, 'infantryAttack');
+            }
 
             for (const uid of b.attackers) {
-                // Breakthrough снижает входящий урон (как defense для атакующего)
-                const reduction = avgAttackBreakthrough * 0.12;
+                const reduction = avgAttackBreakthrough * 0.12 * atkTechMult;
                 const netOrgDmg = Math.max(1, dOrgDmg - reduction) * rng();
                 this.org[uid] = Math.max(0, this.org[uid] - netOrgDmg);
 
@@ -272,7 +283,6 @@ export class CombatSystem {
     _totalAttack(attackers, defenders, battleCell) {
         const e = this.entities;
 
-        // Средний hardness противника
         const avgHardness = defenders.reduce((s, d) => {
             const ds = UNIT_STATS[e.type[d]] || UNIT_STATS[0];
             return s + ds.hardness;
@@ -282,17 +292,30 @@ export class CombatSystem {
         for (const uid of attackers) {
             if (!e.active[uid]) continue;
             const aStats = UNIT_STATS[e.type[uid]] || UNIT_STATS[0];
+            const unitType = e.type[uid];
+            const owner = e.owner[uid];
 
-            // Hardness сильно снижает урон пехоты по танкам
+            // Бонусы из дерева технологий
+            let techMult = 1.0;
+            if (this.tech) {
+                if (unitType === 0) {
+                    techMult += this.tech.getEffect(owner, 'infantryAttack');
+                } else if (unitType === 1) {
+                    techMult += this.tech.getEffect(owner, 'tankAttack');
+                }
+            }
+
             const hardnessRatio = avgHardness / 100;
             const effectiveSoft = aStats.softAttack * (1 - hardnessRatio * 0.85);
             const effectiveHard = aStats.hardAttack * hardnessRatio;
-            const effective = effectiveSoft + effectiveHard;
+            const effective = (effectiveSoft + effectiveHard) * techMult;
 
             const orgMult = Math.max(0.3, (this.org[uid] || 1) / aStats.maxOrg);
 
             total += effective * orgMult;
         }
+        return total;
+    }
         return total;
     }
 

@@ -70,6 +70,7 @@ async function init() {
     supply = new SupplySystem(world, entities, gameState);
     diplomacy = new DiplomacySystem(gameState, world, entities);
     tech = new TechSystem(gameState);
+    combat.tech = tech;
     focus = new FocusSystem(gameState, world, entities);
 
     updateLoadingBar(30, 'Инициализация UI...');
@@ -732,9 +733,10 @@ function loadGame() {
         window._armyManager = armyManager;
         supply = new SupplySystem(world, entities, gameState);
         diplomacy = new DiplomacySystem(gameState, world, entities);
-    tech = new TechSystem(gameState);
-    window._TECH_TREE = TECH_TREE;
-    window._TECH_BRANCHES = TECH_BRANCHES;
+        tech = new TechSystem(gameState);
+        combat.tech = tech;
+        window._TECH_TREE = TECH_TREE;
+        window._TECH_BRANCHES = TECH_BRANCHES;
         focus = new FocusSystem(gameState, world, entities);
         
         addNotification(`📂 Игра загружена! День ${gameState.days}`, 'info');
