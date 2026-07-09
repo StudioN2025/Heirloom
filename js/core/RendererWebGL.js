@@ -145,76 +145,31 @@ export class RendererWebGL {
         const W = this.canvas.width;
         const H = this.canvas.height;
 
-        // МОБИЛЬНЫЙ РЕЖИМ — рисуем кэшированные полигоны (быстро!)
-        if (this.isMobile) {
-            // Перестраиваем кэш при изменении территории
-            if (!this._polygonCache || this._polygonCacheVersion !== world.cells.size) {
-                this._buildPolygonCache(world);
-            }
+        // Границы видимой области
+        const viewMinX = this.camera.x - W / 2 / zoom;
+        const viewMaxX = this.camera.x + W / 2 / zoom;
+        const viewMinY = this.camera.y - H / 2 / zoom;
+        const viewMaxY = this.camera.y + H / 2 / zoom;
 
-            // Рисуем все полигоны одной страны за один fill()
-            if (this._polygonCache) {
-                for (const [color, path] of this._polygonCache) {
-                    ctx.fillStyle = color;
-                    ctx.fill(path);
-                }
-            }
-
-            // Юниты — упрощённо
-            for (let i = 1; i < entities.nextId; i++) {
-                if (!entities.active[i]) continue;
-                const sx = entities.x[i] * 20 * zoom + camX;
-                const sy = entities.y[i] * 20 * zoom + camY;
-                if (sx < -10 || sx > W + 10 || sy < -10 || sy > H + 10) continue;
-
-                const owner = entities.owner[i];
-                ctx.fillStyle = owner === gameState.myCountryId ? '#fff'
-                    : (gameState.isAtWar && gameState.isAtWar(gameState.myCountryId, owner)) ? '#ff6666' : '#aaa';
-                ctx.beginPath();
-                ctx.arc(sx + size/2, sy + size/2, size * 0.35, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            // Выделенный юнит
-            const selId = gameState.selectedUnitId;
-            if (selId && entities.active[selId]) {
-                const sx = entities.x[selId] * 20 * zoom + camX;
-                const sy = entities.y[selId] * 20 * zoom + camY;
-                ctx.strokeStyle = '#fbbf24';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.arc(sx + size/2, sy + size/2, size * 0.5, 0, Math.PI * 2);
-                ctx.stroke();
-            }
-
-            this.frameCount++;
-            return;
-        }
-
-        // ── ДЕСКТОП — полная отрисовка ──
+        // ── КЛЕТКИ ──
         const colorBuckets = new Map();
         const buildingCells = [];
 
         for (const [posKey, owner] of world.cells) {
             const [cx, cy] = posKey.split(',').map(Number);
-
-            // Быстрая проверка видимости
             const wx = cx * 20;
             const wy = cy * 20;
             if (wx < viewMinX - 20 || wx > viewMaxX + 20 || wy < viewMinY - 20 || wy > viewMaxY + 20) continue;
 
             const screenX = wx * zoom + camX;
             const screenY = wy * zoom + camY;
-
             if (screenX + size < -10 || screenX > W + 10 || screenY + size < -10 || screenY > H + 10) continue;
 
-            // Клетка по цвету
             const color = this._colorCache.get(owner) || '#666666';
             if (!colorBuckets.has(color)) colorBuckets.set(color, []);
             colorBuckets.get(color).push(screenX, screenY);
 
-            // Здания (собираем отдельно, рисуем потом)
-            if (size > 12 && world.buildings.has(posKey)) {
+            if (!this.isMobile && size > 12 && world.buildings.has(posKey)) {
                 const blds = world.buildings.get(posKey);
                 if (blds.has('port') || blds.has('factory')) {
                     buildingCells.push({ x: screenX, y: screenY, blds });

@@ -210,6 +210,7 @@ function setupEvents() {
         let lastPinchDist = 0;
         let touchMoved = false;
         let fullscreenRequested = false;
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768;
 
         // Авто-полноэкранный режим на мобильных при первом тапе
         function requestFullscreen() {
