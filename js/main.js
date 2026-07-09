@@ -119,12 +119,15 @@ async function preloadResources() {
         'assets/army/france_soldier.png',
         'assets/army/soviet_soldier.png',
     ];
-    await Promise.all(images.map(src => new Promise(resolve => {
+    // Таймаут 3 секунды — если картинки не загрузились, продолжаем
+    const timeout = new Promise(resolve => setTimeout(resolve, 3000));
+    const loads = Promise.all(images.map(src => new Promise(resolve => {
         const img = new Image();
         img.onload = () => resolve();
-        img.onerror = () => { console.warn(`⚠️ Не загружено: ${src}`); resolve(); };
+        img.onerror = () => resolve();
         img.src = src;
     })));
+    await Promise.race([loads, timeout]);
 }
 
 function setupEvents() {
