@@ -130,15 +130,15 @@ export class WindowsManager {
         // Позиции нод для каждой ветки (x, y)
         const layouts = {
             industry: { x: 0,   nodes: ['industry_1','mining_1','industry_2','mining_2','industry_3','industry_4','industry_5'] },
-            infantry: { x: 170, nodes: ['infantry_1','mountain_1','infantry_2','special_1','infantry_3','infantry_4','infantry_5'] },
-            tank:     { x: 340, nodes: ['tank_1','armor_1','tank_2','engine_1','tank_3','tank_4','tank_5'] },
-            air:      { x: 510, nodes: ['air_1','air_2','air_3','air_4'] },
-            navy:     { x: 650, nodes: ['navy_1','navy_2','navy_3','navy_4'] },
+            infantry: { x: 190, nodes: ['infantry_1','mountain_1','infantry_2','special_1','infantry_3','infantry_4','infantry_5'] },
+            tank:     { x: 380, nodes: ['tank_1','armor_1','tank_2','engine_1','tank_3','tank_4','tank_5'] },
+            air:      { x: 570, nodes: ['air_1','air_2','air_3','air_4'] },
+            navy:     { x: 760, nodes: ['navy_1','navy_2','navy_3','navy_4'] },
         };
 
         // Собираем позиции всех нод
-        const nodePos = {}; // techId → {x, y}
-        const nodeW = 120, nodeH = 60, gapX = 10, gapY = 8;
+        const nodePos = {};
+        const nodeW = 160, nodeH = 90, gapX = 10, gapY = 12;
 
         for (const [branchId, layout] of Object.entries(layouts)) {
             const bx = layout.x;
@@ -199,15 +199,15 @@ export class WindowsManager {
             const click = canResearch ? `onclick="window.startResearch('${techId}')"` : '';
             const hover = canResearch ? 'onmouseover="this.style.transform=\'scale(1.08)\';this.style.boxShadow=\'0 0 12px rgba(234,179,8,0.4)\'" onmouseout="this.style.transform=\'\';this.style.boxShadow=\'\'"' : '';
 
-            nodes += `<div ${click} ${hover} style="position:absolute;left:${pos.x}px;top:${pos.y}px;width:${nodeW}px;height:${nodeH}px;background:${bg};border:2px solid ${border};border-radius:8px;padding:6px;text-align:center;cursor:${canResearch?'pointer':'default'};transition:all 0.15s;${canResearch?'transform:scale(1.02);':''}">`;
-            nodes += `<div style="font-size:18px;">${t.icon}</div>`;
-            nodes += `<div style="font-size:8px;font-weight:bold;color:${text};line-height:1.2;margin-top:2px;">${t.name}</div>`;
-            nodes += `<div style="font-size:7px;color:#6b7280;margin-top:1px;">${t.desc}</div>`;
+            nodes += `<div ${click} ${hover} style="position:absolute;left:${pos.x}px;top:${pos.y}px;width:${nodeW}px;height:${nodeH}px;background:${bg};border:2px solid ${border};border-radius:10px;padding:8px;text-align:center;cursor:${canResearch?'pointer':'default'};transition:all 0.15s;${canResearch?'transform:scale(1.05);':''}">`;
+            nodes += `<div style="font-size:24px;">${t.icon}</div>`;
+            nodes += `<div style="font-size:11px;font-weight:bold;color:${text};line-height:1.2;margin-top:4px;">${t.name}</div>`;
+            nodes += `<div style="font-size:9px;color:#9ca3af;margin-top:2px;">${t.desc}</div>`;
 
-            if (isUnlocked)     nodes += `<div style="font-size:7px;color:#22c55e;margin-top:2px;">✓</div>`;
-            else if (isResearching) nodes += `<div style="font-size:7px;color:#3b82f6;margin-top:2px;">⏳${activeResearch.daysLeft}д</div>`;
-            else if (canResearch)   nodes += `<div style="font-size:7px;color:#eab308;margin-top:2px;">🔬${t.cost}д</div>`;
-            else                    nodes += `<div style="font-size:7px;color:#4b5563;margin-top:2px;">🔒</div>`;
+            if (isUnlocked)     nodes += `<div style="font-size:9px;color:#22c55e;margin-top:3px;">✓ Изучено</div>`;
+            else if (isResearching) nodes += `<div style="font-size:9px;color:#3b82f6;margin-top:3px;">⏳ ${activeResearch.daysLeft}д</div>`;
+            else if (canResearch)   nodes += `<div style="font-size:9px;color:#eab308;margin-top:3px;">🔬 ${t.cost}д</div>`;
+            else                    nodes += `<div style="font-size:9px;color:#6b7280;margin-top:3px;">🔒</div>`;
 
             nodes += `</div>`;
         }
@@ -223,7 +223,7 @@ export class WindowsManager {
         };
         for (const [bid, layout] of Object.entries(layouts)) {
             const bi = branchInfo[bid];
-            headers += `<div style="position:absolute;left:${layout.x}px;top:8px;width:${nodeW}px;text-align:center;color:${bi.color};font-size:10px;font-weight:bold;">${bi.icon} ${bi.name}</div>`;
+            headers += `<div style="position:absolute;left:${layout.x}px;top:8px;width:${nodeW}px;text-align:center;color:${bi.color};font-size:13px;font-weight:bold;">${bi.icon} ${bi.name}</div>`;
         }
 
         // Баннер исследования
