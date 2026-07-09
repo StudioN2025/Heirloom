@@ -266,7 +266,10 @@ function setupEvents() {
                     const scale = dist / lastPinchDist;
                     const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
                     const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-                    renderer.zoom(scale > 1 ? 1 : -1, centerX, centerY);
+                    // Пальцы врозь → зум больше, пальцы вместе → зум меньше
+                    const newZoom = renderer.camera.zoom * scale;
+                    renderer.camera.zoom = Math.min(Math.max(newZoom, 0.15), 3);
+                    needsRender = true;
                 }
                 lastPinchDist = dist;
                 needsRender = true;
