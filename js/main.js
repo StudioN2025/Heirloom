@@ -48,7 +48,7 @@ let lastTimestamp = 0;
 let needsRender = true; // глобальная — чтобы touch-обработчики видели
 
 async function init() {
-    console.log('🚀 HOI5 Remastered v3.0');
+    console.log('🚀 Heirloom v4.0');
 
     showLoadingScreen();
     updateLoadingBar(5, 'Инициализация ядра...');
@@ -826,11 +826,11 @@ function saveGame() {
         entities: entities.serialize(),
         gameState: gameState.serialize()
     };
-    localStorage.setItem('hoi5_save', JSON.stringify(saveData));
+    localStorage.setItem('heirloom_save', JSON.stringify(saveData));
 }
 
 function loadGame() {
-    const raw = localStorage.getItem('hoi5_save');
+    const raw = localStorage.getItem('heirloom_save');
     if (!raw) {
         addNotification('Нет сохранений!', 'war');
         return;
@@ -870,8 +870,8 @@ function showLoadingScreen() {
     div.innerHTML = `
         <div style="position:fixed;inset:0;background:#0a0a0a;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;font-family:'Special Elite',monospace">
             <div style="font-size:48px;margin-bottom:20px;">⚙️</div>
-            <div style="font-size:24px;margin-bottom:10px;color:#eab308;letter-spacing:.2em">HEARTS OF IRON V</div>
-            <div style="font-size:14px;margin-bottom:30px;color:#888;letter-spacing:.15em">REMASTERED</div>
+            <div style="font-size:24px;margin-bottom:10px;color:#eab308;letter-spacing:.2em">HEIRLOOM</div>
+            <div style="font-size:14px;margin-bottom:30px;color:#888;letter-spacing:.15em">STRATEGY</div>
             <div style="width:300px;height:8px;background:#1f2937;border-radius:4px;overflow:hidden;border:1px solid #374151">
                 <div id="loading-bar" style="width:0%;height:100%;background:linear-gradient(90deg,#eab308,#fbbf24);transition:width 0.4s ease"></div>
             </div>
