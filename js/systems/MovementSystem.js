@@ -123,7 +123,36 @@ export class MovementSystem {
                     break;
                 }
 
-                // Проверяем вражескую территорию
+                // Корабль выходит на сушу — высадка десанта
+                if (isShip && isLand) {
+                    const cellOwner = this.world.getCell(nx, ny);
+                    const isEnemyLand = cellOwner !== 0 && cellOwner !== e.owner[unitId]
+                        && !this._areAllied(e.owner[unitId], cellOwner);
+
+                    if (isEnemyLand) {
+                        // Захватываем вражескую клетку
+                        const enemy = e.getUnitAt(nx, ny);
+                        if (enemy && e.active[enemy] && e.owner[enemy] !== e.owner[unitId]) {
+                            addNotification('⚔️ Десант вступает в бой!', 'war');
+                            this.orders.delete(unitId);
+                            break;
+                        }
+                        this.world.setCell(nx, ny, e.owner[unitId]);
+                    } else if (cellOwner !== 0 && cellOwner !== e.owner[unitId]) {
+                        // Союзная территория — просто высаживаемся
+                    } else if (cellOwner === 0) {
+                        // Пустая клетка — захватываем
+                        this.world.setCell(nx, ny, e.owner[unitId]);
+                    }
+
+                    e.moveTo(unitId, nx, ny);
+                    e.isShip[unitId] = 0;
+                    order.path.shift();
+                    addNotification('⚓ Высадка десанта!', 'info');
+                    continue;
+                }
+
+                // Проверяем вражескую территорию (пехота)
                 const cellOwner = isLand ? this.world.getCell(nx, ny) : 0;
                 if (cellOwner !== 0 && cellOwner !== e.owner[unitId]
                     && !this._areAllied(e.owner[unitId], cellOwner)) {
@@ -133,7 +162,6 @@ export class MovementSystem {
                         this.orders.delete(unitId);
                         break;
                     }
-                    // Захватываем пустую вражескую клетку
                     if (isLand) this.world.setCell(nx, ny, e.owner[unitId]);
                 }
 
@@ -145,7 +173,6 @@ export class MovementSystem {
 
                 // Делаем шаг
                 e.moveTo(unitId, nx, ny);
-                // Корабль выходит на сушу → снова пехота
                 if (isLand) e.isShip[unitId] = 0;
                 order.path.shift();
             }
