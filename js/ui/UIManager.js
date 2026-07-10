@@ -102,8 +102,9 @@ export class UIManager {
         const buildingsElem = document.getElementById('sidebar-buildings');
         const actionsDiv = document.getElementById('sidebar-actions');
         
-        if (leaderElem) leaderElem.innerText = 'Лидер';
-        if (ideologyElem) ideologyElem.innerText = 'Идеология';
+        const countryInfo = getCountryInfo(countryId);
+        if (leaderElem) leaderElem.innerText = countryInfo.leader;
+        if (ideologyElem) ideologyElem.innerText = countryInfo.ideology;
         
         // Получаем данные о клетке
         const cellKey = `${pos.x},${pos.y}`;
