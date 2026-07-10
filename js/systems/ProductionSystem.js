@@ -46,6 +46,19 @@ export class ProductionSystem {
             return false;
         }
 
+        // Проверяем — на клетке уже есть юнит или обучение?
+        const existingUnit = this.entities.getUnitAt(x, y);
+        if (existingUnit) {
+            addNotification('⚠️ На этой клетке уже есть юнит!', 'war');
+            return false;
+        }
+        const queue = this.queues.get(myId) || [];
+        const alreadyTraining = queue.some(q => q.type === 'unit' && q.x === x && q.y === y);
+        if (alreadyTraining) {
+            addNotification('⚠️ На этой клетке уже идёт обучение!', 'war');
+            return false;
+        }
+
         this.gs.equipment -= cost.equipment;
         this.gs.manpower  -= cost.manpower;
         this._enqueue(myId, { type: 'unit', unitType, x, y, daysLeft: cost.days, totalDays: cost.days });
