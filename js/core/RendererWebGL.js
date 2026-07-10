@@ -44,6 +44,21 @@ export class RendererWebGL {
             img.src = src;
             img.onload = () => { this.unitImages[country] = img; };
         }
+
+        // Флаги
+        this.flags = {};
+        const flagCountries = [
+            'austria','belgium','bulgaria','czechoslovakia','denmark',
+            'estonia','finland','france','germany','greece','hungary',
+            'italy','latvia','lithuania','luxembourg','netherlands',
+            'poland','portugal','romania','slovakia','spain',
+            'switzerland','turkey','uk','ussr','yugoslavia'
+        ];
+        for (const c of flagCountries) {
+            const img = new Image();
+            img.src = `assets/flags/${c}.png`;
+            img.onload = () => { this.flags[c] = img; };
+        }
     }
 
     _initColorCache() {

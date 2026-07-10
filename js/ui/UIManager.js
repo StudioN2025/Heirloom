@@ -95,7 +95,11 @@ export class UIManager {
         
         if (!sidebar || !title) return;
         
-        title.innerHTML = `<div class="flex items-center gap-2">${countryId.toUpperCase()}</div>`;
+        const countryInfo = getCountryInfo(countryId);
+
+        // Показываем флаг если есть
+        const flagSrc = `assets/flags/${countryId}.png`;
+        title.innerHTML = `<div class="flex items-center gap-2"><img src="${flagSrc}" style="width:24px;height:16px;border-radius:2px;" onerror="this.style.display='none'">${countryInfo.name}</div>`;
         
         const leaderElem = document.getElementById('sidebar-leader');
         const ideologyElem = document.getElementById('sidebar-ideology');

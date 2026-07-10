@@ -16,7 +16,8 @@ export class TopBar {
         const dateElem = document.getElementById('game-date');
 
         if (countryNameElem) {
-            countryNameElem.innerHTML = `<span class="flex items-center gap-2">${myId.toUpperCase()}</span>`;
+            const info = this.gameState.getCountryName ? this.gameState.getCountryName(myId) : myId;
+            countryNameElem.innerHTML = `<span class="flex items-center gap-2"><img src="assets/flags/${myId}.png" style="width:28px;height:18px;border-radius:2px;" onerror="this.style.display='none'">${myId.toUpperCase()}</span>`;
         }
         if (manpowerElem) {
             const cur = Math.floor(this.gameState.manpower);

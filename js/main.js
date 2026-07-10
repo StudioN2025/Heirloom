@@ -742,8 +742,13 @@ function showCountrySelection() {
             const btn = document.createElement('button');
             btn.className = 'w-full text-left p-3 border rounded mb-2 hover:bg-white/20 transition';
             btn.innerHTML = `
-                <div class="font-bold text-lg">${c.id.toUpperCase()}</div>
-                <div class="text-xs opacity-70">${c.size} провинций</div>
+                <div class="flex items-center gap-2">
+                    <img src="assets/flags/${c.id}.png" style="width:32px;height:22px;border-radius:3px;" onerror="this.style.display='none'">
+                    <div>
+                        <div class="font-bold text-lg">${c.id.toUpperCase()}</div>
+                        <div class="text-xs opacity-70">${c.size} провинций</div>
+                    </div>
+                </div>
             `;
             btn.onclick = () => startGame(c.id);
             list.appendChild(btn);
@@ -760,8 +765,13 @@ function showCountrySelection() {
             const btn = document.createElement('button');
             btn.className = 'w-full text-left p-2 border rounded mb-1 hover:bg-white/10 transition text-sm';
             btn.innerHTML = `
-                <div class="font-bold">${c.id.toUpperCase()}</div>
-                <div class="text-xs opacity-50">${c.size} провинций</div>
+                <div class="flex items-center gap-2">
+                    <img src="assets/flags/${c.id}.png" style="width:24px;height:16px;border-radius:2px;" onerror="this.style.display='none'">
+                    <div>
+                        <div class="font-bold">${c.id.toUpperCase()}</div>
+                        <div class="text-xs opacity-50">${c.size} провинций</div>
+                    </div>
+                </div>
             `;
             btn.onclick = () => startGame(c.id);
             list.appendChild(btn);
