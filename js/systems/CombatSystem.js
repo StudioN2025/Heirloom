@@ -64,8 +64,8 @@ export class CombatSystem {
         for (let i = 1; i < e.nextId; i++) {
             if (!e.active[i]) continue;
             const ownerI = e.owner[i];
+            const iIsShip = e.isShip[i];
 
-            // Проверяем 4 соседних клетки + свою собственную
             for (const [dx, dy] of [[1,0],[-1,0],[0,1],[0,-1],[0,0]]) {
                 const nx = e.x[i] + dx, ny = e.y[i] + dy;
                 const j = e.getUnitAt(nx, ny);
@@ -74,41 +74,55 @@ export class CombatSystem {
                 if (ownerI === ownerJ) continue;
                 if (!this.gs.isAtWar(ownerI, ownerJ)) continue;
 
-                const battleCell = `${e.x[j]},${e.y[j]}`;
+                const jIsShip = e.isShip[j];
+
+                // ПРАВИЛО: с суши воду атаковать НЕЛЬЗЯ
+                // Если i — пехота на суше, j — корабль на воде → пропускаем
+                if (!iIsShip && jIsShip) continue;
+
+                // ПРАВИЛО: корабль атакует сушу → корабль = атакующий
+                let attacker, defender;
+                if (iIsShip && !jIsShip) {
+                    attacker = i; defender = j; // корабль атакует сушу
+                } else {
+                    // Оба на суше или оба корабли — стандартная логика
+                    attacker = i; defender = j;
+                }
+
+                const battleCell = `${e.x[defender]},${e.y[defender]}`;
 
                 if (this.battles.has(battleCell)) {
                     const b = this.battles.get(battleCell);
-                    // Атакующий присоединяется
-                    if (e.owner[i] === b.attackerCountry && !b.attackers.includes(i)
+                    if (e.owner[attacker] === b.attackerCountry && !b.attackers.includes(attacker)
                         && b.attackers.length < FRONT_WIDTH) {
-                        b.attackers.push(i);
-                        e.inCombat[i] = 1;
+                        b.attackers.push(attacker);
+                        e.inCombat[attacker] = 1;
                     }
-                    // Защитник присоединяется
-                    if (e.owner[j] === b.defenderCountry && !b.defenders.includes(j)
+                    if (e.owner[defender] === b.defenderCountry && !b.defenders.includes(defender)
                         && b.defenders.length < FRONT_WIDTH) {
-                        b.defenders.push(j);
-                        e.inCombat[j] = 1;
+                        b.defenders.push(defender);
+                        e.inCombat[defender] = 1;
                     }
                 } else {
-                    if (this.org[i] === 0) this.initUnit(i);
-                    if (this.org[j] === 0) this.initUnit(j);
-                    e.inCombat[i] = 1;
-                    e.inCombat[j] = 1;
+                    if (this.org[attacker] === 0) this.initUnit(attacker);
+                    if (this.org[defender] === 0) this.initUnit(defender);
+                    e.inCombat[attacker] = 1;
+                    e.inCombat[defender] = 1;
 
                     const b = {
-                        attackerCountry: e.owner[i],
-                        defenderCountry: e.owner[j],
-                        attackers: [i],
-                        defenders: [j],
+                        attackerCountry: e.owner[attacker],
+                        defenderCountry: e.owner[defender],
+                        attackers: [attacker],
+                        defenders: [defender],
                         cell: battleCell,
                         day: 0,
                     };
                     this.battles.set(battleCell, b);
 
                     const my = this.gs.myCountryId;
-                    if (e.owner[i] === my || e.owner[j] === my) {
-                        addNotification(`⚔️ Бой: ${b.attackerCountry} атакует ${b.defenderCountry}!`, 'war');
+                    if (e.owner[attacker] === my || e.owner[defender] === my) {
+                        const atkType = e.isShip[attacker] ? '🚢' : '⚔️';
+                        addNotification(`${atkType} Бой: ${b.attackerCountry} атакует ${b.defenderCountry}!`, 'war');
                     }
                 }
             }
