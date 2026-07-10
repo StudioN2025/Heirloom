@@ -252,7 +252,8 @@ export class AIController {
 
         if (enemies.length > 0 && units.length > 0) {
             this._military(id, units, enemies, mem, profile, day);
-        } else if (units.length > 0 && profile.role !== 'neutral') {
+            this._useNavy(id, units, enemies, mem, day);
+        } else if (units.length > 0) {
             this._peacetime(id, cells, units, profile);
         }
     }
@@ -601,7 +602,6 @@ export class AIController {
             const ux = this.entities.x[uid], uy = this.entities.y[uid];
             if (ux === target.x && uy === target.y) continue;
 
-            // Двигаемся по 1 клетке к границе
             const dx = Math.sign(target.x - ux);
             const dy = Math.sign(target.y - uy);
             const nx = ux + dx;
@@ -612,56 +612,57 @@ export class AIController {
             }
         }
     }
-            }
-            for (let i = 0; i < units.length; i++) {
-                const uid = units[i];
-                const target = borderPts[i % borderPts.length];
-                if (!target) continue;
-                const dx = Math.sign(target.x - this.entities.x[uid]);
-                const dy = Math.sign(target.y - this.entities.y[uid]);
-                if (dx === 0 && dy === 0) continue;
-                const nx = this.entities.x[uid] + dx;
-                const ny = this.entities.y[uid] + (dx ? 0 : dy);
-                if (this.world.getCell(nx, ny) && !this.entities.getUnitAt(nx, ny)) {
-                    this.entities.moveTo(uid, nx, ny);
+
+    // ── Флот — используем корабли для атаки с моря ──────────────────────────
+
+    _useNavy(id, units, enemies, mem, day) {
+        // Находим порты страны
+        const ports = [];
+        for (const c of this.world.getCountryCells(id)) {
+            const [x, y] = c.split(',').map(Number);
+            if (this.world.hasBuilding(x, y, 'port')) ports.push({x, y});
+        }
+        if (!ports.length) return;
+
+        // Находим юнитов на портах
+        const ships = units.filter(uid => {
+            if (this.entities.inCombat[uid]) return false;
+            const ux = this.entities.x[uid], uy = this.entities.y[uid];
+            return this.world.hasBuilding(ux, uy, 'port');
+        });
+
+        if (!ships.length) return;
+
+        // Находим вражеское побережье
+        for (const enemy of enemies) {
+            for (const c of this.world.getCountryCells(enemy)) {
+                const [ex, ey] = c.split(',').map(Number);
+                if (!this._isCoastal(ex, ey)) continue;
+
+                // Есть ли свободный корабль?
+                const ship = ships.shift();
+                if (!ship) return;
+
+                // Отправляем корабль в воду рядом с вражеским побережьем
+                const waterNearby = this._findWaterNear(ex, ey);
+                if (waterNearby) {
+                    this.entities.moveTo(ship, waterNearby.x, waterNearby.y);
+                    this.entities.isShip[ship] = 1;
                 }
-            }
-        } else if (profile.role === 'aggressor' || profile.role === 'opportunist') {
-            // Ищем незанятые соседние клетки (свои, не воду)
-            const candidates = [];
-            for (const c of cells) {
-                const [x,y] = c.split(',').map(Number);
-                for (const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]) {
-                    const nx = x+dx, ny = y+dy;
-                    const cell = this.world.getCell(nx, ny);
-                    if (cell === id && !this.entities.getUnitAt(nx, ny)) {
-                        candidates.push({x:nx, y:ny});
-                    }
-                }
-            }
-            if (!candidates.length) return;
-            const target = candidates[Math.floor(Math.random() * Math.min(candidates.length, 8))];
-            let bestUnit = null, bestDist = Infinity;
-            for (const uid of units) {
-                const d = Math.abs(this.entities.x[uid]-target.x)+Math.abs(this.entities.y[uid]-target.y);
-                if (d < bestDist) { bestDist = d; bestUnit = uid; }
-            }
-            if (!bestUnit) return;
-            if (bestDist > 0) {
-                const dx = Math.sign(target.x - this.entities.x[bestUnit]);
-                const dy = Math.sign(target.y - this.entities.y[bestUnit]);
-                const nx = this.entities.x[bestUnit] + dx;
-                const ny = this.entities.y[bestUnit] + (dx ? 0 : dy);
-                const cell = this.world.getCell(nx, ny);
-                if ((cell === id || cell === 0) && !this.entities.getUnitAt(nx, ny)) {
-                    if (cell === 0) this.world.setCell(nx, ny, id);
-                    this.entities.moveTo(bestUnit, nx, ny);
-                }
+                break;
             }
         }
     }
 
-    // ── A* (обёртка, умеет идти через вражескую территорию) ─────────────────
+    _findWaterNear(x, y) {
+        for (const [dx, dy] of [[0,1],[0,-1],[1,0],[-1,0]]) {
+            const nx = x + dx, ny = y + dy;
+            if (this.world.isWater(nx, ny)) return {x: nx, y: ny};
+        }
+        return null;
+    }
+
+    // ── A* (обёртка) ────────────────────────────────────────────────────────
 
     _findPath(sx, sy, ex, ey, ownerId) {
         // Патчим A* — разрешаем идти по своей И вражеской земле
