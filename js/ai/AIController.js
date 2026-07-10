@@ -578,17 +578,40 @@ export class AIController {
     // ── Мирное время ─────────────────────────────────────────────────────────
 
     _peacetime(id, cells, units, profile) {
-        if (profile.role === 'defender') {
-            // Держим у границ
-            const nbs = this._neighborCountries(id);
-            if (!nbs.length) return;
-            const borderPts = [];
-            for (const nb of nbs) {
-                const b = this.world.getBorderWith(id, nb);
-                for (const c of b.slice(0, 10)) {
-                    const [x,y] = c.split(',').map(Number);
-                    borderPts.push({x,y});
-                }
+        // Все страны ставят войска к границам в мирное время
+        const nbs = this._neighborCountries(id);
+        if (!nbs.length) return;
+
+        const borderPts = [];
+        for (const nb of nbs) {
+            const b = this.world.getBorderWith(id, nb);
+            for (const c of b.slice(0, 15)) {
+                const [x,y] = c.split(',').map(Number);
+                borderPts.push({x,y});
+            }
+        }
+        if (!borderPts.length) return;
+
+        for (let i = 0; i < units.length; i++) {
+            const uid = units[i];
+            if (this.entities.inCombat[uid]) continue;
+            const target = borderPts[i % borderPts.length];
+            if (!target) continue;
+
+            const ux = this.entities.x[uid], uy = this.entities.y[uid];
+            if (ux === target.x && uy === target.y) continue;
+
+            // Двигаемся по 1 клетке к границе
+            const dx = Math.sign(target.x - ux);
+            const dy = Math.sign(target.y - uy);
+            const nx = ux + dx;
+            const ny = uy + (dx ? 0 : dy);
+
+            if (this.world.getCell(nx, ny) && !this.entities.getUnitAt(nx, ny)) {
+                this.entities.moveTo(uid, nx, ny);
+            }
+        }
+    }
             }
             for (let i = 0; i < units.length; i++) {
                 const uid = units[i];
