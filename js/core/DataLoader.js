@@ -111,8 +111,8 @@ export class DataLoader {
             console.log(`✅ Автоматически добавлено ${portsLoaded} портов`);
         }
 
-        // Генерируем водные клетки — 2 слоя вокруг суши (для флота)
-        // Первый слой — рядом с сушей
+        // Генерируем водные клетки — всё вокруг суши (для флота)
+        // Сначала первый слой рядом с сушей
         for (const posKey of Object.keys(gridData)) {
             const [x, y] = posKey.split(',').map(Number);
             for (const [dx, dy] of [[0,1],[0,-1],[1,0],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]]) {
@@ -122,14 +122,16 @@ export class DataLoader {
                 }
             }
         }
-        // Второй слой — рядом с водой (дальше в море)
-        const firstLayer = [...world.waterCells];
-        for (const posKey of firstLayer) {
-            const [x, y] = posKey.split(',').map(Number);
-            for (const [dx, dy] of [[0,1],[0,-1],[1,0],[-1,0]]) {
-                const nx = x + dx, ny = y + dy;
-                if (!gridData[`${nx},${ny}`] && !world.isWater(nx, ny)) {
-                    world.setWater(nx, ny);
+        // Расширяем воду ещё на 3 слоя (итого ~5 клеток от суши)
+        for (let layer = 0; layer < 3; layer++) {
+            const currentWater = [...world.waterCells];
+            for (const posKey of currentWater) {
+                const [x, y] = posKey.split(',').map(Number);
+                for (const [dx, dy] of [[0,1],[0,-1],[1,0],[-1,0]]) {
+                    const nx = x + dx, ny = y + dy;
+                    if (!gridData[`${nx},${ny}`] && !world.isWater(nx, ny)) {
+                        world.setWater(nx, ny);
+                    }
                 }
             }
         }

@@ -179,9 +179,9 @@ export class MovementSystem {
         }
     }
 
-    // A* поиск пути — по суше (пехота) или через воду (корабль)
+    // A* поиск пути
     _findPath(sx, sy, ex, ey, ownerId, allowWater = false) {
-        const MAX = 800;
+        const MAX = 1000;
         const h = (x, y) => Math.abs(x - ex) + Math.abs(y - ey);
 
         const open = [{ x: sx, y: sy, g: 0, f: h(sx, sy) }];
@@ -210,16 +210,13 @@ export class MovementSystem {
                 const cellOwner = this.world.getCell(nx, ny);
                 const isWater = this.world.isWater(nx, ny);
 
-                // Вода — только для кораблей
-                if (isWater && !allowWater) continue;
-                // Суша с водой — пропускаем (нельзя идти через озеро)
-                if (cellOwner === 0 && !isWater) continue;
-
-                // Нейтральная территория — нельзя
-                if (cellOwner !== 0 && cellOwner !== ownerId && !this._areAllied(ownerId, cellOwner)) {
-                    const isEnemy = this.gs && this.gs.isAtWar && this.gs.isAtWar(ownerId, cellOwner);
-                    if (!isEnemy) continue;
+                // Пехота — только по суше (любая клетка кроме воды)
+                if (!allowWater) {
+                    if (cellOwner === 0 && !isWater) continue; // нет_ownerа и не вода — пропускаем
+                    if (isWater) continue; // вода — пропускаем
                 }
+                // Корабль — по воде и по суше
+                // (вода разрешена, суша разрешена)
 
                 const ng = cur.g + 1;
                 if (!best.has(nk) || ng < best.get(nk)) {
