@@ -115,19 +115,23 @@ async function init() {
 
 async function preloadResources() {
     const images = [
-        'assets/army/germany_soldier.png',
-        'assets/army/france_soldier.png',
-        'assets/army/soviet_soldier.png',
+        { src: 'assets/army/germany_soldier.png', name: 'germany_soldier' },
+        { src: 'assets/army/france_soldier.png', name: 'france_soldier' },
+        { src: 'assets/army/soviet_soldier.png', name: 'soviet_soldier' },
     ];
-    // Таймаут 3 секунды — если картинки не загрузились, продолжаем
-    const timeout = new Promise(resolve => setTimeout(resolve, 3000));
-    const loads = Promise.all(images.map(src => new Promise(resolve => {
+    const failed = [];
+    const timeout = new Promise(resolve => setTimeout(resolve, 10000));
+    const loads = Promise.all(images.map(({ src, name }) => new Promise(resolve => {
         const img = new Image();
         img.onload = () => resolve();
-        img.onerror = () => resolve();
+        img.onerror = () => { failed.push(name); resolve(); };
         img.src = src;
     })));
     await Promise.race([loads, timeout]);
+
+    if (failed.length > 0) {
+        addNotification(`⚠️ Не загрузилось: ${failed.join(', ')}. Плохой интернет или проблемы с сервером. Будут использоваться эмодзи.`, 'war');
+    }
 }
 
 function setupEvents() {

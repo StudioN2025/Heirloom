@@ -236,14 +236,15 @@ export class RendererWebGL {
                 ctx.font = `${Math.max(12, size * 0.7)}px "Segoe UI Emoji", sans-serif`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillText(unitType === 0 ? '💂' : '🚜', screenX + size / 2, screenY + size / 2);
+                const icon = entities.isShip[i] ? '⛵' : (unitType === 0 ? '💂' : '🚜');
+                ctx.fillText(icon, screenX + size / 2, screenY + size / 2);
                 unitsDrawn++;
                 continue;
             }
 
             // Десктоп — полная отрисовка
             const img = this.unitImages[owner];
-            if (img && unitType === 0) {
+            if (img && unitType === 0 && !entities.isShip[i]) {
                 const iconSize = size * 1.2;
                 const off = (size - iconSize) / 2;
                 if (gameState.isAtWar && gameState.isAtWar(gameState.myCountryId, owner)) {
@@ -259,7 +260,7 @@ export class RendererWebGL {
                 ctx.font = `${Math.max(12, size * 0.7)}px "Segoe UI Emoji"`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillText(unitType === 0 ? '💂' : '🚜', screenX + size / 2, screenY + size / 2);
+                ctx.fillText(entities.isShip[i] ? '⛵' : (unitType === 0 ? '💂' : '🚜'), screenX + size / 2, screenY + size / 2);
             }
 
             if (entities.hp[i] < entities.maxHp[i] && size > 15) {

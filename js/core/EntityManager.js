@@ -23,6 +23,7 @@ export class EntityManager {
         this.training = new Uint8Array(maxEntities);
         this.inCombat = new Uint8Array(maxEntities);
         this.moveCooldown = new Uint8Array(maxEntities);
+        this.isShip = new Uint8Array(maxEntities); // 1 = корабль (в воде)
 
         // Пути
         this.paths = new Map();
