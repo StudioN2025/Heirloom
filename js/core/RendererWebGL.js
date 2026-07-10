@@ -50,8 +50,9 @@ export class RendererWebGL {
         const flagCountries = [
             'austria','belgium','bulgaria','czechoslovakia','denmark',
             'estonia','finland','france','germany','greece','hungary',
-            'italy','latvia','lithuania','luxembourg','netherlands',
-            'poland','portugal','romania','slovakia','spain',
+            'iran','iraq','ireland','italy','latvia','lithuania',
+            'luxembourg','netherlands','norway','poland','portugal',
+            'romania','saudi_arabia','slovakia','spain','sweden',
             'switzerland','turkey','uk','ussr','yugoslavia'
         ];
         for (const c of flagCountries) {
