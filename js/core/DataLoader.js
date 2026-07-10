@@ -111,15 +111,6 @@ export class DataLoader {
             console.log(`✅ Автоматически добавлено ${portsLoaded} портов`);
         }
 
-        // Генерируем водные клетки — вся территория за 5 клеток от края карты
-        // Определяем границы карты
-        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-        for (const posKey of Object.keys(gridData)) {
-            const [x, y] = posKey.split(',').map(Number);
-            minX = Math.min(minX, x); maxX = Math.max(maxX, x);
-            minY = Math.min(minY, y); maxY = Math.max(maxY, y);
-        }
-
         // Вода — всё что дальше 5 клеток от края карты
         const MARGIN = 5;
         for (let x = minX - MARGIN; x <= maxX + MARGIN; x++) {
