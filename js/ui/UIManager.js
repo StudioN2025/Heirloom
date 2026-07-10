@@ -108,7 +108,6 @@ export class UIManager {
         const buildingsElem = document.getElementById('sidebar-buildings');
         const actionsDiv = document.getElementById('sidebar-actions');
         
-        const countryInfo = getCountryInfo(countryId);
         if (leaderElem) leaderElem.innerText = countryInfo.leader;
         if (ideologyElem) ideologyElem.innerText = countryInfo.ideology;
         
