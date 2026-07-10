@@ -83,7 +83,13 @@ export class MovementSystem {
             }
         }
 
-        const path = this._findPath(sx, sy, targetX, targetY, e.owner[unitId], e.isShip[unitId] === 1);
+        const isShip = e.isShip[unitId];
+        const targetIsWater = this.world.isWater(targetX, targetY);
+
+        // Разрешаем воду если юнит уже корабль ИЛИ цель на воде и есть порт
+        const allowWater = isShip === 1 || (targetIsWater && startPort);
+
+        const path = this._findPath(sx, sy, targetX, targetY, e.owner[unitId], allowWater);
         if (!path || path.length === 0) {
             addNotification('Путь не найден!', 'war');
             return false;
