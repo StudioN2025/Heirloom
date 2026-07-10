@@ -39,28 +39,9 @@ export class MovementSystem {
         const endPort = this.world.hasBuilding(targetX, targetY, 'port');
         if (startPort && endPort && sameOwner) {
             e.moveTo(unitId, targetX, targetY);
-            e.isShip[unitId] = 0; // на суше
+            e.isShip[unitId] = 0;
             this.orders.delete(unitId);
             addNotification('🚢 Морская переброска!', 'info');
-            return true;
-        }
-
-        // Порт → вода (превращаем в корабль)
-        if (startPort && targetIsWater) {
-            e.moveTo(unitId, targetX, targetY);
-            e.isShip[unitId] = 1; // теперь корабль
-            this.orders.delete(unitId);
-            addNotification('🚢 Флот выходит в море!', 'info');
-            return true;
-        }
-
-        // Вода → суша (высадка десанта, возвращаем на сушу)
-        const currentIsWater = this.world.isWater(sx, sy);
-        if (currentIsWater && targetIsLand) {
-            e.moveTo(unitId, targetX, targetY);
-            e.isShip[unitId] = 0; // снова на суше
-            this.orders.delete(unitId);
-            addNotification('⚓ Высадка десанта!', 'info');
             return true;
         }
 
@@ -69,23 +50,21 @@ export class MovementSystem {
         const dy = Math.abs(targetY - sy);
         if (dx + dy === 1) {
             let targetOk = targetIsLand;
-            // Корабль может ходить по воде
             if (targetIsWater && (e.isShip[unitId] || startPort)) targetOk = true;
             if (targetOk) {
                 const occupant = e.getUnitAt(targetX, targetY);
                 if (!occupant || occupant === unitId) {
                     e.moveTo(unitId, targetX, targetY);
-                    // Корабль на суше → снова пехота
                     if (targetIsLand) e.isShip[unitId] = 0;
+                    else if (targetIsWater && startPort) e.isShip[unitId] = 1;
                     addNotification('Приказ выполнен', 'info');
                     return true;
                 }
             }
         }
 
+        // Длинный путь — A*
         const isShip = e.isShip[unitId];
-
-        // Разрешаем воду если юнит уже корабль ИЛИ цель на воде и есть порт
         const allowWater = isShip === 1 || (targetIsWater && startPort);
 
         const path = this._findPath(sx, sy, targetX, targetY, e.owner[unitId], allowWater);
