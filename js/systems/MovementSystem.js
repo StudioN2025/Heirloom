@@ -84,7 +84,6 @@ export class MovementSystem {
         }
 
         const isShip = e.isShip[unitId];
-        const targetIsWater = this.world.isWater(targetX, targetY);
 
         // Разрешаем воду если юнит уже корабль ИЛИ цель на воде и есть порт
         const allowWater = isShip === 1 || (targetIsWater && startPort);
