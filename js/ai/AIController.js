@@ -146,6 +146,8 @@ export class AIController {
     // ── Исторические войны ────────────────────────────────────────────────────
 
     _checkHistoricalWars(day) {
+        const my = this.gs.myCountryId;
+
         for (let i = 0; i < HISTORICAL_WARS.length; i++) {
             if (this.firedWars.has(i)) continue;
             const t = HISTORICAL_WARS[i];
@@ -158,21 +160,31 @@ export class AIController {
                 this.firedWars.add(i); continue;
             }
 
+            // Игрок сам решает — не автосаттакуем его страну
+            if (a === my || b === my) {
+                // Только показываем уведомление что пора
+                if (day >= t.day) {
+                    const enemy = a === my ? b : a;
+                    addNotification(`📅 Пора объявить войну ${enemy}! (историческая дата)`, 'info');
+                    this.firedWars.add(i);
+                } else {
+                    // Собираем войска к границе (за 5 дней)
+                    this._gatherToBorder(a, b);
+                }
+                continue;
+            }
+
             // Собираем войска к границе перед войной (за 5 дней до)
             if (day >= t.day - 5 && day < t.day) {
                 this._gatherToBorder(a, b);
                 continue;
             }
 
-            // Объявляем войну
+            // ИИ объявляет войну
             this.gs.addWar(a, b);
             this._pullAllies(a, b);
 
-            const my = this.gs.myCountryId;
-            const label = `${a} → ${b}`;
-            if (a === my || b === my) addNotification(`⚔️ ${label} — вы вовлечены!`, 'war');
-            else                       addNotification(`⚔️ ${label}`, 'war');
-
+            addNotification(`⚔️ ${a} → ${b}`, 'war');
             this.firedWars.add(i);
         }
     }
