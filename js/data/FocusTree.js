@@ -9,6 +9,7 @@ const FOCUS_FILES = [
     'focuses/uk.json',
     'focuses/poland.json',
     'focuses/italy.json',
+    'focuses/luxembourg.json',
 ];
 
 // Определяет эффект по названию и описанию фокуса
@@ -148,8 +149,12 @@ function convertFocusJSON(json, filename) {
         }
         for (const f of focuses) getDepth(f.name, new Set());
 
+        // Простое распределение по колонкам: глубина = tier для y, колонка для x
         const colCache = {};
+        const visited = {};
         let nextCol = 0;
+
+        // Обратная карта: name -> [имена, которые требуют этот фокус]
         const children = {};
         for (const f of focuses) {
             const id = nameToId[f.name];
@@ -159,23 +164,31 @@ function convertFocusJSON(json, filename) {
                 children[rid].push(id);
             }
         }
-        const roots = focuses.filter(f => !f.requirements || !f.requirements.length);
-        const queue = roots.map(f => ({ id: nameToId[f.name], col: nextCol++ }));
-        const visited = new Set(queue.map(q => q.id));
-        while (queue.length) {
-            const { id, col } = queue.shift();
+
+        // DFS от корней
+        function dfs(id, col) {
+            if (visited[id]) return;
+            visited[id] = true;
             colCache[id] = col;
             const kids = children[id] || [];
-            if (kids.length > 1) {
-                for (let i = 0; i < kids.length; i++) {
-                    if (!visited.has(kids[i])) {
-                        visited.add(kids[i]);
-                        queue.push({ id: kids[i], col: col + i });
-                    }
-                }
-            } else if (kids.length === 1 && !visited.has(kids[0])) {
-                visited.add(kids[0]);
-                queue.push({ id: kids[0], col: col });
+            if (kids.length === 0) return;
+            if (kids.length === 1) { dfs(kids[0], col); return; }
+            for (let i = 0; i < kids.length; i++) {
+                dfs(kids[i], col + i * 2);
+            }
+        }
+
+        const roots = focuses.filter(f => !f.requirements || !f.requirements.length);
+        for (const f of roots) {
+            dfs(nameToId[f.name], nextCol);
+            nextCol += 2;
+        }
+
+        // Fallback: недостижимые фокусы — после корней
+        for (const f of focuses) {
+            const id = nameToId[f.name];
+            if (!visited[id]) {
+                colCache[id] = nextCol++;
             }
         }
 
