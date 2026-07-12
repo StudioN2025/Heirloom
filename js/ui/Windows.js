@@ -278,10 +278,10 @@ export class WindowsManager {
                     ${nodes}
                 </div>
                 <div style="position:absolute;bottom:0;left:0;right:0;height:36px;display:flex;align-items:center;justify-content:center;gap:12px;background:#111827;border-top:1px solid #374151;">
-                    <button onclick="document.getElementById('focus-scroll').scrollLeft-=200" style="background:#374151;color:white;padding:6px 12px;border:1px solid #4b5563;border-radius:4px;cursor:pointer;font-size:14px;">◀</button>
-                    <button onclick="document.getElementById('focus-scroll').scrollLeft+=200" style="background:#374151;color:white;padding:6px 12px;border:1px solid #4b5563;border-radius:4px;cursor:pointer;font-size:14px;">▶</button>
-                    <button onclick="document.getElementById('focus-scroll').scrollTop-=150" style="background:#374151;color:white;padding:6px 12px;border:1px solid #4b5563;border-radius:4px;cursor:pointer;font-size:14px;">▲</button>
-                    <button onclick="document.getElementById('focus-scroll').scrollTop+=150" style="background:#374151;color:white;padding:6px 12px;border:1px solid #4b5563;border-radius:4px;cursor:pointer;font-size:14px;">▼</button>
+                    <button onclick="var el=document.getElementById('focus-scroll');el.scrollLeft-=200;" style="background:#374151;color:white;padding:6px 12px;border:1px solid #4b5563;border-radius:4px;cursor:pointer;font-size:14px;">◀</button>
+                    <button onclick="var el=document.getElementById('focus-scroll');el.scrollLeft+=200;" style="background:#374151;color:white;padding:6px 12px;border:1px solid #4b5563;border-radius:4px;cursor:pointer;font-size:14px;">▶</button>
+                    <button onclick="var el=document.getElementById('focus-scroll');el.scrollTop-=150;" style="background:#374151;color:white;padding:6px 12px;border:1px solid #4b5563;border-radius:4px;cursor:pointer;font-size:14px;">▲</button>
+                    <button onclick="var el=document.getElementById('focus-scroll');el.scrollTop+=150;" style="background:#374151;color:white;padding:6px 12px;border:1px solid #4b5563;border-radius:4px;cursor:pointer;font-size:14px;">▼</button>
                 </div>
             </div>
         `;
