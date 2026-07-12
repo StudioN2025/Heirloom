@@ -267,7 +267,21 @@ export class WindowsManager {
             nodes += `</div>`;
         }
 
-        content.innerHTML = `<div style="position:relative;width:${mapW}px;height:${mapH}px;overflow:auto;padding:4px;">${svg}${nodes}</div>`;
+        content.innerHTML = `
+            <div style="position:relative;width:100%;height:100%;overflow:hidden;">
+                <div id="focus-scroll" style="position:relative;width:100%;height:calc(100% - 40px);overflow:auto;padding:4px;">
+                    ${svg}
+                    ${nodes}
+                </div>
+                <div style="position:absolute;bottom:0;left:0;right:0;height:36px;display:flex;align-items:center;justify-content:center;gap:12px;background:#111827;border-top:1px solid #374151;">
+                    <button onclick="document.getElementById('focus-scroll').scrollLeft-=200" style="background:#374151;color:white;padding:6px 14px;border:1px solid #4b5563;border-radius:4px;cursor:pointer;font-size:14px;">◀</button>
+                    <span style="color:#6b7280;font-size:10px;">Прокрутка</span>
+                    <button onclick="document.getElementById('focus-scroll').scrollLeft+=200" style="background:#374151;color:white;padding:6px 14px;border:1px solid #4b5563;border-radius:4px;cursor:pointer;font-size:14px;">▶</button>
+                    <button onclick="document.getElementById('focus-scroll').scrollTop-=150" style="background:#374151;color:white;padding:6px 14px;border:1px solid #4b5563;border-radius:4px;cursor:pointer;font-size:14px;">▲</button>
+                    <button onclick="document.getElementById('focus-scroll').scrollTop+=150" style="background:#374151;color:white;padding:6px 14px;border:1px solid #4b5563;border-radius:4px;cursor:pointer;font-size:14px;">▼</button>
+                </div>
+            </div>
+        `;
     }
 
     renderDiplomacyWindow(content) {
