@@ -207,21 +207,16 @@ export class WindowsManager {
             return;
         }
 
-        const nodeW = 110, nodeH = 55, gapY = 12, gapX = 30;
+        // Используем x/y из данных или вычисляем по tier/prereqs
+        const nodeW = 110, nodeH = 55;
         const nodePos = {};
 
-        const byTier = {};
         for (const f of countryFocuses) {
-            if (!byTier[f.tier]) byTier[f.tier] = [];
-            byTier[f.tier].push(f);
-        }
-        const tiers = Object.keys(byTier).map(Number).sort((a, b) => a - b);
-
-        for (const tier of tiers) {
-            const items = byTier[tier];
-            for (let i = 0; i < items.length; i++) {
-                const f = items[i];
-                nodePos[f.id] = { x: tier === 0 ? 200 : 10 + i * (nodeW + gapX), y: 30 + tier * (nodeH + gapY) };
+            if (f.x !== undefined && f.y !== undefined) {
+                nodePos[f.id] = { x: f.x, y: f.y };
+            } else {
+                // Автоматическое расположение по tier
+                nodePos[f.id] = { x: 10 + (f.tier || 0) * (nodeW + 30), y: 30 + Math.random() * 200 };
             }
         }
 
@@ -245,6 +240,35 @@ export class WindowsManager {
             }
         }
         svg += `</svg>`;
+
+        let nodes = '';
+        for (const f of countryFocuses) {
+            const pos = nodePos[f.id];
+            if (!pos) continue;
+            const done = completed.has(f.id);
+            const active = activeFocus && activeFocus.id === f.id;
+            const avail = !done && !active && this.focusSys && this.focusSys.checkPrerequisites(f.id);
+
+            let bg, border, txt;
+            if (done)   { bg = '#0a2e1a'; border = '#22c55e'; txt = '#86efac'; }
+            else if (active) { bg = '#0a1a3e'; border = '#3b82f6'; txt = '#93c5fd'; }
+            else if (avail)  { bg = '#2e2a0a'; border = '#eab308'; txt = '#fde047'; }
+            else { bg = '#1a1a2e'; border = '#2d2d44'; txt = '#555'; }
+
+            const click = avail ? `onclick="window.startFocus('${f.id}')" style="cursor:pointer;"` : '';
+
+            nodes += `<div ${click} style="position:absolute;left:${pos.x}px;top:${pos.y}px;width:${nodeW}px;height:${nodeH}px;background:${bg};border:2px solid ${border};border-radius:4px;padding:4px 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">`;
+            nodes += `<div style="font-size:18px;">${f.icon}</div>`;
+            nodes += `<div style="font-size:8px;font-weight:bold;color:${txt};margin-top:2px;line-height:1.1;">${f.name}</div>`;
+            if (done) nodes += `<div style="font-size:7px;color:#22c55e;margin-top:1px;">✓</div>`;
+            else if (active) nodes += `<div style="font-size:7px;color:#3b82f6;margin-top:1px;">⏳${activeFocus.daysLeft}д</div>`;
+            else if (avail) nodes += `<div style="font-size:7px;color:#eab308;margin-top:1px;">⭐</div>`;
+            else nodes += `<div style="font-size:7px;color:#444;margin-top:1px;">🔒</div>`;
+            nodes += `</div>`;
+        }
+
+        content.innerHTML = `<div style="position:relative;width:${mapW}px;height:${mapH}px;overflow:auto;padding:4px;">${svg}${nodes}</div>`;
+    }
 
         let nodes = '';
         for (const f of countryFocuses) {

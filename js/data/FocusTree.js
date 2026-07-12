@@ -12,7 +12,6 @@ const FOCUS_FILES = [
 function convertFocusJSON(json) {
     const result = {};
 
-    // Формат DeepSeek: { "Country_Tree": { "Focuses": [...] } }
     for (const [treeKey, treeData] of Object.entries(json)) {
         if (!treeData || !treeData.Focuses) continue;
 
@@ -37,7 +36,6 @@ function convertFocusJSON(json) {
                 desc: (f.effects || []).slice(0, 2).join(', ') || '',
                 icon: '⭐',
                 country,
-                branch: 'military',
                 tier: 0,
                 prereqs: (f.requirements || []).map(r => nameToId[r]).filter(Boolean),
                 effect: {},
