@@ -114,6 +114,38 @@ export class UIManager {
         
         if (leaderElem) leaderElem.innerText = countryInfo.leader;
         if (ideologyElem) ideologyElem.innerText = countryInfo.ideology;
+
+        // Показываем лорда если вассал
+        const overlordRow = document.getElementById('sidebar-overlord-row');
+        const overlordElem = document.getElementById('sidebar-overlord');
+        const overlord = this.gameState.getOverlord(countryId);
+        if (overlordRow && overlordElem) {
+            if (overlord) {
+                var overlordInfo = getCountryInfo(overlord);
+                overlordElem.innerText = overlordInfo.name;
+                overlordRow.style.display = '';
+            } else {
+                overlordRow.style.display = 'none';
+            }
+        }
+
+        // Показываем вассалов если есть
+        const vassals = this.gameState.getVassals(countryId);
+        var vassalRow = document.getElementById('sidebar-vassals-row');
+        if (vassals.length > 0) {
+            var vassalNames = vassals.map(function(v) { var info = getCountryInfo(v); return info.name; }).join(', ');
+            if (!vassalRow) {
+                vassalRow = document.createElement('div');
+                vassalRow.className = 'sidebar-row';
+                vassalRow.id = 'sidebar-vassals-row';
+                vassalRow.innerHTML = '<span class="sidebar-label">👑 Вассалы:</span><span id="sidebar-vassals" class="sidebar-value" style="color:#c084fc;">—</span>';
+                overlordRow.parentNode.insertBefore(vassalRow, overlordRow.nextSibling);
+            }
+            document.getElementById('sidebar-vassals').innerText = vassalNames;
+            vassalRow.style.display = '';
+        } else if (vassalRow) {
+            vassalRow.style.display = 'none';
+        }
         
         // Считаем статистику за ВСЮ страну
         const cells = this.world.getCountryCells(countryId);
