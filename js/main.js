@@ -882,6 +882,7 @@ function saveGame(slot) {
         gameState: gameState.serialize()
     };
     localStorage.setItem(slotKey, JSON.stringify(saveData));
+    localStorage.setItem(`${slotKey}_name`, slotName);
     localStorage.setItem('heirloom_lastSlot', slot || 1);
 }
 

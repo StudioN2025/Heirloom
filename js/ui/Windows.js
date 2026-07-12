@@ -525,27 +525,27 @@ export class WindowsManager {
     
     renderSaveWindow(content) {
         let slotsHtml = '';
-        for (let i = 1; i <= 3; i++) {
+        for (let i = 1; i <= 5; i++) {
             const name = localStorage.getItem(`heirloom_slot_${i}_name`) || 'Пусто';
             const isEmpty = !localStorage.getItem(`heirloom_slot_${i}`);
             slotsHtml += `
-                <div style="background:#1f2937;border:1px solid ${isEmpty ? '#374151' : '#eab308'};border-radius:6px;padding:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+                <div style="background:#1f2937;border:1px solid ${isEmpty ? '#374151' : '#eab308'};border-radius:6px;padding:8px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">
                     <div>
                         <div style="font-size:9px;color:#9ca3af;">СЛОТ ${i}</div>
-                        <div style="font-size:12px;color:${isEmpty ? '#6b7280' : '#eab308'};font-weight:bold;font-family:monospace;">${name}</div>
+                        <div style="font-size:11px;color:${isEmpty ? '#6b7280' : '#eab308'};font-weight:bold;font-family:monospace;">${name}</div>
                     </div>
                     <div style="display:flex;gap:4px;">
-                        <button onclick="window.saveToSlot(${i})" style="background:#15803d;color:white;padding:5px 10px;border-radius:4px;font-size:10px;cursor:pointer;">💾</button>
-                        ${!isEmpty ? `<button onclick="window.loadFromSlot(${i})" style="background:#2563eb;color:white;padding:5px 10px;border-radius:4px;font-size:10px;cursor:pointer;">📂</button>` : ''}
+                        <button onclick="window.saveToSlot(${i})" style="background:#15803d;color:white;padding:4px 8px;border-radius:4px;font-size:10px;cursor:pointer;">💾</button>
+                        ${!isEmpty ? `<button onclick="window.loadFromSlot(${i})" style="background:#2563eb;color:white;padding:4px 8px;border-radius:4px;font-size:10px;cursor:pointer;">📂</button>` : ''}
                     </div>
                 </div>
             `;
         }
 
         content.innerHTML = `
-            <div style="padding:12px;">
+            <div style="padding:10px;">
                 ${slotsHtml}
-                <div style="text-align:center;color:#6b7280;font-size:10px;margin-top:8px;">Автосохранение в слот 1 каждые 30 дней</div>
+                <div style="text-align:center;color:#6b7280;font-size:9px;margin-top:6px;">Автосохранение в слот 1 каждые 30 дней</div>
             </div>
         `;
     }
