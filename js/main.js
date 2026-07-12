@@ -681,6 +681,7 @@ function startGameLoop() {
 
             // Проверка капитуляции
             if (gameState.wars.length > 0) {
+                gameState.updateWarSnapshots(world);
                 var warsToRemove = [];
                 for (var wi = 0; wi < gameState.wars.length; wi++) {
                     var war = gameState.wars[wi];
@@ -690,6 +691,7 @@ function startGameLoop() {
                         if (!countryInfo) return;
                         var threshold = gameState.getCapitulationThreshold(countryInfo.ideology);
                         var progress = gameState.getWarProgress(enemyId, world);
+                        if (gameState.days % 30 === 0) console.log('[Cap] ' + enemyId + ': ' + progress + '%/' + threshold + '% start=' + gameState.warStartCells[enemyId] + ' cur=' + world.getCountryCells(enemyId).size);
                         if (progress >= threshold) {
                             var cells = Array.from(world.getCountryCells(enemyId));
                             // Если это игрок — показываем окно выбора

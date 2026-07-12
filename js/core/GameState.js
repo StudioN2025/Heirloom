@@ -79,6 +79,15 @@ export class GameState {
         return Math.max(0, Math.min(100, Math.floor((lost / start) * 100)));
     }
 
+    updateWarSnapshots(world) {
+        if (!world) return;
+        for (var i = 0; i < this.wars.length; i++) {
+            var w = this.wars[i];
+            if (!this.warStartCells[w.a]) this.warStartCells[w.a] = world.getCountryCells(w.a).size;
+            if (!this.warStartCells[w.b]) this.warStartCells[w.b] = world.getCountryCells(w.b).size;
+        }
+    }
+
     getCapitulationThreshold(ideology) {
         if (ideology === 'Фашизм' || ideology === 'Коммунизм') return 95;
         if (ideology === 'Нейтралитет') return 80;
