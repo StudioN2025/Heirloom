@@ -152,39 +152,48 @@ export class World {
     }
     
     serialize() {
+        // Компактный формат: "x,y:owner" на строку вместо массива пар
+        const cellsArr = [];
+        for (const [key, owner] of this.cells) cellsArr.push(`${key}:${owner}`);
+
+        const blds = [];
+        for (const [key, buildings] of this.buildings) blds.push(`${key}:${[...buildings].join(',')}`);
+
+        const stats = [];
+        for (const [key, s] of this.cellStats) stats.push(`${key}:${JSON.stringify(s)}`);
+
         return {
-            cells: Array.from(this.cells.entries()),
-            waterCells: Array.from(this.waterCells),
-            buildings: Array.from(this.buildings.entries()).map(([k, v]) => [k, Array.from(v)]),
-            cellStats: Array.from(this.cellStats.entries()),
+            cells: cellsArr.join('|'),
+            buildings: blds.join('|'),
+            cellStats: stats.join('|'),
             bounds: this.bounds,
-            version: '4.0'
+            v: '5'
         };
     }
 
     static deserialize(data) {
         const world = new World();
-        for (const [key, owner] of data.cells) {
-            const [x, y] = key.split(',').map(Number);
-            world.setCell(x, y, owner);
-        }
-        if (data.waterCells) {
-            for (const key of data.waterCells) {
-                world.waterCells.add(key);
+        if (data.cells) {
+            for (const entry of data.cells.split('|')) {
+                const [pos, owner] = entry.split(':');
+                const [x, y] = pos.split(',').map(Number);
+                world.setCell(x, y, owner);
             }
         }
-        for (const [key, buildings] of data.buildings) {
-            for (const building of buildings) {
-                const [x, y] = key.split(',').map(Number);
-                world.addBuilding(x, y, building);
+        if (data.buildings) {
+            for (const entry of data.buildings.split('|')) {
+                const [pos, blds] = entry.split(':');
+                const [x, y] = pos.split(',').map(Number);
+                for (const b of blds.split(',')) world.addBuilding(x, y, b);
             }
         }
         if (data.cellStats) {
-            for (const [key, stats] of data.cellStats) {
-                world.cellStats.set(key, stats);
+            for (const entry of data.cellStats.split('|')) {
+                const [pos, json] = entry.split(':');
+                world.cellStats.set(pos, JSON.parse(json));
             }
         }
-        world.bounds = data.bounds;
+        world.bounds = data.bounds || { minX: -50, maxX: 50, minY: -50, maxY: 50 };
         return world;
     }
 }
