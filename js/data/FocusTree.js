@@ -33,13 +33,16 @@ function convertFocusJSON(json) {
 
         for (const f of treeData.Focuses) {
             const id = nameToId[f.name];
+            // Вычисляем позицию: tier определяется по количеству зависимостей
+            const depth = (f.requirements || []).length;
             result[id] = {
                 id,
                 name: f.name,
                 desc: (f.effects || []).slice(0, 2).join(', ') || '',
                 icon: '⭐',
                 country,
-                tier: 0,
+                x: f.x !== undefined ? f.x : 50 + depth * 170,
+                y: f.y !== undefined ? f.y : 50,
                 prereqs: (f.requirements || []).map(r => nameToId[r]).filter(Boolean),
                 effect: {},
             };
