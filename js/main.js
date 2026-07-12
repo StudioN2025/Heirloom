@@ -989,6 +989,9 @@ function loadGame() {
                 combat.tech = tech;
                 focus = new FocusSystem(gameState, world, entities);
 
+                windowsManager = new WindowsManager(world, entities, gameState, tech, focus);
+                uiManager = new UIManager(world, entities, gameState, windowsManager, topBar);
+
                 gameState.isGameActive = true;
                 gameState.setGameSpeed(1);
 

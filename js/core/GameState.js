@@ -146,6 +146,7 @@ export class GameState {
             wars: [...this.wars],
             alliances: this.alliances.map(a => [...a]),
             vassals: { ...this.vassals },
+            warStartCells: { ...this.warStartCells },
             activeFocus: this.activeFocus ? { ...this.activeFocus } : null,
             completedFocuses: [...this.completedFocuses],
             selectedUnitId: this.selectedUnitId,
@@ -171,11 +172,13 @@ export class GameState {
         this.wars = data.wars || [];
         this.alliances = (data.alliances || []).map(a => new Set(a));
         this.vassals = data.vassals || {};
+        this.warStartCells = data.warStartCells || {};
         this.activeFocus = data.activeFocus;
         this.completedFocuses = new Set(data.completedFocuses || []);
         this.selectedUnitId = data.selectedUnitId;
         this.activeBattles = data.activeBattles || [];
         this.trainingQueue = data.trainingQueue || [];
         this.constructionQueue = data.constructionQueue || [];
+        this._capitulationPending = false;
     }
 }
