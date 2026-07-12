@@ -346,31 +346,77 @@
                         canvas.innerHTML = '';
                         nextId = 1;
 
-                        for (const [key, f] of Object.entries(data)) {
-                            const node = {
-                                id: nextId++,
-                                x: f.x !== undefined ? f.x : 50 + (f.branch === 'military' ? 0 : f.branch === 'economy' ? 180 : 360) + Math.random() * 50,
-                                y: f.y !== undefined ? f.y : 50 + (f.tier || 0) * 82,
-                                name: f.name, desc: f.desc || '', icon: f.icon || '⭐',
-                                branch: f.branch || 'military',
-                                effectType: Object.keys(f.effect || {})[0] || 'equipment',
-                                effectVal: Object.values(f.effect || {})[0] || 0,
-                                prereqs: []
-                            };
-                            nodes.push(node);
-                            renderNode(node);
+                        // Определяем формат: DeepSeek или редактор
+                        let focuses = [];
+                        const firstKey = Object.keys(data)[0];
+                        if (data[firstKey] && data[firstKey].Focuses) {
+                            // DeepSeek формат
+                            focuses = data[firstKey].Focuses;
+                            const country = firstKey.toLowerCase().includes('germany') ? 'germany'
+                                : firstKey.toLowerCase().includes('france') ? 'france'
+                                : firstKey.toLowerCase().includes('ussr') ? 'ussr'
+                                : firstKey.toLowerCase().includes('uk') ? 'uk'
+                                : 'germany';
+                            document.getElementById('country-select').value = country;
 
-                            // Восстанавливаем связи
-                            for (const pre of (f.prereqs || [])) {
-                                const preNode = nodes.find(n => n.name.toLowerCase().replace(/[^a-z0-9]/g, '_') === pre);
-                                if (preNode) {
-                                    node.prereqs.push(preNode.id);
-                                    links.push({ from: preNode.id, to: node.id });
+                            // Строим маппинг имен
+                            const nameMap = {};
+                            focuses.forEach(f => { nameMap[f.name] = f.name.toLowerCase().replace(/[^a-z0-9]/g, '_'); });
+
+                            focuses.forEach((f, i) => {
+                                const id = nameMap[f.name];
+                                const node = {
+                                    id: nextId++,
+                                    x: f.x !== undefined ? f.x : 50 + i * 160,
+                                    y: f.y !== undefined ? f.y : 50,
+                                    name: f.name, desc: (f.effects || []).slice(0, 2).join(', ') || '',
+                                    icon: '⭐', branch: 'military',
+                                    effectType: 'equipment', effectVal: 0,
+                                    prereqs: []
+                                };
+                                nodes.push(node);
+                                renderNode(node);
+
+                                for (const pre of (f.requirements || [])) {
+                                    const preName = nameMap[pre];
+                                    if (preName) {
+                                        const preNode = nodes.find(n => n.name.toLowerCase().replace(/[^a-z0-9]/g, '_') === preName);
+                                        if (preNode) {
+                                            node.prereqs.push(preNode.id);
+                                            links.push({ from: preNode.id, to: node.id });
+                                        }
+                                    }
+                                }
+                            });
+                        } else {
+                            // Формат редактора
+                            for (const [key, f] of Object.entries(data)) {
+                                if (!f.name) continue;
+                                const node = {
+                                    id: nextId++,
+                                    x: f.x !== undefined ? f.x : 50,
+                                    y: f.y !== undefined ? f.y : 50,
+                                    name: f.name, desc: f.desc || '', icon: f.icon || '⭐',
+                                    branch: f.branch || 'military',
+                                    effectType: Object.keys(f.effect || {})[0] || 'equipment',
+                                    effectVal: Object.values(f.effect || {})[0] || 0,
+                                    prereqs: []
+                                };
+                                nodes.push(node);
+                                renderNode(node);
+
+                                for (const pre of (f.prereqs || [])) {
+                                    const preNode = nodes.find(n => n.name.toLowerCase().replace(/[^a-z0-9]/g, '_') === pre);
+                                    if (preNode) {
+                                        node.prereqs.push(preNode.id);
+                                        links.push({ from: preNode.id, to: node.id });
+                                    }
                                 }
                             }
+                            document.getElementById('country-select').value = Object.values(data)[0]?.country || 'germany';
                         }
+
                         drawLines();
-                        document.getElementById('country-select').value = Object.values(data)[0]?.country || 'germany';
                     } catch(err) {
                         alert('Ошибка импорта: ' + err.message);
                     }
