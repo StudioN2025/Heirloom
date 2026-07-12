@@ -88,20 +88,41 @@ function guessEffect(name, desc) {
 function convertFocusJSON(json, filename) {
     const result = [];
 
+    const fname = filename.toLowerCase();
+    let country = null;
+    if (fname.includes('germany')) country = 'germany';
+    else if (fname.includes('france')) country = 'france';
+    else if (fname.includes('ussr')) country = 'ussr';
+    else if (fname.includes('uk') || fname.includes('britain')) country = 'uk';
+    else if (fname.includes('poland')) country = 'poland';
+    else if (fname.includes('italy')) country = 'italy';
+    else if (fname.includes('luxembourg')) country = 'luxembourg';
+    if (!country) return result;
+
+    // Формат 1: Editor — плоский объект { "id": { name, x, y, prereqs, effect } }
+    const firstVal = Object.values(json)[0];
+    if (firstVal && firstVal.name && firstVal.x !== undefined) {
+        for (const [id, f] of Object.entries(json)) {
+            result.push({
+                id: country + '_' + id,
+                name: f.name,
+                desc: f.desc || '',
+                icon: f.icon || '⭐',
+                country: f.country || country,
+                branch: f.branch || 'main',
+                tier: f.tier || 0,
+                x: f.x,
+                y: f.y,
+                prereqs: (f.prereqs || []).map(r => country + '_' + r),
+                effect: f.effect || {},
+            });
+        }
+        return result;
+    }
+
+    // Формат 2: DeepSeek — { "TreeName": { "Focuses": [...] } }
     for (const [treeKey, treeData] of Object.entries(json)) {
         if (!treeData || !treeData.Focuses) continue;
-
-        const fname = filename.toLowerCase();
-        const key = treeKey.toLowerCase();
-        let country = null;
-        if (fname.includes('germany') || key.includes('germany')) country = 'germany';
-        else if (fname.includes('france') || key.includes('france')) country = 'france';
-        else if (fname.includes('ussr') || key.includes('ussr') || key.includes('soviet')) country = 'ussr';
-        else if (fname.includes('uk') || key.includes('uk') || key.includes('britain')) country = 'uk';
-        else if (fname.includes('poland') || key.includes('poland')) country = 'poland';
-        else if (fname.includes('italy') || key.includes('italy')) country = 'italy';
-        if (!country) continue;
-
         const focuses = treeData.Focuses;
         if (!focuses || !focuses.length) continue;
 
@@ -129,8 +150,6 @@ function convertFocusJSON(json, filename) {
 
         const colCache = {};
         let nextCol = 0;
-
-        // Строим дерево зависимостей
         const children = {};
         for (const f of focuses) {
             const id = nameToId[f.name];
@@ -140,8 +159,6 @@ function convertFocusJSON(json, filename) {
                 children[rid].push(id);
             }
         }
-
-        // BFS: каждая ветка от корня получает свою колонку
         const roots = focuses.filter(f => !f.requirements || !f.requirements.length);
         const queue = roots.map(f => ({ id: nameToId[f.name], col: nextCol++ }));
         const visited = new Set(queue.map(q => q.id));
@@ -150,12 +167,10 @@ function convertFocusJSON(json, filename) {
             colCache[id] = col;
             const kids = children[id] || [];
             if (kids.length > 1) {
-                // Ветвление — новые колонки
                 for (let i = 0; i < kids.length; i++) {
-                    const kidCol = col + i;
                     if (!visited.has(kids[i])) {
                         visited.add(kids[i]);
-                        queue.push({ id: kids[i], col: kidCol });
+                        queue.push({ id: kids[i], col: col + i });
                     }
                 }
             } else if (kids.length === 1 && !visited.has(kids[0])) {
@@ -169,12 +184,10 @@ function convertFocusJSON(json, filename) {
             const tier = depthCache[f.name] || 0;
             const col = colCache[id] ?? 0;
             const desc = (f.effects || []).join(', ') || '';
-            const effect = guessEffect(f.name, desc);
+            const effect = f.effect || guessEffect(f.name, desc);
 
             result.push({
-                id, name: f.name,
-                desc: desc,
-                icon: f.icon || '⭐', country,
+                id, name: f.name, desc, icon: f.icon || '⭐', country,
                 x: f.x !== undefined ? f.x : 30 + col * 170,
                 y: f.y !== undefined ? f.y : 40 + tier * 70,
                 prereqs: (f.requirements || []).map(r => nameToId[r]).filter(Boolean),
