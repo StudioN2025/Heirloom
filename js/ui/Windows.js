@@ -28,8 +28,8 @@ export class WindowsManager {
         html += '<div style="font-size:14px;font-weight:bold;color:#eab308;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #374151;">⚔️ МОИ ВОЙСКА (' + units.length + ')</div>';
 
         html += '<div style="display:flex;gap:6px;margin-bottom:12px;">';
-        html += '<button onclick="window.recruitUnit && window.recruitUnit(0)" style="flex:1;padding:10px;background:#15803d;color:white;border:none;border-radius:6px;font-weight:bold;cursor:pointer;font-size:12px;">➕ ПЕХОТА</button>';
-        html += '<button onclick="window.recruitUnit && window.recruitUnit(1)" style="flex:1;padding:10px;background:#1d4ed8;color:white;border:none;border-radius:6px;font-weight:bold;cursor:pointer;font-size:12px;">➕ ТАНК</button>';
+        html += '<button onclick="window.recruitUnit && window.recruitUnit(\'infantry\')" style="flex:1;padding:10px;background:#15803d;color:white;border:none;border-radius:6px;font-weight:bold;cursor:pointer;font-size:12px;">➕ ПЕХОТА</button>';
+        html += '<button onclick="window.recruitUnit && window.recruitUnit(\'tank\')" style="flex:1;padding:10px;background:#1d4ed8;color:white;border:none;border-radius:6px;font-weight:bold;cursor:pointer;font-size:12px;">➕ ТАНК</button>';
         html += '<button onclick="window.createArmy && window.createArmy()" style="flex:1;padding:10px;background:#854d0e;color:white;border:none;border-radius:6px;font-weight:bold;cursor:pointer;font-size:12px;">🎖️ АРМИЯ</button>';
         html += '</div>';
         
