@@ -24,7 +24,10 @@ function convertFocusJSON(json) {
             : treeKey.toLowerCase().includes('uk') ? 'uk'
             : treeKey.toLowerCase().includes('italy') ? 'italy'
             : treeKey.toLowerCase().includes('poland') ? 'poland'
-            : 'germany';
+            : treeKey.toLowerCase().includes('luxembourg') ? 'luxembourg'
+            : null;
+
+        if (!country) continue; // Пропускаем неизвестные страны
 
         const focuses = treeData.Focuses;
         const nameToId = {};
