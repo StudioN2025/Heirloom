@@ -19,6 +19,7 @@ import { SupplySystem } from './systems/SupplySystem.js';
 import { DiplomacySystem } from './systems/DiplomacySystem.js';
 import { TechSystem, TECH_TREE, TECH_BRANCHES } from './systems/TechSystem.js';
 import { FocusSystem, FOCUS_TREE } from './systems/FocusSystem.js';
+import { loadFocusTree } from './data/FocusTree.js';
 import { QueueSystem, TRAIN_DEFS, BUILD_DEFS } from './systems/QueueSystem.js';
 import { addNotification } from './utils/helpers.js';
 
@@ -91,10 +92,14 @@ async function loadGameData() {
     updateLoadingBar(50, 'Генерация рельефа...');
     world.generateTerrain();
 
-    updateLoadingBar(65, 'Предзагрузка ресурсов...');
+    updateLoadingBar(60, 'Загрузка фокусов...');
+    const loadedFocuses = await loadFocusTree();
+    window._FOCUS_TREE = loadedFocuses;
+
+    updateLoadingBar(75, 'Предзагрузка ресурсов...');
     await preloadResources();
 
-    updateLoadingBar(80, 'Инициализация ИИ...');
+    updateLoadingBar(85, 'Инициализация ИИ...');
     aiController = new AIController(world, entities, gameState);
     aiController.production = production;
     await aiController.init();
