@@ -129,10 +129,39 @@ function convertFocusJSON(json, filename) {
 
         const colCache = {};
         let nextCol = 0;
+
+        // Строим дерево зависимостей
+        const children = {};
         for (const f of focuses) {
             const id = nameToId[f.name];
-            if (!f.requirements || !f.requirements.length) colCache[id] = nextCol++;
-            else colCache[id] = colCache[nameToId[f.requirements[0]]] ?? 0;
+            for (const r of (f.requirements || [])) {
+                const rid = nameToId[r];
+                if (!children[rid]) children[rid] = [];
+                children[rid].push(id);
+            }
+        }
+
+        // BFS: каждая ветка от корня получает свою колонку
+        const roots = focuses.filter(f => !f.requirements || !f.requirements.length);
+        const queue = roots.map(f => ({ id: nameToId[f.name], col: nextCol++ }));
+        const visited = new Set(queue.map(q => q.id));
+        while (queue.length) {
+            const { id, col } = queue.shift();
+            colCache[id] = col;
+            const kids = children[id] || [];
+            if (kids.length > 1) {
+                // Ветвление — новые колонки
+                for (let i = 0; i < kids.length; i++) {
+                    const kidCol = col + i;
+                    if (!visited.has(kids[i])) {
+                        visited.add(kids[i]);
+                        queue.push({ id: kids[i], col: kidCol });
+                    }
+                }
+            } else if (kids.length === 1 && !visited.has(kids[0])) {
+                visited.add(kids[0]);
+                queue.push({ id: kids[0], col: col });
+            }
         }
 
         for (const f of focuses) {
@@ -145,7 +174,7 @@ function convertFocusJSON(json, filename) {
             result.push({
                 id, name: f.name,
                 desc: desc,
-                icon: '⭐', country,
+                icon: f.icon || '⭐', country,
                 x: f.x !== undefined ? f.x : 30 + col * 170,
                 y: f.y !== undefined ? f.y : 40 + tier * 70,
                 prereqs: (f.requirements || []).map(r => nameToId[r]).filter(Boolean),
