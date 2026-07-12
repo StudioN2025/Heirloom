@@ -188,9 +188,13 @@ export class World {
             }
         }
         if (data.cellStats) {
-            for (const entry of data.cellStats.split('|')) {
-                const [pos, json] = entry.split(':');
-                world.cellStats.set(pos, JSON.parse(json));
+            const entries = typeof data.cellStats === 'string' ? data.cellStats.split('|') : [];
+            for (const entry of entries) {
+                const colonIdx = entry.indexOf(':');
+                if (colonIdx === -1) continue;
+                const pos = entry.substring(0, colonIdx);
+                const json = entry.substring(colonIdx + 1);
+                try { world.cellStats.set(pos, JSON.parse(json)); } catch(e) {}
             }
         }
         world.bounds = data.bounds || { minX: -50, maxX: 50, minY: -50, maxY: 50 };
