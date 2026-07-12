@@ -26,23 +26,54 @@ function convertFocusJSON(json) {
             : treeKey.toLowerCase().includes('poland') ? 'poland'
             : 'germany';
 
+        const focuses = treeData.Focuses;
         const nameToId = {};
-        for (const f of treeData.Focuses) {
+        for (const f of focuses) {
             nameToId[f.name] = f.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
         }
 
-        for (const f of treeData.Focuses) {
+        // Определяем tier для каждого фокуса (глубина зависимостей)
+        const tierMap = {};
+        function calcTier(name, visited = new Set()) {
+            if (tierMap[name] !== undefined) return tierMap[name];
+            if (visited.has(name)) return 0;
+            visited.add(name);
+            const f = focuses.find(ff => ff.name === name);
+            if (!f || !f.requirements || f.requirements.length === 0) { tierMap[name] = 0; return 0; }
+            const maxParent = Math.max(...f.requirements.map(r => calcTier(r, new Set(visited))));
+            tierMap[name] = maxParent + 1;
+            return tierMap[name];
+        }
+        for (const f of focuses) calcTier(f.name);
+
+        // Определяем колонку (ветку) для каждого фокуса
+        const colMap = {};
+        let colIdx = 0;
+        const usedCols = new Set();
+        for (const f of focuses) {
             const id = nameToId[f.name];
-            // Вычисляем позицию: tier определяется по количеству зависимостей
-            const depth = (f.requirements || []).length;
+            if (!f.requirements || f.requirements.length === 0) {
+                colMap[id] = colIdx++;
+            } else {
+                const parentCol = colMap[nameToId[f.requirements[0]]] || 0;
+                colMap[id] = parentCol;
+            }
+        }
+
+        // Позиционируем
+        const nodeW = 130, gapX = 40, gapY = 70;
+        for (const f of focuses) {
+            const id = nameToId[f.name];
+            const tier = tierMap[f.name] || 0;
+            const col = colMap[id] || 0;
             result[id] = {
                 id,
                 name: f.name,
                 desc: (f.effects || []).slice(0, 2).join(', ') || '',
                 icon: '⭐',
                 country,
-                x: f.x !== undefined ? f.x : 50 + depth * 170,
-                y: f.y !== undefined ? f.y : 50,
+                x: f.x !== undefined ? f.x : 30 + col * (nodeW + gapX),
+                y: f.y !== undefined ? f.y : 40 + tier * (nodeH + gapY),
                 prereqs: (f.requirements || []).map(r => nameToId[r]).filter(Boolean),
                 effect: {},
             };
@@ -50,6 +81,8 @@ function convertFocusJSON(json) {
     }
     return result;
 }
+
+const nodeH = 60;
 
 export async function loadFocusTree() {
     const allFocuses = {};
