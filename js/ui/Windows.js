@@ -48,6 +48,8 @@ export class WindowsManager {
         content.innerHTML = html;
     }
     
+    renderFocusWindow(content) { this.renderResearchWindow(content); }
+
     renderResearchWindow(content) {
         const focusTree = window._FOCUS_TREE || {};
         const myId = this.gameState.myCountryId;

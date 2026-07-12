@@ -36,10 +36,10 @@ function convertFocusJSON(json, filename) {
         const focuses = treeData.Focuses;
         if (!focuses || !focuses.length) continue;
 
-        // Создаём маппинг имен → id
+        // Создаём маппинг имен → id (с префиксом страны чтобы не перезаписывались)
         const nameToId = {};
         for (const f of focuses) {
-            nameToId[f.name] = f.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+            nameToId[f.name] = country + '_' + f.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
         }
 
         // Вычисляем глубину (tier) для каждой ноды
