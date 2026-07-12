@@ -391,6 +391,12 @@ function setupEvents() {
         diplomacy.kickFromAlliance(id);
         uiManager.openWindow('diplomacy');
     };
+
+    window.releaseVassal = (vassalId) => {
+        gameState.removeVassal(gameState.myCountryId, vassalId);
+        addNotification('👑 ' + vassalId.toUpperCase() + ' освобождён', 'info');
+        uiManager.openWindow('diplomacy');
+    };
     
     window.quickSave = () => {
         saveGame();
@@ -656,12 +662,9 @@ function startGameLoop() {
                         var threshold = gameState.getCapitulationThreshold(countryInfo.ideology);
                         var progress = gameState.getWarProgress(enemyId, world);
                         if (progress >= threshold) {
-                            addNotification('🏳️ ' + enemyId.toUpperCase() + ' капитулировал!', 'war');
-                            var cells = Array.from(world.getCountryCells(enemyId));
-                            for (var ci = 0; ci < cells.length; ci++) {
-                                var parts = cells[ci].split(',');
-                                world.setCell(parseInt(parts[0]), parseInt(parts[1]), winnerId);
-                            }
+                            addNotification('🏳️ ' + enemyId.toUpperCase() + ' капитулировал! Стал вассалом ' + winnerId.toUpperCase(), 'war');
+                            gameState.addVassal(winnerId, enemyId);
+                            gameState.addAlliance(winnerId, enemyId);
                             warsToRemove.push(wi);
                         }
                     };

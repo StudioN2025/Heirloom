@@ -22,6 +22,7 @@ export class GameState {
         
         this.wars = [];
         this.alliances = [];
+        this.vassals = {}; // { overlordId: [vassalId, ...] }
         this.warStartCells = {}; // { countryId: originalCellCount }
         
         this.activeFocus = null;
@@ -89,6 +90,35 @@ export class GameState {
             this.alliances.push(new Set([a, b]));
         }
     }
+
+    addVassal(overlord, vassal) {
+        if (!this.vassals[overlord]) this.vassals[overlord] = [];
+        if (!this.vassals[overlord].includes(vassal)) {
+            this.vassals[overlord].push(vassal);
+        }
+    }
+
+    removeVassal(overlord, vassal) {
+        if (this.vassals[overlord]) {
+            this.vassals[overlord] = this.vassals[overlord].filter(function(v) { return v !== vassal; });
+            if (this.vassals[overlord].length === 0) delete this.vassals[overlord];
+        }
+    }
+
+    getVassals(countryId) {
+        return this.vassals[countryId] || [];
+    }
+
+    getOverlord(countryId) {
+        for (var overlord in this.vassals) {
+            if (this.vassals[overlord].indexOf(countryId) !== -1) return overlord;
+        }
+        return null;
+    }
+
+    isVassal(countryId) {
+        return this.getOverlord(countryId) !== null;
+    }
     
     serialize() {
         return {
@@ -106,6 +136,7 @@ export class GameState {
             countryResearch: Array.from(this.countryResearch.entries()),
             wars: [...this.wars],
             alliances: this.alliances.map(a => [...a]),
+            vassals: { ...this.vassals },
             activeFocus: this.activeFocus ? { ...this.activeFocus } : null,
             completedFocuses: [...this.completedFocuses],
             selectedUnitId: this.selectedUnitId,
@@ -130,6 +161,7 @@ export class GameState {
         this.countryResearch = new Map(data.countryResearch || []);
         this.wars = data.wars || [];
         this.alliances = (data.alliances || []).map(a => new Set(a));
+        this.vassals = data.vassals || {};
         this.activeFocus = data.activeFocus;
         this.completedFocuses = new Set(data.completedFocuses || []);
         this.selectedUnitId = data.selectedUnitId;

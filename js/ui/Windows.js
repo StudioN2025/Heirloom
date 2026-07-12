@@ -224,22 +224,45 @@ export class WindowsManager {
         var allies = [], enemies = [];
         if (this.gameState.wars) { for (var w = 0; w < this.gameState.wars.length; w++) { var war = this.gameState.wars[w]; if (war.a === myId) enemies.push(war.b); if (war.b === myId) enemies.push(war.a); } }
         if (this.gameState.alliances) { for (var ai = 0; ai < this.gameState.alliances.length; ai++) { var a = this.gameState.alliances[ai]; if (a.has(myId)) { for (var id of a) { if (id !== myId) allies.push(id); } } } }
+        var vassals = this.gameState.getVassals(myId);
+        var overlord = this.gameState.getOverlord(myId);
+
         var html = '<div style="padding:12px;">';
+
+        // Лорд
+        if (overlord) {
+            html += '<div style="background:#1a0a2e;border:1px solid #a855f7;border-radius:6px;padding:8px;margin-bottom:12px;text-align:center;">';
+            html += '<span style="font-size:11px;color:#a855f7;font-weight:bold;">👑 Вы вассал ' + overlord.toUpperCase() + '</span>';
+            html += '</div>';
+        }
+
+        // Вассалы
+        if (vassals.length > 0) {
+            html += '<div style="margin-bottom:12px;"><div style="font-size:12px;font-weight:bold;color:#a855f7;margin-bottom:6px;">👑 Вассалы (' + vassals.length + ')</div>';
+            for (var vi = 0; vi < vassals.length; vi++) {
+                html += '<div style="background:#1a0a2e;border:1px solid #a855f7;border-radius:4px;padding:6px 8px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;">';
+                html += '<span style="font-weight:bold;font-size:11px;color:#c084fc;">👑 ' + vassals[vi].toUpperCase() + '</span>';
+                html += '<button onclick="window.releaseVassal && window.releaseVassal(\'' + vassals[vi] + '\')" style="background:#7f1d1d;color:white;padding:3px 6px;border-radius:3px;font-size:9px;cursor:pointer;">Освободить</button>';
+                html += '</div>';
+            }
+            html += '</div>';
+        }
+
+        // Союзники
         html += '<div style="margin-bottom:12px;"><div style="font-size:12px;font-weight:bold;color:#22c55e;margin-bottom:6px;">🤝 Союзники (' + allies.length + ')</div>';
         if (allies.length === 0) html += '<div style="color:#6b7280;font-size:11px;text-align:center;padding:8px;">Нет союзников</div>';
-        else { for (var i = 0; i < allies.length; i++) { html += '<div style="background:#0a2e1a;border:1px solid #22c55e;border-radius:4px;padding:6px 8px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;"><span style="font-weight:bold;font-size:11px;">' + allies[i].toUpperCase() + '</span><button onclick="window.kickAlly(\'' + allies[i] + '\')" style="background:#991b1b;color:white;padding:3px 6px;border-radius:3px;font-size:9px;cursor:pointer;">✕</button></div>'; } }
+        else { for (var i = 0; i < allies.length; i++) { html += '<div style="background:#0a2e1a;border:1px solid #22c55e;border-radius:4px;padding:6px 8px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;"><span style="font-weight:bold;font-size:11px;">🤝 ' + allies[i].toUpperCase() + '</span><button onclick="window.kickAlly(\'' + allies[i] + '\')" style="background:#991b1b;color:white;padding:3px 6px;border-radius:3px;font-size:9px;cursor:pointer;">✕</button></div>'; } }
         html += '</div>';
+
+        // Враги
         html += '<div><div style="font-size:12px;font-weight:bold;color:#ef4444;margin-bottom:6px;">⚔️ Враги (' + enemies.length + ')</div>';
         if (enemies.length === 0) html += '<div style="color:#6b7280;font-size:11px;text-align:center;padding:8px;">Мирное время</div>';
         else {
             for (var i = 0; i < enemies.length; i++) {
                 var eid = enemies[i];
                 var progress = this.gameState.getWarProgress(eid, this.world);
-                var countryInfo = this.world && this.world.getAllCountries ? null : null;
-                var COUNTRIES_MOD = null;
-                try { COUNTRIES_MOD = require ? null : null; } catch(e) {}
                 var ideology = 'Демократия';
-                if (typeof window !== 'undefined' && window._COUNTRIES_MAP && window._COUNTRIES_MAP[eid]) {
+                if (window._COUNTRIES_MAP && window._COUNTRIES_MAP[eid]) {
                     ideology = window._COUNTRIES_MAP[eid].ideology || 'Демократия';
                 }
                 var threshold = this.gameState.getCapitulationThreshold(ideology);
