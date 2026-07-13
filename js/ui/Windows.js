@@ -305,9 +305,14 @@ export class WindowsManager {
         } else {
             for (var i = 0; i < armies.length; i++) {
                 var army = armies[i];
-                html += '<div style="background:#1f2937;border-left:4px solid ' + army.color + ';padding:10px;border-radius:6px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">';
-                html += '<span style="font-weight:bold;color:' + army.color + ';">' + army.name + ' (' + army.unitIds.size + ')</span>';
-                html += '<button onclick="window.selectArmy(' + army.id + ')" style="background:#374151;color:white;padding:4px 8px;border-radius:4px;font-size:10px;cursor:pointer;">🎖️</button>';
+                var frontStatus = army.frontLine ? '🎯 ' + army.frontLine.enemyId.toUpperCase() : '';
+                html += '<div style="background:#1f2937;border-left:4px solid ' + army.color + ';padding:10px;border-radius:6px;margin-bottom:6px;">';
+                html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+                html += '<span style="font-weight:bold;color:' + army.color + ';">' + army.name + ' (' + army.unitIds.size + ')' + (frontStatus ? ' <span style="color:#eab308;font-size:10px;">' + frontStatus + '</span>' : '') + '</span>';
+                html += '<div style="display:flex;gap:4px;">';
+                html += '<button onclick="window.setArmyFrontLine(' + army.id + ')" style="background:#854d0e;color:white;padding:4px 8px;border-radius:4px;font-size:10px;cursor:pointer;">🎯</button>';
+                html += '<button onclick="window.disbandArmy(' + army.id + ');uiManager.openWindow(\'commanders\')" style="background:#991b1b;color:white;padding:4px 8px;border-radius:4px;font-size:10px;cursor:pointer;">✕</button>';
+                html += '</div></div>';
                 html += '</div>';
             }
         }

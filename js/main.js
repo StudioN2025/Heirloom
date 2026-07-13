@@ -457,8 +457,13 @@ function setupEvents() {
 
     window.disbandArmy = (armyId) => {
         if (armyManager) armyManager.disbandArmy(armyId);
-        if (gameState._selectedArmyId === armyId) gameState._selectedArmyId = null;
-        updateArmyPanel();
+    };
+
+    window.setArmyFrontLine = (armyId) => {
+        if (!armyManager) return;
+        addNotification('Выберите вражескую клетку на карте', 'info');
+        window._frontLineArmyId = armyId;
+        setTimeout(function() { window._frontLineArmyId = null; }, 15000);
     };
 
     window.selectArmy = (armyId) => {
@@ -496,6 +501,13 @@ function handleCanvasClick(e) {
             window._recruitMode = null;
             document.getElementById('recruit-hint')?.classList.add('hidden');
         }
+        return;
+    }
+
+    // Режим привязки армии к границе
+    if (window._frontLineArmyId && cellOwner && cellOwner !== gameState.myCountryId && !gameState.areAllies(gameState.myCountryId, cellOwner)) {
+        armyManager.setFrontLine(window._frontLineArmyId, cellOwner, movement);
+        window._frontLineArmyId = null;
         return;
     }
 
@@ -678,6 +690,7 @@ function startGameLoop() {
             if (combat) combat.update();
             if (movement) movement.update();
             if (armyManager) armyManager.update();
+            if (armyManager) armyManager.updateFrontLines(movement);
             if (aiController) aiController.update();
             if (tech) tech.update();
             if (focus) focus.update();

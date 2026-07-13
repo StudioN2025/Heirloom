@@ -297,6 +297,15 @@ export class RendererWebGL {
                 }
             }
 
+            // Флаг страны в углу юнита
+            if (size > 12) {
+                const flag = this.flags[owner];
+                if (flag && flag.complete && flag.naturalWidth > 0) {
+                    const fSize = Math.max(6, Math.floor(size * 0.4));
+                    ctx.drawImage(flag, screenX, screenY, fSize, Math.floor(fSize * 0.67));
+                }
+            }
+
             // Множественный выбор — жёлтая рамка
             if (gameState._selectedUnits && gameState._selectedUnits.includes(i)) {
                 ctx.strokeStyle = '#fbbf24';

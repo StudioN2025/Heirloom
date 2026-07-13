@@ -53,6 +53,7 @@ export class ArmyManager {
             name: `Армия ${this.nextId - 1}`,
             unitIds: new Set(valid),
             ownerId,
+            frontLine: null, // { cells: [{x,y}], enemyId }
         };
         this.armies.push(army);
 
@@ -154,6 +155,106 @@ export class ArmyManager {
             addNotification(`🎖️ ${army.name}: ${verb} (${moved} юнитов)`, 'info');
         }
         return moved > 0;
+    }
+
+    // Привязать армию к границе врага
+    setFrontLine(armyId, enemyId, movementSystem) {
+        const army = this.armies.find(a => a.id === armyId);
+        if (!army) return false;
+
+        // Находим все клетки на границе с врагом
+        const borderCells = [];
+        const myCells = this.world.getCountryCells(army.ownerId);
+        for (const cellKey of myCells) {
+            const [x, y] = cellKey.split(',').map(Number);
+            for (const [dx, dy] of [[1,0],[-1,0],[0,1],[0,-1]]) {
+                if (this.world.getCell(x + dx, y + dy) === enemyId) {
+                    borderCells.push({ x: x + dx, y: y + dy });
+                    break;
+                }
+            }
+        }
+
+        if (borderCells.length === 0) {
+            addNotification('Нет границы с ' + enemyId.toUpperCase(), 'war');
+            return false;
+        }
+
+        army.frontLine = { cells: borderCells, enemyId };
+
+        // Строим линию фронта — сортируем клетки по позиции
+        borderCells.sort((a, b) => a.x + a.y - (b.x + b.y));
+
+        // Размещаем юнитов вдоль границы
+        const units = [...army.unitIds].filter(id => this.entities.active[id] && !this.entities.inCombat[id]);
+        for (let i = 0; i < units.length; i++) {
+            const cellIdx = i % borderCells.length;
+            const target = borderCells[cellIdx];
+            // Ставим юнита на свою клетку рядом с границей
+            const sx = this.entities.x[units[i]];
+            const sy = this.entities.y[units[i]];
+            // Ищем свободную клетку рядом с целью
+            let placed = false;
+            for (const [dx, dy] of [[0,0],[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1]]) {
+                const tx = target.x + dx, ty = target.y + dy;
+                const cellOwner = this.world.getCell(tx, ty);
+                if ((cellOwner === army.ownerId || this.gs.areAllies(army.ownerId, cellOwner))
+                    && !this.entities.getUnitAt(tx, ty)) {
+                    if (movementSystem) movementSystem.giveOrder(units[i], tx, ty);
+                    placed = true;
+                    break;
+                }
+            }
+            if (!placed && movementSystem) {
+                movementSystem.giveOrder(units[i], target.x, target.y);
+            }
+        }
+
+        addNotification(`🎖️ ${army.name}: привязана к границе ${enemyId.toUpperCase()} (${borderCells.length} клеток)`, 'info');
+        return true;
+    }
+
+    // Обновление позиций армии на границе (вызывается каждый день)
+    updateFrontLines(movementSystem) {
+        for (const army of this.armies) {
+            if (!army.frontLine) continue;
+
+            // Проверяем что юниты ещё живы и не в бою
+            const units = [...army.unitIds].filter(id => this.entities.active[id] && !this.entities.inCombat[id]);
+            if (units.length === 0) continue;
+
+            // Проверяем что юниты ещё рядом с границей
+            let needsReposition = false;
+            for (const uid of units) {
+                const ux = this.entities.x[uid], uy = this.entities.y[uid];
+                let nearBorder = false;
+                for (const bc of army.frontLine.cells) {
+                    if (Math.abs(ux - bc.x) <= 1 && Math.abs(uy - bc.y) <= 1) {
+                        nearBorder = true;
+                        break;
+                    }
+                }
+                if (!nearBorder) { needsReposition = true; break; }
+            }
+
+            if (!needsReposition) continue;
+
+            // Перестраиваем линию
+            const cells = army.frontLine.cells;
+            for (let i = 0; i < units.length; i++) {
+                const cellIdx = i % cells.length;
+                const target = cells[cellIdx];
+                for (const [dx, dy] of [[0,0],[1,0],[-1,0],[0,1],[0,-1]]) {
+                    const tx = target.x + dx, ty = target.y + dy;
+                    const cellOwner = this.world.getCell(tx, ty);
+                    if ((cellOwner === army.ownerId || (this.gs.areAllies && this.gs.areAllies(army.ownerId, cellOwner)))
+                        && !this.entities.getUnitAt(tx, ty)) {
+                        if (movementSystem) movementSystem.giveOrder(units[i], tx, ty);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     // Обновление — чистим мёртвых юнитов из армий
