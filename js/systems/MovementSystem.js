@@ -109,18 +109,28 @@ export class MovementSystem {
                 const [nx, ny] = next.split(',').map(Number);
 
                 const isWater = this.world.isWater(nx, ny);
-                const isLand = this.world.getCell(nx, ny) !== 0;
+                const cellOwner = this.world.getCell(nx, ny);
+                const isLand = cellOwner !== 0;
 
-                // Корабль не может идти по суше (кроме высадки)
-                if (isShip && isLand && !(nx === order.targetX && ny === order.targetY)) {
-                    break;
+                // Пехота — только по суше (клетка с владельцем)
+                if (!isShip) {
+                    if (isWater || !isLand) {
+                        if (!hasPort || !isWater) {
+                            this.orders.delete(unitId);
+                            if (step === 0) addNotification('Путь заблокирован!', 'war');
+                            break;
+                        }
+                    }
                 }
 
-                // Пехота не может идти по воде (кроме порта)
-                if (!isShip && isWater && !hasPort) {
-                    this.orders.delete(unitId);
-                    addNotification('Путь заблокирован водой!', 'war');
-                    break;
+                // Корабль — только по воде, на сушу только высадка
+                if (isShip) {
+                    if (!isWater && isLand && !(nx === order.targetX && ny === order.targetY)) {
+                        break;
+                    }
+                    if (!isWater && !isLand) {
+                        break;
+                    }
                 }
 
                 // Корабль выходит на сушу — высадка десанта
@@ -153,8 +163,7 @@ export class MovementSystem {
                 }
 
                 // Проверяем вражескую территорию (пехота)
-                const cellOwner = isLand ? this.world.getCell(nx, ny) : 0;
-                if (cellOwner !== 0 && cellOwner !== e.owner[unitId]
+                if (!isShip && isLand && cellOwner !== 0 && cellOwner !== e.owner[unitId]
                     && !this._areAllied(e.owner[unitId], cellOwner)) {
                     const enemy = e.getUnitAt(nx, ny);
                     if (enemy && e.active[enemy] && e.owner[enemy] !== e.owner[unitId]) {
@@ -223,16 +232,12 @@ export class MovementSystem {
                     }
                 }
 
-                // Корабль — по воде, может заходить на сушу
-                if (allowWater && isWater) {
-                    // ок
-                } else if (allowWater && !isWater) {
-                    // Корабль на суше — только если рядом порт или высадка
-                    const hasNearPort = this.world.hasBuilding(nx, ny, 'port');
-                    if (!hasNearPort) {
-                        const isAllied2 = this._areAllied(ownerId, cellOwner);
-                        const isAtWar2 = this.gs && this.gs.isAtWar && this.gs.isAtWar(ownerId, cellOwner);
-                        if (cellOwner !== 0 && cellOwner !== ownerId && !isAllied2 && !isAtWar2) continue;
+                // Корабль — ТОЛЬКО по воде
+                if (allowWater) {
+                    if (isWater) {
+                        // ok — по воде
+                    } else {
+                        continue; // суша — пропускаем
                     }
                 }
 
