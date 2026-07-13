@@ -153,6 +153,7 @@ export class GameState {
             activeBattles: this.activeBattles.map(b => ({ ...b })),
             trainingQueue: this.trainingQueue.map(q => ({ ...q })),
             constructionQueue: this.constructionQueue.map(q => ({ ...q })),
+            autosave: this.autosave,
         };
     }
 
@@ -179,6 +180,7 @@ export class GameState {
         this.activeBattles = data.activeBattles || [];
         this.trainingQueue = data.trainingQueue || [];
         this.constructionQueue = data.constructionQueue || [];
+        this.autosave = data.autosave !== undefined ? data.autosave : true;
         this._capitulationPending = false;
     }
 }

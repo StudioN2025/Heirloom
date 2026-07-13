@@ -321,7 +321,15 @@ export class WindowsManager {
     }
     
     renderSaveWindow(content) {
-        content.innerHTML = '<div style="padding:12px;"><button onclick="window.quickSave()" style="background:#15803d;color:white;padding:12px;border-radius:8px;font-weight:bold;width:100%;cursor:pointer;margin-bottom:8px;">💾 СОХРАНИТЬ</button><button onclick="window.quickLoad()" style="background:#2563eb;color:white;padding:12px;border-radius:8px;font-weight:bold;width:100%;cursor:pointer;">📂 ЗАГРУЗИТЬ</button></div>';
+        var autosaveOn = this.gameState.autosave !== false;
+        var html = '<div style="padding:12px;">';
+        html += '<button onclick="window.quickSave()" style="background:#15803d;color:white;padding:12px;border-radius:8px;font-weight:bold;width:100%;cursor:pointer;margin-bottom:8px;">💾 СОХРАНИТЬ</button>';
+        html += '<button onclick="window.quickLoad()" style="background:#2563eb;color:white;padding:12px;border-radius:8px;font-weight:bold;width:100%;cursor:pointer;margin-bottom:12px;">📂 ЗАГРУЗИТЬ</button>';
+        html += '<div style="background:#1f2937;border-radius:6px;padding:10px;display:flex;justify-content:space-between;align-items:center;">';
+        html += '<span style="font-size:11px;color:#9ca3af;">Автосохранение каждые 30 дней</span>';
+        html += '<button onclick="window.toggleAutosave()" style="padding:6px 12px;border-radius:4px;font-size:11px;font-weight:bold;cursor:pointer;border:none;background:' + (autosaveOn ? '#15803d' : '#991b1b') + ';color:white;">' + (autosaveOn ? 'ВКЛ' : 'ВЫКЛ') + '</button>';
+        html += '</div></div>';
+        content.innerHTML = html;
     }
 
     renderCapitulationWindow(content, data) {

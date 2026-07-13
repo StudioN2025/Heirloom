@@ -441,6 +441,12 @@ function setupEvents() {
 
     window.saveToSlot = window.quickSave;
     window.loadFromSlot = window.quickLoad;
+
+    window.toggleAutosave = () => {
+        gameState.autosave = gameState.autosave === false ? true : false;
+        addNotification('💾 Автосохранение: ' + (gameState.autosave !== false ? 'включено' : 'выключено'), 'info');
+        uiManager.openWindow('save');
+    };
     
     window.createArmy = () => {
         if (!armyManager) return;
@@ -806,7 +812,7 @@ function startGameLoop() {
 
             needsRender = true;
 
-            if (gameState.days % 30 === 0 && gameState.days > 0) {
+            if (gameState.days % 30 === 0 && gameState.days > 0 && gameState.autosave !== false) {
                 // Автосохранение — тихое скачивание
                 const saveData = {
                     version: '5.0',
