@@ -1,4 +1,5 @@
 {
+  "version": "4.0",
   "gridData": {
     "-48,54": "spain",
     "-47,51": "spain",
@@ -809,8 +810,6 @@
     "-26,17": "spain",
     "-26,18": "spain",
     "-26,19": "spain",
-    "-26,20": "spain",
-    "-26,21": "spain",
     "-26,22": "spain",
     "-26,23": "spain",
     "-26,24": "spain",
@@ -918,7 +917,6 @@
     "-24,18": "spain",
     "-24,19": "spain",
     "-24,20": "spain",
-    "-24,21": "spain",
     "-24,22": "spain",
     "-24,34": "france",
     "-24,35": "france",
@@ -948,7 +946,6 @@
     "-23,-38": "uk",
     "-23,-37": "uk",
     "-23,-36": "uk",
-    "-23,-32": "uk",
     "-23,-25": "uk",
     "-23,-24": "uk",
     "-23,-23": "uk",
@@ -977,7 +974,6 @@
     "-23,16": "spain",
     "-23,17": "spain",
     "-23,18": "spain",
-    "-23,19": "spain",
     "-23,20": "spain",
     "-23,21": "spain",
     "-23,34": "france",
@@ -1801,9 +1797,6 @@
     "-8,3": "france",
     "-8,4": "france",
     "-8,5": "france",
-    "-8,6": "france",
-    "-8,7": "france",
-    "-8,8": "france",
     "-8,9": "france",
     "-8,10": "france",
     "-8,11": "france",
@@ -1847,7 +1840,6 @@
     "-7,2": "france",
     "-7,3": "france",
     "-7,4": "france",
-    "-7,5": "france",
     "-7,6": "france",
     "-7,7": "france",
     "-7,8": "france",
@@ -1924,7 +1916,7 @@
     "-5,-10": "belgium",
     "-5,-9": "germany",
     "-5,-8": "germany",
-    "-5,-7": "france",
+    "-5,-7": "germany",
     "-5,-6": "france",
     "-5,-5": "france",
     "-5,-4": "france",
@@ -1968,7 +1960,7 @@
     "-4,-9": "germany",
     "-4,-8": "germany",
     "-4,-7": "germany",
-    "-4,-6": "france",
+    "-4,-6": "germany",
     "-4,-5": "france",
     "-4,-4": "france",
     "-4,-3": "france",
@@ -2012,7 +2004,7 @@
     "-3,-8": "germany",
     "-3,-7": "germany",
     "-3,-6": "germany",
-    "-3,-5": "france",
+    "-3,-5": "germany",
     "-3,-4": "france",
     "-3,-3": "germany",
     "-3,-2": "germany",
@@ -2032,13 +2024,11 @@
     "-3,14": "france",
     "-3,15": "france",
     "-3,16": "france",
-    "-3,17": "france",
     "-3,20": "italy",
     "-3,21": "italy",
     "-3,22": "italy",
     "-3,23": "italy",
     "-3,24": "italy",
-    "-3,25": "italy",
     "-3,42": "france",
     "-3,43": "france",
     "-3,44": "france",
@@ -2325,7 +2315,6 @@
     "3,12": "italy",
     "3,13": "italy",
     "3,14": "italy",
-    "3,15": "italy",
     "3,16": "italy",
     "3,32": "italy",
     "3,33": "italy",
@@ -2377,7 +2366,6 @@
     "4,14": "italy",
     "4,15": "italy",
     "4,16": "italy",
-    "4,17": "italy",
     "4,18": "italy",
     "4,32": "italy",
     "4,33": "italy",
@@ -2395,7 +2383,6 @@
     "4,52": "italy",
     "4,53": "italy",
     "4,54": "italy",
-    "5,-18": "denmark",
     "5,-17": "denmark",
     "5,-15": "germany",
     "5,-14": "germany",
@@ -2451,7 +2438,6 @@
     "5,54": "italy",
     "6,-21": "denmark",
     "6,-20": "denmark",
-    "6,-18": "denmark",
     "6,-15": "germany",
     "6,-14": "germany",
     "6,-13": "germany",
@@ -2577,7 +2563,7 @@
     "8,-8": "germany",
     "8,-7": "czechoslovakia",
     "8,-6": "czechoslovakia",
-    "8,-5": "czechoslovakia",
+    "8,-5": "france",
     "8,-4": "czechoslovakia",
     "8,-3": "germany",
     "8,-2": "germany",
@@ -2676,7 +2662,7 @@
     "10,-7": "czechoslovakia",
     "10,-6": "czechoslovakia",
     "10,-5": "czechoslovakia",
-    "10,-4": "czechoslovakia",
+    "10,-4": "france",
     "10,-3": "czechoslovakia",
     "10,-2": "czechoslovakia",
     "10,-1": "germany",
@@ -2810,7 +2796,7 @@
     "13,-6": "czechoslovakia",
     "13,-5": "czechoslovakia",
     "13,-4": "czechoslovakia",
-    "13,-3": "czechoslovakia",
+    "13,-3": "france",
     "13,-2": "czechoslovakia",
     "13,-1": "austria",
     "13,0": "austria",
@@ -2891,7 +2877,7 @@
     "15,-7": "germany",
     "15,-6": "germany",
     "15,-5": "czechoslovakia",
-    "15,-4": "czechoslovakia",
+    "15,-4": "france",
     "15,-3": "czechoslovakia",
     "15,-2": "czechoslovakia",
     "15,-1": "czechoslovakia",
@@ -3283,7 +3269,6 @@
     "23,-13": "poland",
     "23,-12": "poland",
     "23,-11": "poland",
-    "23,-10": "poland",
     "23,-9": "poland",
     "23,-8": "poland",
     "23,-7": "poland",
@@ -3472,7 +3457,6 @@
     "25,52": "italy",
     "25,53": "italy",
     "25,54": "italy",
-    "26,-36": "estonia",
     "26,-35": "estonia",
     "26,-34": "estonia",
     "26,-33": "estonia",
@@ -3627,7 +3611,6 @@
     "27,54": "italy",
     "28,-36": "estonia",
     "28,-35": "estonia",
-    "28,-34": "estonia",
     "28,-33": "estonia",
     "28,-32": "estonia",
     "28,-31": "latvia",
@@ -3699,7 +3682,6 @@
     "28,52": "italy",
     "28,53": "italy",
     "28,54": "italy",
-    "29,-36": "estonia",
     "29,-35": "estonia",
     "29,-34": "estonia",
     "29,-33": "estonia",
@@ -3744,7 +3726,6 @@
     "29,6": "romania",
     "29,7": "romania",
     "29,8": "romania",
-    "29,9": "romania",
     "29,10": "romania",
     "29,11": "bulgaria",
     "29,12": "bulgaria",
@@ -3834,13 +3815,12 @@
     "30,52": "italy",
     "30,53": "italy",
     "30,54": "italy",
-    "31,-35": "estonia",
     "31,-34": "estonia",
     "31,-30": "latvia",
     "31,-29": "latvia",
     "31,-28": "latvia",
     "31,-27": "latvia",
-    "31,-21": "poland",
+    "31,-21": "ussr",
     "31,-13": "poland",
     "31,-12": "poland",
     "31,-11": "poland",
@@ -4942,7 +4922,6 @@
     "76,-3": "ussr",
     "75,-4": "ussr",
     "77,1": "ussr",
-    "77,-2": "ussr",
     "75,-3": "ussr",
     "74,-5": "ussr",
     "74,-6": "ussr",
@@ -12036,7 +12015,6 @@
     "16,-36": "sweden",
     "16,-37": "sweden",
     "16,-38": "sweden",
-    "16,-39": "sweden",
     "16,-40": "sweden",
     "15,-40": "sweden",
     "15,-41": "sweden",
@@ -12178,10 +12156,7 @@
     "23,-44": "finland",
     "24,-43": "finland",
     "24,-42": "finland",
-    "23,-42": "finland",
-    "23,-41": "finland",
     "24,-40": "finland",
-    "26,-40": "finland",
     "28,-40": "finland",
     "29,-40": "finland",
     "30,-40": "finland",
@@ -12444,9 +12419,7 @@
     "4,-41": "norway",
     "6,-41": "norway",
     "4,-42": "norway",
-    "6,-42": "norway",
     "4,-43": "norway",
-    "6,-43": "norway",
     "4,-44": "norway",
     "6,-44": "norway",
     "4,-45": "norway",
@@ -12610,7 +12583,6 @@
     "10,-41": "sweden",
     "8,-40": "sweden",
     "10,-40": "sweden",
-    "10,-39": "sweden",
     "10,-38": "sweden",
     "10,-37": "sweden",
     "8,-35": "sweden",
@@ -12640,7 +12612,6 @@
     "11,-37": "sweden",
     "13,-37": "sweden",
     "11,-38": "sweden",
-    "13,-38": "sweden",
     "11,-39": "sweden",
     "13,-39": "sweden",
     "11,-40": "sweden",
@@ -22001,7 +21972,6 @@
     "-32,-26": "ireland",
     "-33,-26": "ireland",
     "-33,-25": "ireland",
-    "-31,-25": "ireland",
     "-30,-23": "ireland",
     "-33,-24": "ireland",
     "-31,-24": "ireland",
@@ -22138,7 +22108,6 @@
     "74,20": "iraq",
     "75,20": "iraq",
     "75,21": "iraq",
-    "75,22": "iraq",
     "75,23": "iraq",
     "75,24": "iraq",
     "75,25": "iraq",
@@ -22986,7 +22955,6 @@
     "77,15": "iran",
     "77,16": "iran",
     "81,17": "iran",
-    "79,16": "iran",
     "81,16": "iran",
     "79,15": "iran",
     "81,15": "iran",
@@ -25499,7 +25467,44 @@
     "116,53": "uk",
     "120,53": "uk",
     "118,52": "uk",
-    "120,52": "uk"
+    "120,52": "uk",
+    "12,-16": "germany",
+    "11,-16": "germany",
+    "11,-17": "germany",
+    "5,-18": "denmark",
+    "6,-18": "denmark",
+    "-5,24": "italy",
+    "-5,25": "italy",
+    "-7,5": "france",
+    "-8,7": "france",
+    "-8,8": "france",
+    "-8,6": "france",
+    "-26,20": "spain",
+    "-26,21": "spain",
+    "-24,21": "spain",
+    "-23,19": "spain",
+    "3,15": "italy",
+    "4,17": "italy",
+    "6,-42": "norway",
+    "6,-43": "norway",
+    "23,-42": "finland",
+    "23,-41": "finland",
+    "23,-43": "finland",
+    "23,-10": "poland",
+    "-31,-25": "ireland",
+    "29,9": "romania",
+    "28,-34": "estonia",
+    "29,-36": "estonia",
+    "31,-36": "estonia",
+    "31,-35": "estonia",
+    "32,-36": "estonia",
+    "26,-40": "finland",
+    "13,-38": "sweden",
+    "10,-39": "sweden",
+    "16,-39": "sweden",
+    "75,22": "iraq",
+    "79,16": "iran",
+    "77,-2": "ussr"
   },
   "cellStats": {
     "62,125": {
@@ -29888,11 +29893,6 @@
       "buildings": []
     },
     "18,125": {
-      "population": 10000,
-      "factories": 1,
-      "buildings": []
-    },
-    "13,-38": {
       "population": 10000,
       "factories": 1,
       "buildings": []
@@ -35972,11 +35972,6 @@
       "factories": 1,
       "buildings": []
     },
-    "3,15": {
-      "population": 10000,
-      "factories": 1,
-      "buildings": []
-    },
     "67,-35": {
       "population": 10000,
       "factories": 1,
@@ -37063,11 +37058,6 @@
       "buildings": []
     },
     "77,63": {
-      "population": 10000,
-      "factories": 1,
-      "buildings": []
-    },
-    "5,-18": {
       "population": 10000,
       "factories": 1,
       "buildings": []
@@ -38598,11 +38588,6 @@
       "buildings": []
     },
     "-31,79": {
-      "population": 10000,
-      "factories": 1,
-      "buildings": []
-    },
-    "29,-36": {
       "population": 10000,
       "factories": 1,
       "buildings": []
@@ -43527,11 +43512,6 @@
       "factories": 1,
       "buildings": []
     },
-    "-26,20": {
-      "population": 10000,
-      "factories": 1,
-      "buildings": []
-    },
     "73,-21": {
       "population": 10000,
       "factories": 1,
@@ -44638,6 +44618,167 @@
       "buildings": []
     }
   },
-  "version": "4.0",
-  "created": "2026-07-13T11:02:19.355Z"
+  "capitals": {
+    "germany": {
+      "x": 8,
+      "y": -12,
+      "name": "Berlin"
+    },
+    "france": {
+      "x": -11,
+      "y": -4,
+      "name": "Paris"
+    },
+    "luxembourg": {
+      "x": -6,
+      "y": -9,
+      "name": "Luxembourg"
+    },
+    "belgium": {
+      "x": -7,
+      "y": -11,
+      "name": "Brussels"
+    },
+    "netherlands": {
+      "x": -6,
+      "y": -14,
+      "name": "Amsterdam"
+    },
+    "switzerland": {
+      "x": -3,
+      "y": 3,
+      "name": "Bern"
+    },
+    "austria": {
+      "x": 13,
+      "y": 1,
+      "name": "Vienna"
+    },
+    "italy": {
+      "x": 3,
+      "y": 16,
+      "name": "Rome"
+    },
+    "spain": {
+      "x": -33,
+      "y": 17,
+      "name": "Madrid"
+    },
+    "portugal": {
+      "x": -45,
+      "y": 25,
+      "name": "Lisbon"
+    },
+    "denmark": {
+      "x": 9,
+      "y": -21,
+      "name": "Copenhagen"
+    },
+    "norway": {
+      "x": 4,
+      "y": -34,
+      "name": "Oslo"
+    },
+    "sweden": {
+      "x": 15,
+      "y": -36,
+      "name": "Stockholm"
+    },
+    "finland": {
+      "x": 27,
+      "y": -40,
+      "name": "Helsinki"
+    },
+    "poland": {
+      "x": 23,
+      "y": -11,
+      "name": "Warsaw"
+    },
+    "ussr": {
+      "x": 55,
+      "y": -30,
+      "name": "Moscow"
+    },
+    "uk": {
+      "x": -15,
+      "y": -18,
+      "name": "London"
+    },
+    "ireland": {
+      "x": -31,
+      "y": -25,
+      "name": "Dublin"
+    },
+    "romania": {
+      "x": 29,
+      "y": 9,
+      "name": "Bucharest"
+    },
+    "hungary": {
+      "x": 18,
+      "y": 1,
+      "name": "Budapest"
+    },
+    "bulgaria": {
+      "x": 28,
+      "y": 13,
+      "name": "Sophia"
+    },
+    "czechoslovakia": {
+      "x": 11,
+      "y": -4,
+      "name": "Prague"
+    },
+    "yugoslavia": {
+      "x": 19,
+      "y": 9,
+      "name": "Belgrade"
+    },
+    "greece": {
+      "x": 29,
+      "y": 21,
+      "name": "Athens"
+    },
+    "albania": {
+      "x": 19,
+      "y": 16,
+      "name": "Tyrant"
+    },
+    "lithuania": {
+      "x": 26,
+      "y": -21,
+      "name": "Vilnius"
+    },
+    "latvia": {
+      "x": 26,
+      "y": -27,
+      "name": "Riga"
+    },
+    "estonia": {
+      "x": 27,
+      "y": -36,
+      "name": "Tallinn"
+    },
+    "turkey": {
+      "x": 53,
+      "y": 15,
+      "name": "Ankara"
+    },
+    "saudi_arabia": {
+      "x": 87,
+      "y": 45,
+      "name": "Riyadh"
+    },
+    "iraq": {
+      "x": 76,
+      "y": 23,
+      "name": "Baghdad"
+    },
+    "iran": {
+      "x": 84,
+      "y": 10,
+      "name": "Tehran"
+    }
+  },
+  "created": "2026-07-13T16:25:34.163Z"
 }
