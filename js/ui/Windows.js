@@ -256,8 +256,8 @@ export class WindowsManager {
         html += '<div style="font-size:11px;color:#eab308;font-weight:bold;">' + myIdeology + '</div>';
         if (change) {
             var pct = Math.floor(((change.totalDays - change.daysLeft) / change.totalDays) * 100);
-            varIDEOLOGY_COLORS = { 'Демократия': '#3b82f6', 'Фашизм': '#ef4444', 'Коммунизм': '#990000', 'Нейтралитет': '#6b7280' };
-            var tColor =IDEOLOGY_COLORS[change.target] || '#6b7280';
+            var IDENTITY_COLORS = { 'Демократия': '#3b82f6', 'Фашизм': '#ef4444', 'Коммунизм': '#990000', 'Нейтралитет': '#6b7280' };
+            var tColor = IDENTITY_COLORS[change.target] || '#6b7280';
             html += '<div style="margin-top:6px;font-size:10px;color:#9ca3af;">Смена на ' + change.target + ' (' + change.daysLeft + ' дн.)</div>';
             html += '<div style="background:#374151;height:8px;border-radius:4px;margin-top:4px;overflow:hidden;">';
             html += '<div style="width:' + pct + '%;height:100%;background:' + tColor + ';border-radius:4px;"></div></div>';
