@@ -24,6 +24,8 @@ export class GameState {
         this.alliances = [];
         this.vassals = {}; // { overlordId: [vassalId, ...] }
         this.warStartCells = {}; // { countryId: originalCellCount }
+        this.warOriginalCells = {};
+        this.warInvitations = []; // [{ from, enemy, time }]
         
         this.activeFocus = null;
         this.completedFocuses = new Set();
@@ -62,25 +64,39 @@ export class GameState {
     }
     
     addWar(a, b, world) {
-        if (!this.isAtWar(a, b)) {
-            this.wars.push({ a, b });
-            if (world) {
-                if (!this.warStartCells[a]) this.warStartCells[a] = world.getCountryCells(a).size;
-                if (!this.warStartCells[b]) this.warStartCells[b] = world.getCountryCells(b).size;
-                if (!this.warOriginalCells) this.warOriginalCells = {};
-                if (!this.warOriginalCells[b]) this.warOriginalCells[b] = Array.from(world.getCountryCells(b));
+        if (this.isAtWar(a, b)) return;
+
+        this.wars.push({ a, b });
+        if (world) {
+            if (!this.warStartCells[a]) this.warStartCells[a] = world.getCountryCells(a).size;
+            if (!this.warStartCells[b]) this.warStartCells[b] = world.getCountryCells(b).size;
+            if (!this.warOriginalCells) this.warOriginalCells = {};
+            if (!this.warOriginalCells[b]) this.warOriginalCells[b] = Array.from(world.getCountryCells(b));
+        }
+
+        // Вассалы лорда вступают в войну
+        for (const lord of [a, b]) {
+            const vassals = this.getVassals(lord);
+            for (const v of vassals) {
+                const enemy = lord === a ? b : a;
+                if (!this.isAtWar(v, enemy)) {
+                    this.wars.push({ a: v, b: enemy });
+                    if (world) {
+                        if (!this.warStartCells[v]) this.warStartCells[v] = world.getCountryCells(v).size;
+                        if (!this.warStartCells[enemy]) this.warStartCells[enemy] = world.getCountryCells(enemy).size;
+                    }
+                }
             }
-            // Вассалы лорда вступают в войну
-            for (const lord of [a, b]) {
-                const vassals = this.getVassals(lord);
-                for (const v of vassals) {
-                    const enemy = lord === a ? b : a;
-                    if (!this.isAtWar(v, enemy)) {
-                        this.wars.push({ a: v, b: enemy });
-                        if (world) {
-                            if (!this.warStartCells[v]) this.warStartCells[v] = world.getCountryCells(v).size;
-                            if (!this.warStartCells[enemy]) this.warStartCells[enemy] = world.getCountryCells(enemy).size;
-                        }
+        }
+
+        // Если союзник игрока вступил в войну — показываем приглашение вместо автоподключения
+        const my = this.myCountryId;
+        if (my && a !== my && b !== my) {
+            for (const side of [a, b]) {
+                if (this.areAllies(my, side) && !this.isAtWar(my, side === a ? b : a)) {
+                    const enemy = side === a ? b : a;
+                    if (!this.isAtWar(my, enemy)) {
+                        this.warInvitations.push({ from: side, enemy: enemy, time: Date.now() });
                     }
                 }
             }
@@ -164,6 +180,7 @@ export class GameState {
             vassals: { ...this.vassals },
             warStartCells: { ...this.warStartCells },
             warOriginalCells: this.warOriginalCells || {},
+            warInvitations: this.warInvitations || [],
             activeFocus: this.activeFocus ? { ...this.activeFocus } : null,
             completedFocuses: [...this.completedFocuses],
             selectedUnitId: this.selectedUnitId,
@@ -192,6 +209,7 @@ export class GameState {
         this.vassals = data.vassals || {};
         this.warStartCells = data.warStartCells || {};
         this.warOriginalCells = data.warOriginalCells || {};
+        this.warInvitations = data.warInvitations || [];
         this.activeFocus = data.activeFocus;
         this.completedFocuses = new Set(data.completedFocuses || []);
         this.selectedUnitId = data.selectedUnitId;

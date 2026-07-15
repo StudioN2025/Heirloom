@@ -421,6 +421,45 @@ function setupEvents() {
         uiManager.openWindow('diplomacy');
     };
 
+    // Призыв к оружию — показать врагов союзника для выбора
+    window.callToArms = (allyId) => {
+        var enemyList = [];
+        if (gameState.wars) {
+            for (var w = 0; w < gameState.wars.length; w++) {
+                var war = gameState.wars[w];
+                if (war.a === allyId) enemyList.push(war.b);
+                if (war.b === allyId) enemyList.push(war.a);
+            }
+        }
+        if (enemyList.length === 0) {
+            addNotification('🤝 ' + allyId.toUpperCase() + ' не воюет', 'info');
+            return;
+        }
+        if (enemyList.length === 1) {
+            // Один враг — сразу объявляем войну
+            gameState.addWar(gameState.myCountryId, enemyList[0], world);
+            addNotification('⚔️ Вы объявили войну ' + enemyList[0].toUpperCase() + ' по призыву ' + allyId.toUpperCase(), 'war');
+            uiManager.openWindow('diplomacy');
+            return;
+        }
+        // Несколько врагов — показываем окно выбора
+        var content = document.getElementById('window-content');
+        var html = '<div style="padding:16px;">';
+        html += '<div style="text-align:center;margin-bottom:16px;"><div style="font-size:24px;margin-bottom:8px;">⚔️</div>';
+        html += '<div style="font-size:14px;font-weight:bold;color:#eab308;">Призыв к оружию от ' + allyId.toUpperCase() + '</div>';
+        html += '<div style="font-size:11px;color:#9ca3af;margin-top:4px;">Выберите против кого объявить войну:</div></div>';
+        for (var i = 0; i < enemyList.length; i++) {
+            var eName = (window._COUNTRIES_MAP && window._COUNTRIES_MAP[enemyList[i]]) ? window._COUNTRIES_MAP[enemyList[i]].name : enemyList[i].toUpperCase();
+            html += '<button onclick="window.declareWarOn(\'' + enemyList[i] + '\');document.getElementById(\'info-window\').classList.add(\'hidden\');uiManager.openWindow(\'diplomacy\')" style="width:100%;padding:10px;background:#991b1b;color:white;border:2px solid #ef4444;border-radius:6px;margin-bottom:6px;cursor:pointer;text-align:left;">';
+            html += '<div style="font-size:12px;font-weight:bold;">⚔️ Объявить войну ' + eName.toUpperCase() + '</div></button>';
+        }
+        html += '<button onclick="document.getElementById(\'info-window\').classList.add(\'hidden\')" style="width:100%;padding:8px;background:#374151;color:white;border:1px solid #4b5563;border-radius:6px;margin-top:8px;cursor:pointer;">Отказаться</button>';
+        html += '</div>';
+        content.innerHTML = html;
+        document.getElementById('window-title').innerText = '⚔️ ПРИЗЫВ К ОРУЖИЮ';
+        document.getElementById('info-window').classList.remove('hidden');
+    };
+
     window.releaseVassal = (vassalId) => {
         gameState.removeVassal(gameState.myCountryId, vassalId);
         addNotification('👑 ' + vassalId.toUpperCase() + ' освобождён', 'info');
@@ -867,6 +906,27 @@ function startGameLoop() {
                 }
                 for (var ri = warsToRemove.length - 1; ri >= 0; ri--) {
                     gameState.wars.splice(warsToRemove[ri], 1);
+                }
+            }
+
+            // Проверка приглашений в войну
+            if (gameState.warInvitations && gameState.warInvitations.length > 0 && !window._capitulationPending) {
+                var inv = gameState.warInvitations.shift();
+                if (inv && !gameState.isAtWar(gameState.myCountryId, inv.enemy)) {
+                    var fromName = (COUNTRIES[inv.from] ? COUNTRIES[inv.from].name : inv.from).toUpperCase();
+                    var enemyName = (COUNTRIES[inv.enemy] ? COUNTRIES[inv.enemy].name : inv.enemy).toUpperCase();
+                    gameState.isGameActive = false;
+                    var content = document.getElementById('window-content');
+                    var html = '<div style="padding:16px;">';
+                    html += '<div style="text-align:center;margin-bottom:16px;"><div style="font-size:24px;margin-bottom:8px;">📢</div>';
+                    html += '<div style="font-size:14px;font-weight:bold;color:#eab308;">' + fromName + ' просит о помощи!</div>';
+                    html += '<div style="font-size:11px;color:#9ca3af;margin-top:4px;">Объявить войну ' + enemyName + '?</div></div>';
+                    html += '<button onclick="gameState.addWar(gameState.myCountryId,\'' + inv.enemy + '\',world);gameState.isGameActive=true;document.getElementById(\'info-window\').classList.add(\'hidden\');addNotification(\'⚔️ Вы вступили в войну!\',\'war\')" style="width:100%;padding:12px;background:#991b1b;color:white;border:2px solid #ef4444;border-radius:8px;margin-bottom:8px;cursor:pointer;font-weight:bold;font-size:13px;">⚔️ ВСТУПИТЬ В ВОЙНУ</button>';
+                    html += '<button onclick="gameState.isGameActive=true;document.getElementById(\'info-window\').classList.add(\'hidden\')" style="width:100%;padding:10px;background:#374151;color:white;border:1px solid #4b5563;border-radius:8px;cursor:pointer;">ОТКАЗАТЬСЯ</button>';
+                    html += '</div>';
+                    content.innerHTML = html;
+                    document.getElementById('window-title').innerText = '📢 ПРИГЛАШЕНИЕ В ВОЙНУ';
+                    document.getElementById('info-window').classList.remove('hidden');
                 }
             }
 
