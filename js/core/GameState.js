@@ -26,6 +26,7 @@ export class GameState {
         this.warStartCells = {}; // { countryId: originalCellCount }
         this.warOriginalCells = {};
         this.warInvitations = []; // [{ from, enemy, time }]
+        this.ideologyChange = null; // { target, daysLeft, totalDays }
         
         this.activeFocus = null;
         this.completedFocuses = new Set();
@@ -192,6 +193,7 @@ export class GameState {
             trainingQueue: this.trainingQueue.map(q => ({ ...q })),
             constructionQueue: this.constructionQueue.map(q => ({ ...q })),
             autosave: this.autosave,
+            ideologyChange: this.ideologyChange,
         };
     }
 
@@ -221,6 +223,7 @@ export class GameState {
         this.trainingQueue = data.trainingQueue || [];
         this.constructionQueue = data.constructionQueue || [];
         this.autosave = data.autosave !== undefined ? data.autosave : true;
+        this.ideologyChange = data.ideologyChange || null;
         this._capitulationPending = false;
     }
 }

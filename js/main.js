@@ -466,6 +466,32 @@ function setupEvents() {
         uiManager.openWindow('diplomacy');
     };
 
+    window.startIdeologyChange = (targetIdeology) => {
+        var currentIdeology = (window._COUNTRIES_MAP && window._COUNTRIES_MAP[gameState.myCountryId]) ? window._COUNTRIES_MAP[gameState.myCountryId].ideology : 'Нейтралитет';
+        var days = 200;
+        if (currentIdeology === 'Нейтралитет' || targetIdeology === 'Нейтралитет') days = 150;
+        if (currentIdeology === targetIdeology) return;
+        gameState.ideologyChange = { target: targetIdeology, daysLeft: days, totalDays: days };
+        addNotification('⚡ Смена идеологии на ' + targetIdeology + ' (' + days + ' дней)', 'info');
+        uiManager.openWindow('diplomacy');
+    };
+
+    window.cancelIdeologyChange = () => {
+        gameState.ideologyChange = null;
+        addNotification('⚡ Смена идеологии отменена', 'info');
+        uiManager.openWindow('diplomacy');
+    };
+
+    window.applyIdeologyChange = (newIdeology) => {
+        var myId = gameState.myCountryId;
+        if (window._COUNTRIES_MAP && window._COUNTRIES_MAP[myId]) {
+            window._COUNTRIES_MAP[myId].ideology = newIdeology;
+        }
+        gameState.ideologyChange = null;
+        addNotification('⚡ Идеология изменена на ' + newIdeology + '!', 'war');
+        uiManager.openWindow('diplomacy');
+    };
+
     window.capitulationChoice = (choice) => {
         var data = window._capitulationData;
         if (!data) return;
@@ -878,6 +904,14 @@ function startGameLoop() {
             if (aiController) aiController.update();
             if (tech) tech.update();
             if (focus) focus.update();
+
+            // Прогресс смены идеологии
+            if (gameState.ideologyChange) {
+                gameState.ideologyChange.daysLeft--;
+                if (gameState.ideologyChange.daysLeft <= 0) {
+                    window.applyIdeologyChange(gameState.ideologyChange.target);
+                }
+            }
 
             // Проверка капитуляции
             if (gameState.wars.length > 0) {

@@ -248,6 +248,33 @@ export class WindowsManager {
             html += '</div>';
         }
 
+        // Идеология
+        var myIdeology = (window._COUNTRIES_MAP && window._COUNTRIES_MAP[myId]) ? window._COUNTRIES_MAP[myId].ideology : 'Нейтралитет';
+        var change = this.gameState.ideologyChange;
+        html += '<div style="margin-bottom:12px;"><div style="font-size:12px;font-weight:bold;color:#f97316;margin-bottom:6px;">⚡ Идеология</div>';
+        html += '<div style="background:#1f2937;border:1px solid #374151;border-radius:6px;padding:8px;">';
+        html += '<div style="font-size:11px;color:#eab308;font-weight:bold;">' + myIdeology + '</div>';
+        if (change) {
+            var pct = Math.floor(((change.totalDays - change.daysLeft) / change.totalDays) * 100);
+            varIDEOLOGY_COLORS = { 'Демократия': '#3b82f6', 'Фашизм': '#ef4444', 'Коммунизм': '#990000', 'Нейтралитет': '#6b7280' };
+            var tColor =IDEOLOGY_COLORS[change.target] || '#6b7280';
+            html += '<div style="margin-top:6px;font-size:10px;color:#9ca3af;">Смена на ' + change.target + ' (' + change.daysLeft + ' дн.)</div>';
+            html += '<div style="background:#374151;height:8px;border-radius:4px;margin-top:4px;overflow:hidden;">';
+            html += '<div style="width:' + pct + '%;height:100%;background:' + tColor + ';border-radius:4px;"></div></div>';
+            html += '<button onclick="window.cancelIdeologyChange()" style="margin-top:6px;width:100%;padding:4px;background:#991b1b;color:white;border:none;border-radius:4px;font-size:10px;cursor:pointer;">Отменить</button>';
+        } else {
+            html += '<div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;">';
+            var ideos = ['Демократия', 'Фашизм', 'Коммунизм'];
+            for (var ii = 0; ii < ideos.length; ii++) {
+                var ideo = ideos[ii];
+                if (ideo === myIdeology) continue;
+                var days = ideo === 'Нейтралитет' ? 150 : (myIdeology === 'Нейтралитет' ? 150 : 200);
+                html += '<button onclick="window.startIdeologyChange(\'' + ideo + '\')" style="flex:1;padding:5px;background:#374151;color:white;border:1px solid #4b5563;border-radius:4px;font-size:9px;cursor:pointer;">' + ideo + ' (' + days + 'д)</button>';
+            }
+            html += '</div>';
+        }
+        html += '</div></div>';
+
         // Союзники
         html += '<div style="margin-bottom:12px;"><div style="font-size:12px;font-weight:bold;color:#22c55e;margin-bottom:6px;">🤝 Союзники (' + allies.length + ')</div>';
         if (allies.length === 0) html += '<div style="color:#6b7280;font-size:11px;text-align:center;padding:8px;">Нет союзников</div>';
