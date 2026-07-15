@@ -500,16 +500,22 @@ export class AIController {
             const ny = uy + dy;
             const cellOwner = this.world.getCell(nx, ny);
 
-            if (cellOwner !== 0 && !this.entities.getUnitAt(nx, ny)) {
+            if (cellOwner !== 0) {
                 const owner = this.entities.owner[uid];
                 if (cellOwner === owner || this.gs.areAllies && this.gs.areAllies(owner, cellOwner) || this.gs.isAtWar && this.gs.isAtWar(owner, cellOwner)) {
-                    this.entities.moveTo(uid, nx, ny);
+                    const occ = this.entities.getUnitAt(nx, ny);
+                    if (!occ || this.entities.owner[occ] === owner || (this.gs.areAllies && this.gs.areAllies(owner, this.entities.owner[occ]))) {
+                        this.entities.moveTo(uid, nx, ny);
+                    } else {
+                        // Враг на клетке — идём на него для боя
+                        this.entities.moveTo(uid, nx, ny);
+                    }
                 }
             }
         }
     }
 
-    // Атакуем соседнюю вражескую клетку (через боевую систему)
+    // Атакуем соседнюю вражескую клетку
     _attackAdjacent(uid, targetCountry) {
         const ux = this.entities.x[uid], uy = this.entities.y[uid];
         const owner = this.entities.owner[uid];
@@ -518,21 +524,22 @@ export class AIController {
             const nx = ux + dx, ny = uy + dy;
             if (this.world.getCell(nx, ny) !== targetCountry) continue;
 
-            // Есть ли вражеский юнит на этой клетке?
             const enemyUnit = this.entities.getUnitAt(nx, ny);
-            if (enemyUnit) {
-                // Не атакуем если уже в бою
-                if (this.entities.inCombat[uid] || this.entities.inCombat[enemyUnit]) return true;
-
-                // Боевая система сама обработает столкновение юнитов
-                // Просто ставим юнита рядом — CombatSystem начнёт бой
+            if (enemyUnit && this.entities.active[enemyUnit]) {
+                // Враг на клетке — идём на него (CombatSystem начнёт бой)
+                if (!this.entities.inCombat[uid] && !this.entities.inCombat[enemyUnit]) {
+                    this.entities.moveTo(uid, nx, ny);
+                }
                 return true;
             } else {
                 // Клетка пуста — захватываем
                 this.world.setCell(nx, ny, owner);
                 this.entities.moveTo(uid, nx, ny);
-                this._checkCapitulation(targetCountry, owner);
             }
+            return true;
+        }
+        return false;
+    }
             return true;
         }
         return false;

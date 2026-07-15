@@ -475,9 +475,28 @@ function setupEvents() {
         var countryName = (COUNTRIES[enemyId] ? COUNTRIES[enemyId].name : enemyId).toUpperCase();
 
         if (choice === 'annex') {
-            for (var ci = 0; ci < cells.length; ci++) {
-                var parts = cells[ci].split(',');
-                world.setCell(parseInt(parts[0]), parseInt(parts[1]), winnerId);
+            // Аннексируем только оригинальные клетки врага (не захваченные у других)
+            var origCells = gameState.warOriginalCells ? gameState.warOriginalCells[enemyId] : null;
+            var cellsToAnnex = origCells || cells;
+            for (var ci = 0; ci < cellsToAnnex.length; ci++) {
+                var parts = cellsToAnnex[ci].split(',');
+                var cx = parseInt(parts[0]), cy = parseInt(parts[1]);
+                if (world.getCell(cx, cy) === enemyId) {
+                    world.setCell(cx, cy, winnerId);
+                }
+            }
+            // Клетки захваченные у других — возвращаем владельцу
+            if (origCells) {
+                var origSet = new Set(origCells);
+                for (var ci = 0; ci < cells.length; ci++) {
+                    var parts = cells[ci].split(',');
+                    var cx = parseInt(parts[0]), cy = parseInt(parts[1]);
+                    if (!origSet.has(cells[ci]) && world.getCell(cx, cy) === enemyId) {
+                        // Эта клетка захвачена у кого-то — возвращаем оригинальному владельцу
+                        // Ищем кому принадлежала клетка до захвата
+                        world.setCell(cx, cy, 0);
+                    }
+                }
             }
             var enemyUnits = entities.getEntitiesByOwner(enemyId);
             for (var ui = 0; ui < enemyUnits.length; ui++) {
