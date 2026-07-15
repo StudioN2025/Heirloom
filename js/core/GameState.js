@@ -74,11 +74,13 @@ export class GameState {
             if (!this.warOriginalCells[b]) this.warOriginalCells[b] = Array.from(world.getCountryCells(b));
         }
 
-        // Вассалы лорда вступают в войну
+        // Вассалы лорда вступают в войну (НО не против своего лорда)
         for (const lord of [a, b]) {
             const vassals = this.getVassals(lord);
             for (const v of vassals) {
                 const enemy = lord === a ? b : a;
+                // Вассал не воюет со своим лордом
+                if (enemy === lord) continue;
                 if (!this.isAtWar(v, enemy)) {
                     this.wars.push({ a: v, b: enemy });
                     if (world) {
@@ -89,13 +91,15 @@ export class GameState {
             }
         }
 
-        // Если союзник игрока вступил в войну — показываем приглашение вместо автоподключения
+        // Приглашение игроку — только если союзник воюет и враг не игрок и не вассал игрока
         const my = this.myCountryId;
         if (my && a !== my && b !== my) {
             for (const side of [a, b]) {
-                if (this.areAllies(my, side) && !this.isAtWar(my, side === a ? b : a)) {
-                    const enemy = side === a ? b : a;
-                    if (!this.isAtWar(my, enemy)) {
+                const enemy = side === a ? b : a;
+                if (this.areAllies(my, side) && !this.isAtWar(my, enemy)) {
+                    // Не показываем приглашение воевать против своего вассала
+                    var myVassals = this.getVassals(my);
+                    if (myVassals.indexOf(enemy) === -1) {
                         this.warInvitations.push({ from: side, enemy: enemy, time: Date.now() });
                     }
                 }
