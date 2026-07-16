@@ -107,8 +107,13 @@ export class MovementSystem {
                 const cellOwner = this.world.getCell(nx, ny);
                 const isLand = cellOwner !== 0;
 
+                // Пехота входит в воду — становится кораблём
+                if (!e.isShip[unitId] && isWater && hasPort) {
+                    e.isShip[unitId] = 1;
+                }
+
                 // Корабль — только по воде, на сушу только высадка/возврат к порту
-                if (isShip) {
+                if (e.isShip[unitId]) {
                     if (isWater) {
                         // по воде — ок
                     } else if (isLand) {
