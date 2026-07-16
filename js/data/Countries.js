@@ -33,13 +33,13 @@ export const COUNTRIES = {
         }
     },
     france: {
-        name: "Франция",
+        name: "France",
         ideology: "Демократия",
         ideologies: {
-            "Демократия":  { leader: "Альбер Лебрен",     color: "#3b82f6", flag: "france" },
-            "Фашизм":      { leader: "Пьер Лаваль",       color: "#1e3a5f", flag: "france" },
-            "Коммунизм":   { leader: "Морис Торез",        color: "#cc0000", flag: "france" },
-            "Нейтралитет": { leader: "Альбер Лебрен",     color: "#6b7280", flag: "france" },
+            "Демократия":  { name: "France",               leader: "Альбер Лебрен",     color: "#3b82f6", flag: "france" },
+            "Фашизм":      { name: "Vichy France",         leader: "Пьер Лаваль",       color: "#1e3a5f", flag: "france_fascist" },
+            "Коммунизм":   { name: "Socialist France",     leader: "Морис Торез",        color: "#cc0000", flag: "france_communist" },
+            "Нейтралитет": { name: "France",               leader: "Альбер Лебрен",     color: "#6b7280", flag: "france" },
         }
     },
     uk: {

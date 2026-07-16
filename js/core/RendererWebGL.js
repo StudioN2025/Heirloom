@@ -55,7 +55,7 @@ export class RendererWebGL {
             'romania','saudi_arabia','slovakia','spain','sweden',
             'switzerland','turkey','uk','ussr','yugoslavia'
         ];
-        const ideologies = ['democratic', 'communist', 'neutral'];
+        const ideologies = ['democratic', 'communist', 'neutral', 'fascist'];
         for (const c of flagCountries) {
             const img = new Image();
             img.src = `assets/flags/${c}.png`;
