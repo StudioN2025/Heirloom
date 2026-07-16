@@ -230,7 +230,7 @@ export const COUNTRIES = {
             "Нейтралитет": { name: "Австрия",              nameEn: "Austria",              leader: "Курт Шушниг",             leaderEn: "Kurt Schuschnigg",        color: "#ef4444", flag: "austria_neutral" },
             "Фашизм":      { name: "Австрия",              nameEn: "Austria",              leader: "Артур Зейсс-Инкварт",     leaderEn: "Arthur Seyss-Inquart",    color: "#dc2626", flag: "austria_fascist" },
             "Демократия":  { name: "Австрия",              nameEn: "Austria",              leader: "Карл Реннер",             leaderEn: "Karl Renner",             color: "#3b82f6", flag: "austria_neutral" },
-            "Коммунизм":   { name: "Австрия",              nameEn: "Austria",              leader: "Эрнст Фишер",             leaderEn: "Ernst Fischer",           color: "#990000", flag: "austria_neutral" },
+            "Коммунизм":   { name: "Австрия",              nameEn: "Austria",              leader: "Эрнст Фишер",             leaderEn: "Ernst Fischer",           color: "#990000", flag: "austria_communist" },
         }
     },
     yugoslavia: {
