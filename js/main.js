@@ -486,10 +486,18 @@ function setupEvents() {
         var myId = gameState.myCountryId;
         if (window._COUNTRIES_MAP && window._COUNTRIES_MAP[myId]) {
             window._COUNTRIES_MAP[myId].ideology = newIdeology;
+            var c = window._COUNTRIES_MAP[myId];
+            if (c.ideologies && c.ideologies[newIdeology]) {
+                var data = c.ideologies[newIdeology];
+                if (data.name) c.name = data.name;
+                if (data.leader) c.leader = data.leader;
+                if (data.color) c.color = data.color;
+            }
         }
         gameState.ideologyChange = null;
-        addNotification('⚡ Идеология изменена на ' + newIdeology + '!', 'war');
         if (renderer) renderer._polygonCache = null;
+        addNotification('⚡ Идеология изменена на ' + newIdeology + '!', 'war');
+        if (topBar) topBar.update();
         uiManager.openWindow('diplomacy');
     };
 

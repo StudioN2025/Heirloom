@@ -288,9 +288,16 @@ export class RendererWebGL {
                 ctx.fillRect(screenX + (size - bw) / 2, screenY + size - 3, bw * hp, 3);
             }
 
-            // Флаг страны
+            // Флаг страны (с учётом идеологии)
             if (size > 12) {
-                const flag = this.flags[owner];
+                var flagKey = owner;
+                if (window._COUNTRIES_MAP && window._COUNTRIES_MAP[owner]) {
+                    var cdata = window._COUNTRIES_MAP[owner];
+                    if (cdata.ideologies && cdata.ideologies[cdata.ideology] && cdata.ideologies[cdata.ideology].flag) {
+                        flagKey = cdata.ideologies[cdata.ideology].flag;
+                    }
+                }
+                const flag = this.flags[flagKey] || this.flags[owner];
                 if (flag && flag.complete && flag.naturalWidth > 0) {
                     const fSize = Math.max(6, Math.floor(size * 0.4));
                     ctx.drawImage(flag, screenX, screenY, fSize, Math.floor(fSize * 0.67));

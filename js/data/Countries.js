@@ -3,13 +3,13 @@
 export const COUNTRIES = {
     // === ЕВРОПА ===
     germany: {
-        name: "Германия",
+        name: "Third Reich",
         ideology: "Фашизм",
         ideologies: {
-            "Фашизм":    { leader: "Адольф Гитлер",     color: "#3a3a3a", flag: "germany" },
-            "Демократия": { leader: "Конрад Аденауэр",   color: "#dd0000", flag: "germany_democratic" },
-            "Коммунизм":  { leader: "Эрнст Тельман",     color: "#cc0000", flag: "germany_communist" },
-            "Нейтралитет": { leader: "Пауль фон Гинденбург", color: "#808080", flag: "germany_neutral" },
+            "Фашизм":     { name: "Third Reich",           leader: "Адольф Гитлер",           color: "#3a3a3a", flag: "germany" },
+            "Демократия":  { name: "Germany",              leader: "Конрад Аденауэр",         color: "#dd0000", flag: "germany_democratic" },
+            "Коммунизм":   { name: "DKP",                  leader: "Эрнст Тельман",           color: "#cc0000", flag: "germany_communist" },
+            "Нейтралитет": { name: "Germany Empire",       leader: "Пауль фон Гинденбург",   color: "#808080", flag: "germany_neutral" },
         }
     },
     ussr: {
