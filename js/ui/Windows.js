@@ -248,23 +248,25 @@ export class WindowsManager {
         var change = this.gameState.ideologyChange;
         html += '<div style="margin-bottom:12px;"><div style="font-size:12px;font-weight:bold;color:#f97316;margin-bottom:6px;">⚡ ' + t('diplomacy.ideology') + '</div>';
         html += '<div style="background:#1f2937;border:1px solid #374151;border-radius:6px;padding:8px;">';
-        html += '<div style="font-size:11px;color:#eab308;font-weight:bold;">' + myIdeology + '</div>';
+        html += '<div style="font-size:11px;color:#eab308;font-weight:bold;">' + t('ideologies.' + {Фашизм:'fascism',Демократия:'democracy',Коммунизм:'communism',Нейтралитет:'neutral'}[myIdeology]) + '</div>';
         if (change) {
             var pct = Math.floor(((change.totalDays - change.daysLeft) / change.totalDays) * 100);
             var IDENTITY_COLORS = { 'Демократия': '#3b82f6', 'Фашизм': '#ef4444', 'Коммунизм': '#990000', 'Нейтралитет': '#6b7280' };
             var tColor = IDENTITY_COLORS[change.target] || '#6b7280';
-            html += '<div style="margin-top:6px;font-size:10px;color:#9ca3af;">' + t('diplomacy.changeIdeology') + ' ' + change.target + ' (' + change.daysLeft + t('diplomacy.daysRemaining') + ')</div>';
+            var targetDisplay = t('ideologies.' + {Фашизм:'fascism',Демократия:'democracy',Коммунизм:'communism',Нейтралитет:'neutral'}[change.target]) || change.target;
+            html += '<div style="margin-top:6px;font-size:10px;color:#9ca3af;">' + t('diplomacy.changeIdeology') + ' ' + targetDisplay + ' (' + change.daysLeft + t('diplomacy.daysRemaining') + ')</div>';
             html += '<div style="background:#374151;height:8px;border-radius:4px;margin-top:4px;overflow:hidden;">';
             html += '<div style="width:' + pct + '%;height:100%;background:' + tColor + ';border-radius:4px;"></div></div>';
             html += '<button onclick="window.cancelIdeologyChange()" style="margin-top:6px;width:100%;padding:4px;background:#991b1b;color:white;border:none;border-radius:4px;font-size:10px;cursor:pointer;">' + t('diplomacy.cancel') + '</button>';
         } else {
             html += '<div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap;">';
             var ideos = ['Демократия', 'Фашизм', 'Коммунизм'];
+            var ideoKeys = ['democracy', 'fascism', 'communism'];
             for (var ii = 0; ii < ideos.length; ii++) {
                 var ideo = ideos[ii];
                 if (ideo === myIdeology) continue;
                 var days = ideo === 'Нейтралитет' ? 150 : (myIdeology === 'Нейтралитет' ? 150 : 200);
-                html += '<button onclick="window.startIdeologyChange(\'' + ideo + '\')" style="flex:1;padding:5px;background:#374151;color:white;border:1px solid #4b5563;border-radius:4px;font-size:9px;cursor:pointer;">' + ideo + ' (' + days + t('diplomacy.daysRemaining') + ')</button>';
+                html += '<button onclick="window.startIdeologyChange(\'' + ideo + '\')" style="flex:1;padding:5px;background:#374151;color:white;border:1px solid #4b5563;border-radius:4px;font-size:9px;cursor:pointer;">' + t('ideologies.' + ideoKeys[ii]) + ' (' + days + t('diplomacy.daysRemaining') + ')</button>';
             }
             html += '</div>';
         }

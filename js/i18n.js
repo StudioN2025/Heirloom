@@ -304,6 +304,24 @@ const translations = {
             play: '🗺️ НАЧАТЬ ИГРУ',
             telegram: '📱 Telegram канал',
             version: 'Oberkommando — Simulation Module v4.0 (WebGL)',
+        },
+        countries: {
+            germany: 'Третий Рейх', ussr: 'СССР', poland: 'Польша',
+            france: 'Франция', uk: 'Великобритания', italy: 'Италия',
+            spain: 'Испания', portugal: 'Португалия', netherlands: 'Нидерланды',
+            belgium: 'Бельгия', luxembourg: 'Люксембург', switzerland: 'Швейцария',
+            romania: 'Румыния', hungary: 'Венгрия', bulgaria: 'Болгария',
+            finland: 'Финляндия', norway: 'Норвегия', sweden: 'Швеция',
+            denmark: 'Дания', czechoslovakia: 'Чехословакия', austria: 'Австрия',
+            yugoslavia: 'Югославия', greece: 'Греция', albania: 'Албания',
+            lithuania: 'Литва', latvia: 'Латвия', estonia: 'Эстония',
+            slovakia: 'Словакия', ireland: 'Ирландия', iceland: 'Исландия',
+            turkey: 'Турция', iraq: 'Ирак', iran: 'Иран',
+            saudi_arabia: 'Саудовская Аравия',
+        },
+        ideologies: {
+            fascism: 'Фашизм', democracy: 'Демократия',
+            communism: 'Коммунизм', neutral: 'Нейтралитет',
         }
     },
 
@@ -608,6 +626,24 @@ const translations = {
             play: '🗺️ START GAME',
             telegram: '📱 Telegram channel',
             version: 'Oberkommando — Simulation Module v4.0 (WebGL)',
+        },
+        countries: {
+            germany: 'Germany', ussr: 'Soviet Union', poland: 'Poland',
+            france: 'France', uk: 'United Kingdom', italy: 'Italy',
+            spain: 'Spain', portugal: 'Portugal', netherlands: 'Netherlands',
+            belgium: 'Belgium', luxembourg: 'Luxembourg', switzerland: 'Switzerland',
+            romania: 'Romania', hungary: 'Hungary', bulgaria: 'Bulgaria',
+            finland: 'Finland', norway: 'Norway', sweden: 'Sweden',
+            denmark: 'Denmark', czechoslovakia: 'Czechoslovakia', austria: 'Austria',
+            yugoslavia: 'Yugoslavia', greece: 'Greece', albania: 'Albania',
+            lithuania: 'Lithuania', latvia: 'Latvia', estonia: 'Estonia',
+            slovakia: 'Slovakia', ireland: 'Ireland', iceland: 'Iceland',
+            turkey: 'Turkey', iraq: 'Iraq', iran: 'Iran',
+            saudi_arabia: 'Saudi Arabia',
+        },
+        ideologies: {
+            fascism: 'Fascism', democracy: 'Democracy',
+            communism: 'Communism', neutral: 'Neutrality',
         }
     }
 };
