@@ -95,10 +95,6 @@ async function init() {
         document.body.style.fontSize = (parseFloat(savedScale) * 14) + 'px';
         document.querySelectorAll('button').forEach(function(b) { b.style.fontSize = (parseFloat(savedScale) * 11) + 'px'; });
     }
-    var savedLang = localStorage.getItem('heirloom_lang');
-    if (savedLang && window.setLanguage) window.setLanguage(savedLang);
-    var langBtn = document.getElementById('btn-lang');
-    if (langBtn) langBtn.textContent = savedLang === 'en' ? '🇬🇧' : '🇷🇺';
 }
 
 // Загружаем ресурсы по кнопке
