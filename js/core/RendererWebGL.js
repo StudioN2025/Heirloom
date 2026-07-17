@@ -45,7 +45,7 @@ export class RendererWebGL {
             img.onload = () => { this.unitImages[country] = img; };
         }
 
-        // Флаги — базовые + идеологические варианты
+        // Флаги — только идеологические варианты
         this.flags = {};
         const flagCountries = [
             'austria','albania','belgium','bulgaria','czechoslovakia','denmark',
@@ -57,14 +57,11 @@ export class RendererWebGL {
         ];
         const ideologies = ['democratic', 'communist', 'neutral', 'fascist'];
         for (const c of flagCountries) {
-            const img = new Image();
-            img.src = `assets/flags/${c}.png`;
-            img.onload = () => { this.flags[c] = img; };
             for (const ideo of ideologies) {
-                const img2 = new Image();
-                img2.src = `assets/flags/${c}_${ideo}.png`;
+                const img = new Image();
+                img.src = `assets/flags/${c}_${ideo}.png`;
                 const key = c + '_' + ideo;
-                img2.onload = () => { this.flags[key] = img2; };
+                img.onload = () => { this.flags[key] = img; };
             }
         }
     }

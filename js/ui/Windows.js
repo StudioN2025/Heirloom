@@ -276,11 +276,10 @@ export class WindowsManager {
         if (allies.length === 0) html += '<div style="color:#6b7280;font-size:11px;text-align:center;padding:8px;">' + t('ui.noAllies') + '</div>';
         else { for (var i = 0; i < allies.length; i++) {
             var allyId = allies[i];
-            var allyAtWar = this.gameState.wars.some(function(w) { return (w.a === allyId || w.b === allyId) && w.a !== myId && w.b !== myId; });
             html += '<div style="background:#0a2e1a;border:1px solid #22c55e;border-radius:4px;padding:6px 8px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;">';
             html += '<span style="font-weight:bold;font-size:11px;">🤝 ' + allyId.toUpperCase() + '</span>';
             html += '<div style="display:flex;gap:3px;">';
-            if (allyAtWar) html += '<button onclick="window.callToArms(\'' + allyId + '\')" style="background:#854d0e;color:white;padding:3px 6px;border-radius:3px;font-size:9px;cursor:pointer;">⚔️ ' + t('diplomacy.callToArms') + '</button>';
+            html += '<button onclick="window.callToArms(\'' + allyId + '\')" style="background:#854d0e;color:white;padding:3px 6px;border-radius:3px;font-size:9px;cursor:pointer;">⚔️ ' + t('diplomacy.callToArms') + '</button>';
             html += '<button onclick="window.kickAlly(\'' + allyId + '\')" style="background:#991b1b;color:white;padding:3px 6px;border-radius:3px;font-size:9px;cursor:pointer;">✕</button>';
             html += '</div></div>'; } }
         html += '</div>';
