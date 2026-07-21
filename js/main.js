@@ -1473,6 +1473,7 @@ function startGame(countryId) {
     if (renderer) renderer.cameraInitialized = false;
     
     // Запускаем игровой цикл ТОЛЬКО ПОСЛЕ выбора страны
+    gameState.initRelations(world);
     startGameLoop();
 
     // Тутор при первом запуске

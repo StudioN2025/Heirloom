@@ -123,6 +123,23 @@ export class UIManager {
             capitalElem.innerText = cap ? cap.name : '—';
         }
 
+        // Отношение к игроку
+        const relRow = document.getElementById('sidebar-relation-row');
+        const relElem = document.getElementById('sidebar-relation');
+        if (relRow && relElem && countryId !== this.gameState.myCountryId) {
+            this.gameState.initRelations(this.world);
+            var rel = this.gameState.getRelation(countryId);
+            var relColor = rel >= 50 ? '#22c55e' : rel >= 20 ? '#86efac' : rel >= -20 ? '#eab308' : rel >= -50 ? '#f97316' : '#ef4444';
+            var relText = rel >= 50 ? 'Дружелюбно' : rel >= 20 ? 'Доброжелательно' : rel >= -20 ? 'Нейтрально' : rel >= -50 ? 'Враждебно' : 'Враг';
+            relElem.innerHTML = '<span style="color:' + relColor + ';font-weight:bold;">' + rel + '</span> <span style="color:#9ca3af;">(' + relText + ')</span>';
+            // Полоска
+            var barPct = (rel + 100) / 2;
+            relElem.innerHTML += '<div style="background:#374151;height:4px;border-radius:2px;margin-top:3px;"><div style="width:' + barPct + '%;height:100%;background:' + relColor + ';border-radius:2px;"></div></div>';
+            relRow.style.display = '';
+        } else if (relRow) {
+            relRow.style.display = 'none';
+        }
+
         // Показываем лорда если вассал
         const overlordRow = document.getElementById('sidebar-overlord-row');
         const overlordElem = document.getElementById('sidebar-overlord');

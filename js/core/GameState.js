@@ -29,6 +29,8 @@ export class GameState {
         this.allianceInvitations = []; // [{ from, time }]
         this.ideologyChange = null;
         this.justifications = null; // { target, daysLeft, totalDays }
+        this.relations = {}; // { countryId: number (-100..+100) }
+        this.relationsInit = false;
         
         this.activeFocus = null;
         this.completedFocuses = new Set();
@@ -75,6 +77,18 @@ export class GameState {
             if (!this.warStartCells[b]) this.warStartCells[b] = world.getCountryCells(b).size;
             if (!this.warOriginalCells) this.warOriginalCells = {};
             if (!this.warOriginalCells[b]) this.warOriginalCells[b] = Array.from(world.getCountryCells(b));
+        }
+
+        // Отношения: война
+        this.changeRelation(b, -50);
+        this.changeRelation(a, -50);
+        var my = this.myCountryId;
+        if (my && (a === my || b === my)) {
+            var enemy = a === my ? b : a;
+            for (var ri = 0; ri < this.alliances.length; ri++) {
+                var al = this.alliances[ri];
+                if (al.has(enemy)) { for (var m of al) if (m !== enemy) this.changeRelation(m, -10); }
+            }
         }
 
         // Вассалы лорда вступают в войну (НО не против своего лорда)
@@ -140,6 +154,16 @@ export class GameState {
     addAlliance(a, b) {
         if (!this.areAllies(a, b)) {
             this.alliances.push(new Set([a, b]));
+            this.changeRelation(a, 30);
+            this.changeRelation(b, 30);
+            // Враги альянса тоже недовольны
+            for (var i = 0; i < this.wars.length; i++) {
+                var w = this.wars[i];
+                if (w.a === a || w.b === a) {
+                    var enemy = w.a === a ? w.b : w.a;
+                    this.changeRelation(enemy, -10);
+                }
+            }
         }
     }
 
@@ -147,6 +171,8 @@ export class GameState {
         if (!this.vassals[overlord]) this.vassals[overlord] = [];
         if (!this.vassals[overlord].includes(vassal)) {
             this.vassals[overlord].push(vassal);
+            this.changeRelation(overlord, 25);
+            this.changeRelation(vassal, -20);
         }
     }
 
@@ -171,6 +197,42 @@ export class GameState {
     isVassal(countryId) {
         return this.getOverlord(countryId) !== null;
     }
+
+    // ── ОТНОШЕНИЯ ──
+    initRelations(world) {
+        if (this.relationsInit) return;
+        this.relationsInit = true;
+        var my = this.myCountryId;
+        if (!my) return;
+        var COUNTRIES_DATA = window._COUNTRIES_MAP || {};
+        var myIdeology = COUNTRIES_DATA[my] ? COUNTRIES_DATA[my].ideology : 'Нейтралитет';
+        var allCountries = world.getAllCountries();
+        for (var i = 0; i < allCountries.length; i++) {
+            var c = allCountries[i];
+            if (c === my) continue;
+            if (this.relations[c] !== undefined) continue;
+            var base = 0;
+            var cIdeology = COUNTRIES_DATA[c] ? COUNTRIES_DATA[c].ideology : 'Нейтралитет';
+            // Идеологическая совместимость
+            if (myIdeology === cIdeology) base += 25;
+            else if ((myIdeology === 'Фашизм' && cIdeology === 'Нейтралитет') || (myIdeology === 'Нейтралитет' && cIdeology === 'Фашизм')) base += 10;
+            else if ((myIdeology === 'Демократия' && cIdeology === 'Коммунизм') || (myIdeology === 'Коммунизм' && cIdeology === 'Демократия')) base -= 20;
+            else base -= 10;
+            // Соседство
+            var borderLen = world.getBorderWith(my, c).length;
+            if (borderLen > 10) base -= 5;
+            this.relations[c] = Math.max(-100, Math.min(100, base));
+        }
+    }
+
+    getRelation(countryId) {
+        return this.relations[countryId] || 0;
+    }
+
+    changeRelation(countryId, amount) {
+        if (this.relations[countryId] === undefined) this.relations[countryId] = 0;
+        this.relations[countryId] = Math.max(-100, Math.min(100, this.relations[countryId] + amount));
+    }
     
     serialize() {
         return {
@@ -193,6 +255,8 @@ export class GameState {
             warOriginalCells: this.warOriginalCells || {},
             warInvitations: this.warInvitations || [],
             allianceInvitations: this.allianceInvitations || [],
+            relations: this.relations || {},
+            relationsInit: this.relationsInit || false,
             activeFocus: this.activeFocus ? { ...this.activeFocus } : null,
             completedFocuses: [...this.completedFocuses],
             selectedUnitId: this.selectedUnitId,
@@ -225,6 +289,8 @@ export class GameState {
         this.warOriginalCells = data.warOriginalCells || {};
         this.warInvitations = data.warInvitations || [];
         this.allianceInvitations = data.allianceInvitations || [];
+        this.relations = data.relations || {};
+        this.relationsInit = data.relationsInit || false;
         this.activeFocus = data.activeFocus;
         this.completedFocuses = new Set(data.completedFocuses || []);
         this.selectedUnitId = data.selectedUnitId;
