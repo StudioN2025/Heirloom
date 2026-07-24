@@ -444,6 +444,269 @@ export const COUNTRIES = {
             "Нейтралитет": { name: "Египет",               nameEn: "Egypt",                leader: "Фарук I",                 leaderEn: "King Farouk",           color: "#6b7280", flag: "egypt_neutral" },
         }
     },
+
+    // === ВОСТОЧНАЯ АЗИЯ ===
+    manchukuo: {
+        name: "Маньчжоу-Го",
+        nameEn: "Manchukuo",
+        ideology: "Фашизм",
+        ideologies: {
+            "Фашизм":      { name: "Маньчжоу-Го",          nameEn: "Manchukuo",            leader: "Пу И",                    leaderEn: "Puyi",                  color: "#1e40af", flag: "manchukuo_fascist" },
+            "Демократия":  { name: "Маньчжоу-Го",          nameEn: "Manchukuo",            leader: "Пу И",                    leaderEn: "Puyi",                  color: "#3b82f6", flag: "manchukuo_fascist" },
+            "Коммунизм":   { name: "Маньчжоу-Го",          nameEn: "Manchukuo",            leader: "Ли Л-sanь",              leaderEn: "Li San",                color: "#990000", flag: "manchukuo_fascist" },
+            "Нейтралитет": { name: "Маньчжоу-Го",          nameEn: "Manchukuo",            leader: "Пу И",                    leaderEn: "Puyi",                  color: "#6b7280", flag: "manchukuo_fascist" },
+        }
+    },
+    korea: {
+        name: "Корея",
+        nameEn: "Korea",
+        ideology: "Нейтралитет",
+        ideologies: {
+            "Нейтралитет": { name: "Корея",                nameEn: "Korea",                leader: "Сонджин",                 leaderEn: "King Sunjong",          color: "#1a1a2e", flag: "korea_neutral" },
+            "Демократия":  { name: "Республика Корея",     nameEn: "Republic of Korea",    leader: "Ли Сынман",              leaderEn: "Syngman Rhee",          color: "#3b82f6", flag: "korea_neutral" },
+            "Фашизм":      { name: "Корея",                nameEn: "Korea",                leader: "Пак Ёнхё",              leaderEn: "Park Yeong-hyo",        color: "#dc2626", flag: "korea_neutral" },
+            "Коммунизм":   { name: "КНДР",                 nameEn: "North Korea",          leader: "Ким Ир Сен",             leaderEn: "Kim Il-sung",           color: "#990000", flag: "korea_neutral" },
+        }
+    },
+    taiwan: {
+        name: "Тайвань",
+        nameEn: "Taiwan",
+        ideology: "Нейтралитет",
+        ideologies: {
+            "Нейтралитет": { name: "Тайвань",              nameEn: "Taiwan",               leader: "Линь Сэн',               leaderEn: "Lin Sen",               color: "#1e40af", flag: "taiwan_neutral" },
+            "Демократия":  { name: "Тайвань",              nameEn: "Taiwan",               leader: "Чан Кайши",              leaderEn: "Chiang Kai-shek",       color: "#3b82f6", flag: "taiwan_neutral" },
+            "Фашизм":      { name: "Тайвань",              nameEn: "Taiwan",               leader: "Чан Кайши",              leaderEn: "Chiang Kai-shek",       color: "#dc2626", flag: "taiwan_neutral" },
+            "Коммунизм":   { name: "Тайвань",              nameEn: "Taiwan",               leader: "Те Чжиминь",             leaderEn: "Xie Xuehong",           color: "#990000", flag: "taiwan_neutral" },
+        }
+    },
+    philippines: {
+        name: "Филиппины",
+        nameEn: "Philippines",
+        ideology: "Демократия",
+        ideologies: {
+            "Демократия":  { name: "Филиппины",            nameEn: "Philippines",          leader: "Мануэль Кесон",          leaderEn: "Manuel Quezon",         color: "#2563eb", flag: "philippines_democratic" },
+            "Фашизм":      { name: "Филиппины",            nameEn: "Philippines",          leader: "Бенгасино",              leaderEn: "Batasan",              color: "#dc2626", flag: "philippines_democratic" },
+            "Коммунизм":   { name: "Филиппины",            nameEn: "Philippines",          leader: "Луис Тарук",             leaderEn: "Luis Taruc",           color: "#990000", flag: "philippines_democratic" },
+            "Нейтралитет": { name: "Филиппины",            nameEn: "Philippines",          leader: "Мануэль Кесон",          leaderEn: "Manuel Quezon",         color: "#6b7280", flag: "philippines_democratic" },
+        }
+    },
+
+    // === ЮГО-ВОСТОЧНАЯ АЗИЯ ===
+    burma: {
+        name: "Бирма",
+        nameEn: "Burma",
+        ideology: "Нейтралитет",
+        ideologies: {
+            "Нейтралитет": { name: "Бирма",                nameEn: "Burma",                leader: "Ба Мо",                   leaderEn: "Ba Maw",               color: "#166534", flag: "burma_neutral" },
+            "Демократия":  { name: "Бирма",                nameEn: "Burma",                leader: "У Ну",                    leaderEn: "U Nu",                  color: "#3b82f6", flag: "burma_neutral" },
+            "Фашизм":      { name: "Бирма",                nameEn: "Burma",                leader: "Ба Мо",                   leaderEn: "Ba Maw",               color: "#dc2626", flag: "burma_neutral" },
+            "Коммунизм":   { name: "Бирма",                nameEn: "Burma",                leader: "Тхакин Со",              leaderEn: "Thakin So",            color: "#990000", flag: "burma_neutral" },
+        }
+    },
+    vietnam: {
+        name: "Вьетнам",
+        nameEn: "Vietnam",
+        ideology: "Нейтралитет",
+        ideologies: {
+            "Нейтралитет": { name: "Вьетнам",              nameEn: "Vietnam",              leader: "Бао Дай",                 leaderEn: "Bảo Đại",              color: "#f59e0b", flag: "vietnam_neutral" },
+            "Демократия":  { name: "Вьетнам",              nameEn: "Vietnam",              leader: "Нго Динь Зьем",          leaderEn: "Ngô Đình Diệm",        color: "#3b82f6", flag: "vietnam_neutral" },
+            "Фашизм":      { name: "Вьетнам",              nameEn: "Vietnam",              leader: "Бао Дай",                 leaderEn: "Bảo Đại",              color: "#dc2626", flag: "vietnam_neutral" },
+            "Коммунизм":   { name: "ДРВ",                  nameEn: "North Vietnam",        leader: "Хо Ши Мин",               leaderEn: "Ho Chi Minh",          color: "#990000", flag: "vietnam_neutral" },
+        }
+    },
+    laos: {
+        name: "Лаос",
+        nameEn: "Laos",
+        ideology: "Нейтралитет",
+        ideologies: {
+            "Нейтралитет": { name: "Лаос",                 nameEn: "Laos",                 leader: "Сисаванг Вонг",           leaderEn: "Sisavang Vong",        color: "#105d10", flag: "laos_neutral" },
+            "Демократия":  { name: "Лаос",                 nameEn: "Laos",                 leader: "Сисаванг Вонг",           leaderEn: "Sisavang Vong",        color: "#3b82f6", flag: "laos_neutral" },
+            "Фашизм":      { name: "Лаос",                 nameEn: "Laos",                 leader: "Сисаванг Вонг",           leaderEn: "Sisavang Vong",        color: "#dc2626", flag: "laos_neutral" },
+            "Коммунизм":   { name: "Лаос",                 nameEn: "Laos",                 leader: "Супханнувонг",            leaderEn: "Suphanouvong",         color: "#990000", flag: "laos_neutral" },
+        }
+    },
+    cambodia: {
+        name: "Камбоджа",
+        nameEn: "Cambodia",
+        ideology: "Нейтралитет",
+        ideologies: {
+            "Нейтралитет": { name: "Камбоджа",             nameEn: "Cambodia",             leader: "Нородом Сианук",          leaderEn: "Norodom Sihanouk",     color: "#fbbf24", flag: "cambodia_neutral" },
+            "Демократия":  { name: "Камбоджа",             nameEn: "Cambodia",             leader: "Нородом Сианук",          leaderEn: "Norodom Sihanouk",     color: "#3b82f6", flag: "cambodia_neutral" },
+            "Фашизм":      { name: "Камбоджа",             nameEn: "Cambodia",             leader: "Нородом Сианук",          leaderEn: "Norodom Sihanouk",     color: "#dc2626", flag: "cambodia_neutral" },
+            "Коммунизм":   { name: "Камбоджа",             nameEn: "Cambodia",             leader: "Пол Пот",                 leaderEn: "Pol Pot",              color: "#990000", flag: "cambodia_neutral" },
+        }
+    },
+    indonesia: {
+        name: "Индонезия",
+        nameEn: "Indonesia",
+        ideology: "Нейтралитет",
+        ideologies: {
+            "Нейтралитет": { name: "Индонезия",            nameEn: "Indonesia",            leader: "Сукарно",                 leaderEn: "Sukarno",              color: "#dc2626", flag: "indonesia_neutral" },
+            "Демократия":  { name: "Индонезия",            nameEn: "Indonesia",            leader: "Сукарно",                 leaderEn: "Sukarno",              color: "#3b82f6", flag: "indonesia_neutral" },
+            "Фашизм":      { name: "Индонезия",            nameEn: "Indonesia",            leader: "Сукарно",                 leaderEn: "Sukarno",              color: "#1a1a2e", flag: "indonesia_neutral" },
+            "Коммунизм":   { name: "Индонезия",            nameEn: "Indonesia",            leader: "Дипа Нусантара",          leaderEn: "Dipanegara",           color: "#990000", flag: "indonesia_neutral" },
+        }
+    },
+    malaysia: {
+        name: "Малайя",
+        nameEn: "Malaya",
+        ideology: "Демократия",
+        ideologies: {
+            "Демократия":  { name: "Малайя",               nameEn: "Malaya",               leader: "Абдул Рахман",            leaderEn: "Tunku Abdul Rahman",   color: "#dc2626", flag: "malaysia_democratic" },
+            "Фашизм":      { name: "Малайя",               nameEn: "Malaya",               leader: "Коннолли",                leaderEn: "Connolly",             color: "#1a1a2e", flag: "malaysia_democratic" },
+            "Коммунизм":   { name: "Малайя",               nameEn: "Malaya",               leader: "Чин Пен",                 leaderEn: "Chin Peng",            color: "#990000", flag: "malaysia_democratic" },
+            "Нейтралитет": { name: "Малайя",               nameEn: "Malaya",               leader: "Абдул Рахман",            leaderEn: "Tunku Abdul Rahman",   color: "#6b7280", flag: "malaysia_democratic" },
+        }
+    },
+
+    // === ЮЖНАЯ АЗИЯ ===
+    nepal: {
+        name: "Непал",
+        nameEn: "Nepal",
+        ideology: "Нейтралитет",
+        ideologies: {
+            "Нейтралитет": { name: "Непал",                nameEn: "Nepal",                leader: "Трибхуван",               leaderEn: "Tribhuvan",            color: "#dc2626", flag: "nepal_neutral" },
+            "Демократия":  { name: "Непал",                nameEn: "Nepal",                leader: "Трибхуван",               leaderEn: "Tribhuvan",            color: "#3b82f6", flag: "nepal_neutral" },
+            "Фашизм":      { name: "Непал",                nameEn: "Nepal",                leader: "Махендра",                leaderEn: "Mahendra",             color: "#1a1a2e", flag: "nepal_neutral" },
+            "Коммунизм":   { name: "Непал",                nameEn: "Nepal",                leader: "Пушпа Лал Шреста",        leaderEn: "Pushpa Lal Shrestha",   color: "#990000", flag: "nepal_neutral" },
+        }
+    },
+    bhutan: {
+        name: "Бутан",
+        nameEn: "Bhutan",
+        ideology: "Нейтралитет",
+        ideologies: {
+            "Нейтралитет": { name: "Бутан",                nameEn: "Bhutan",               leader: "Джигме Вангчук",          leaderEn: "Jigme Wangchuck",      color: "#f59e0b", flag: "bhutan_neutral" },
+            "Демократия":  { name: "Бутан",                nameEn: "Bhutan",               leader: "Джигме Вангчук",          leaderEn: "Jigme Wangchuck",      color: "#3b82f6", flag: "bhutan_neutral" },
+            "Фашизм":      { name: "Бутан",                nameEn: "Bhutan",               leader: "Джигме Вангчук",          leaderEn: "Jigme Wangchuck",      color: "#dc2626", flag: "bhutan_neutral" },
+            "Коммунизм":   { name: "Бутан",                nameEn: "Bhutan",               leader: "Джигме Вангчук",          leaderEn: "Jigme Wangchuck",      color: "#990000", flag: "bhutan_neutral" },
+        }
+    },
+
+    // === БЛИЖНИЙ ВОСТОК ===
+    yemen: {
+        name: "Йемен",
+        nameEn: "Yemen",
+        ideology: "Нейтралитет",
+        ideologies: {
+            "Нейтралитет": { name: "Йемен",                nameEn: "Yemen",                leader: "Ахмед Якуб",              leaderEn: "Ahmad ibn Yahya",      color: "#166534", flag: "yemen_neutral" },
+            "Демократия":  { name: "Йемен",                nameEn: "Yemen",                leader: "Ибрагим Хамди",          leaderEn: "Ibrahim al-Hamdi",     color: "#3b82f6", flag: "yemen_neutral" },
+            "Фашизм":      { name: "Йемен",                nameEn: "Yemen",                leader: "Ахмед Якуб",              leaderEn: "Ahmad ibn Yahya",      color: "#dc2626", flag: "yemen_neutral" },
+            "Коммунизм":   { name: "Йемен",                nameEn: "Yemen",                leader: "Абдулла аль-Ахмар",       leaderEn: "Abdullah al-Ahmar",    color: "#990000", flag: "yemen_neutral" },
+        }
+    },
+    oman: {
+        name: "Оман",
+        nameEn: "Oman",
+        ideology: "Нейтралитет",
+        ideologies: {
+            "Нейтралитет": { name: "Оман",                 nameEn: "Oman",                 leader: "Саид бин Таймур",         leaderEn: "Said bin Taimur",      color: "#15803d", flag: "oman_neutral" },
+            "Демократия":  { name: "Оман",                 nameEn: "Oman",                 leader: "Саид бин Таймур",         leaderEn: "Said bin Taimur",      color: "#3b82f6", flag: "oman_neutral" },
+            "Фашизм":      { name: "Оман",                 nameEn: "Oman",                 leader: "Саид бин Таймур",         leaderEn: "Said bin Taimur",      color: "#dc2626", flag: "oman_neutral" },
+            "Коммунизм":   { name: "Оман",                 nameEn: "Oman",                 leader: "Саид бин Таймур",         leaderEn: "Said bin Taimur",      color: "#990000", flag: "oman_neutral" },
+        }
+    },
+    kuwait: {
+        name: "Кувейт",
+        nameEn: "Kuwait",
+        ideology: "Нейтралитет",
+        ideologies: {
+            "Нейтралитет": { name: "Кувейт",               nameEn: "Kuwait",               leader: "Ахмед Аль-Джабер",        leaderEn: "Ahmad Al-Jaber",       color: "#059669", flag: "kuwait_neutral" },
+            "Демократия":  { name: "Кувейт",               nameEn: "Kuwait",               leader: "Ахмед Аль-Джабер",        leaderEn: "Ahmad Al-Jaber",       color: "#3b82f6", flag: "kuwait_neutral" },
+            "Фашизм":      { name: "Кувейт",               nameEn: "Kuwait",               leader: "Ахмед Аль-Джабер",        leaderEn: "Ahmad Al-Jaber",       color: "#dc2626", flag: "kuwait_neutral" },
+            "Коммунизм":   { name: "Кувейт",               nameEn: "Kuwait",               leader: "Ахмед Аль-Джабер",        leaderEn: "Ahmad Al-Jaber",       color: "#990000", flag: "kuwait_neutral" },
+        }
+    },
+    bahrain: {
+        name: "Бахрейн",
+        nameEn: "Bahrain",
+        ideology: "Нейтралитет",
+        ideologies: {
+            "Нейтралитет": { name: "Бахрейн",              nameEn: "Bahrain",              leader: "Хамад бин Иса",           leaderEn: "Hamad bin Isa",        color: "#dc2626", flag: "bahrain_neutral" },
+            "Демократия":  { name: "Бахрейн",              nameEn: "Bahrain",              leader: "Хамад бин Иса",           leaderEn: "Hamad bin Isa",        color: "#3b82f6", flag: "bahrain_neutral" },
+            "Фашизм":      { name: "Бахрейн",              nameEn: "Bahrain",              leader: "Хамад бин Иса",           leaderEn: "Hamad bin Isa",        color: "#1a1a2e", flag: "bahrain_neutral" },
+            "Коммунизм":   { name: "Бахрейн",              nameEn: "Bahrain",              leader: "Хамад бин Иса",           leaderEn: "Hamad bin Isa",        color: "#990000", flag: "bahrain_neutral" },
+        }
+    },
+    qatar: {
+        name: "Катар",
+        nameEn: "Qatar",
+        ideology: "Нейтралитет",
+        ideologies: {
+            "Нейтралитет": { name: "Катар",                nameEn: "Qatar",                leader: "Абдулла бин Касим",       leaderEn: "Abdullah bin Qasim",   color: "#7f1d1d", flag: "qatar_neutral" },
+            "Демократия":  { name: "Катар",                nameEn: "Qatar",                leader: "Абдулла бин Касим",       leaderEn: "Abdullah bin Qasim",   color: "#3b82f6", flag: "qatar_neutral" },
+            "Фашизм":      { name: "Катар",                nameEn: "Qatar",                leader: "Абдулла бин Касим",       leaderEn: "Abdullah bin Qasim",   color: "#dc2626", flag: "qatar_neutral" },
+            "Коммунизм":   { name: "Катар",                nameEn: "Qatar",                leader: "Абдулла бин Касим",       leaderEn: "Abdullah bin Qasim",   color: "#990000", flag: "qatar_neutral" },
+        }
+    },
+    lebanon: {
+        name: "Ливан",
+        nameEn: "Lebanon",
+        ideology: "Нейтралитет",
+        ideologies: {
+            "Нейтралитет": { name: "Ливан",                nameEn: "Lebanon",              leader: "Бишара эль-Хури",         leaderEn: "Bechara El-Khoury",    color: "#166534", flag: "lebanon_neutral" },
+            "Демократия":  { name: "Ливан",                nameEn: "Lebanon",              leader: "Бишара эль-Хури",         leaderEn: "Bechara El-Khoury",    color: "#3b82f6", flag: "lebanon_neutral" },
+            "Фашизм":      { name: "Ливан",                nameEn: "Lebanon",              leader: "Бишара эль-Хури",         leaderEn: "Bechara El-Khoury",    color: "#dc2626", flag: "lebanon_neutral" },
+            "Коммунизм":   { name: "Ливан",                nameEn: "Lebanon",              leader: "Карим Пакладон",          leaderEn: "Karim Pakladon",       color: "#990000", flag: "lebanon_neutral" },
+        }
+    },
+    israel: {
+        name: "Израиль",
+        nameEn: "Israel",
+        ideology: "Демократия",
+        ideologies: {
+            "Демократия":  { name: "Израиль",              nameEn: "Israel",               leader: "Давид Бен-Гурион",        leaderEn: "David Ben-Gurion",     color: "#2563eb", flag: "israel_democratic" },
+            "Фашизм":      { name: "Израиль",              nameEn: "Israel",               leader: "Менахем Бегин",           leaderEn: "Menachem Begin",       color: "#dc2626", flag: "israel_democratic" },
+            "Коммунизм":   { name: "Израиль",              nameEn: "Israel",               leader: "Меир Вильнер",            leaderEn: "Meir Vilner",          color: "#990000", flag: "israel_democratic" },
+            "Нейтралитет": { name: "Израиль",              nameEn: "Israel",               leader: "Давид Бен-Гурион",        leaderEn: "David Ben-Gurion",     color: "#6b7280", flag: "israel_democratic" },
+        }
+    },
+
+    // === АФРИКА ===
+    sudan: {
+        name: "Судан",
+        nameEn: "Sudan",
+        ideology: "Нейтралитет",
+        ideologies: {
+            "Нейтралитет": { name: "Судан",                nameEn: "Sudan",                leader: "Сайид Абдель Рахман",     leaderEn: "Sayyid Abdel Rahman",  color: "#dc2626", flag: "sudan_neutral" },
+            "Демократия":  { name: "Судан",                nameEn: "Sudan",                leader: "Исмаил аль-Азхари",       leaderEn: "Ismail al-Azhari",     color: "#3b82f6", flag: "sudan_neutral" },
+            "Фашизм":      { name: "Судан",                nameEn: "Sudan",                leader: "Сайид Абдель Рахман",     leaderEn: "Sayyid Abdel Rahman",  color: "#1a1a2e", flag: "sudan_neutral" },
+            "Коммунизм":   { name: "Судан",                nameEn: "Sudan",                leader: "Абдель Халим Хафиз",      leaderEn: "Abdel Khalim Kafiz",   color: "#990000", flag: "sudan_neutral" },
+        }
+    },
+    ethiopia: {
+        name: "Эфиопия",
+        nameEn: "Ethiopia",
+        ideology: "Нейтралитет",
+        ideologies: {
+            "Нейтралитет": { name: "Эфиопия",              nameEn: "Ethiopia",             leader: "Хайле Селассие",          leaderEn: "Haile Selassie",       color: "#105d10", flag: "ethiopia_neutral" },
+            "Демократия":  { name: "Эфиопия",              nameEn: "Ethiopia",             leader: "Хайле Селассие",          leaderEn: "Haile Selassie",       color: "#3b82f6", flag: "ethiopia_neutral" },
+            "Фашизм":      { name: "Эфиопия",              nameEn: "Ethiopia",             leader: "Хайле Селассие",          leaderEn: "Haile Selassie",       color: "#dc2626", flag: "ethiopia_neutral" },
+            "Коммунизм":   { name: "Эфиопия",              nameEn: "Ethiopia",             leader: "Мэнгисту Хайле Марьям",  leaderEn: "Mengistu Haile Mariam", color: "#990000", flag: "ethiopia_neutral" },
+        }
+    },
+    somalia: {
+        name: "Сомали",
+        nameEn: "Somalia",
+        ideology: "Нейтралитет",
+        ideologies: {
+            "Нейтралитет": { name: "Сомали",               nameEn: "Somalia",              leader: "Абдуллахи Юсуф",          leaderEn: "Abdullahi Yusuf",      color: "#3b82f6", flag: "somalia_neutral" },
+            "Демократия":  { name: "Сомали",               nameEn: "Somalia",              leader: "Абдуллахи Юсуф",          leaderEn: "Abdullahi Yusuf",      color: "#3b82f6", flag: "somalia_neutral" },
+            "Фашизм":      { name: "Сомали",               nameEn: "Somalia",              leader: "Мухаммед Хассан Али",     leaderEn: "Mohammed Hassan Ali",  color: "#dc2626", flag: "somalia_neutral" },
+            "Коммунизм":   { name: "Сомали",               nameEn: "Somalia",              leader: "Мухammad Барре",          leaderEn: "Siad Barre",           color: "#990000", flag: "somalia_neutral" },
+        }
+    },
+    eritrea: {
+        name: "Эритрея",
+        nameEn: "Eritrea",
+        ideology: "Нейтралитет",
+        ideologies: {
+            "Нейтралитет": { name: "Эритрея",              nameEn: "Eritrea",              leader: "Ибрагим Султан",          leaderEn: "Ibrahim Sultan",       color: "#f59e0b", flag: "eritrea_neutral" },
+            "Демократия":  { name: "Эритрея",              nameEn: "Eritrea",              leader: "Ибрагим Султан",          leaderEn: "Ibrahim Sultan",       color: "#3b82f6", flag: "eritrea_neutral" },
+            "Фашизм":      { name: "Эритрея",              nameEn: "Eritrea",              leader: "Ибрагим Султан",          leaderEn: "Ibrahim Sultan",       color: "#dc2626", flag: "eritrea_neutral" },
+            "Коммунизм":   { name: "Эритрея",              nameEn: "Eritrea",              leader: "Исайас Афеворки",         leaderEn: "Isaias Afwerki",       color: "#990000", flag: "eritrea_neutral" },
+        }
+    },
 };
 
 // Хелпер для получения данных по идеологии

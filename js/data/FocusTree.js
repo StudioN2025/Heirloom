@@ -13,6 +13,30 @@ const FOCUS_FILES = [
     'focuses/albania.json',
     'focuses/japan.json',
     'focuses/china.json',
+    // Азия
+    'focuses/manchukuo.json',
+    'focuses/korea.json',
+    'focuses/taiwan.json',
+    'focuses/philippines.json',
+    'focuses/burma.json',
+    'focuses/vietnam.json',
+    'focuses/laos.json',
+    'focuses/cambodia.json',
+    'focuses/indonesia.json',
+    'focuses/malaysia.json',
+    'focuses/nepal.json',
+    'focuses/bhutan.json',
+    'focuses/yemen.json',
+    'focuses/oman.json',
+    'focuses/kuwait.json',
+    'focuses/bahrain.json',
+    'focuses/qatar.json',
+    'focuses/lebanon.json',
+    'focuses/israel.json',
+    'focuses/sudan.json',
+    'focuses/ethiopia.json',
+    'focuses/somalia.json',
+    'focuses/eritrea.json',
 ];
 
 // Определяет эффект по названию и описанию фокуса
@@ -105,6 +129,29 @@ function convertFocusJSON(json, filename) {
     else if (fname.includes('albania')) country = 'albania';
     else if (fname.includes('japan')) country = 'japan';
     else if (fname.includes('china')) country = 'china';
+    else if (fname.includes('manchukuo')) country = 'manchukuo';
+    else if (fname.includes('korea')) country = 'korea';
+    else if (fname.includes('taiwan')) country = 'taiwan';
+    else if (fname.includes('philippines')) country = 'philippines';
+    else if (fname.includes('burma')) country = 'burma';
+    else if (fname.includes('vietnam')) country = 'vietnam';
+    else if (fname.includes('laos')) country = 'laos';
+    else if (fname.includes('cambodia')) country = 'cambodia';
+    else if (fname.includes('indonesia')) country = 'indonesia';
+    else if (fname.includes('malaysia') || fname.includes('malaya')) country = 'malaysia';
+    else if (fname.includes('nepal')) country = 'nepal';
+    else if (fname.includes('bhutan')) country = 'bhutan';
+    else if (fname.includes('yemen')) country = 'yemen';
+    else if (fname.includes('oman')) country = 'oman';
+    else if (fname.includes('kuwait')) country = 'kuwait';
+    else if (fname.includes('bahrain')) country = 'bahrain';
+    else if (fname.includes('qatar')) country = 'qatar';
+    else if (fname.includes('lebanon')) country = 'lebanon';
+    else if (fname.includes('israel')) country = 'israel';
+    else if (fname.includes('sudan')) country = 'sudan';
+    else if (fname.includes('ethiopia')) country = 'ethiopia';
+    else if (fname.includes('somalia')) country = 'somalia';
+    else if (fname.includes('eritrea')) country = 'eritrea';
     if (!country) return result;
 
     // Формат 1: Editor — плоский объект { "id": { name, x, y, prereqs, effect } }
