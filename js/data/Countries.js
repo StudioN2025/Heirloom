@@ -376,6 +376,74 @@ export const COUNTRIES = {
             "Коммунизм":   { name: "Саудовская Аравия",    nameEn: "Saudi Arabia",         leader: "Абдул-Азиз Аль-Сауд",     leaderEn: "Abdulaziz Al Saud",       color: "#990000", flag: "saudi_arabia_neutral" },
         }
     },
+
+    // === АЗИЯ ===
+    japan: {
+        name: "Япония",
+        nameEn: "Japan",
+        ideology: "Фашизм",
+        ideologies: {
+            "Фашизм":      { name: "Японская империя",     nameEn: "Empire of Japan",      leader: "Хирохито",                leaderEn: "Emperor Hirohito",       color: "#8b0000", flag: "japan_fascist" },
+            "Демократия":  { name: "Япония",               nameEn: "Japan",                leader: "Хатояма Итиро",           leaderEn: "Ichirō Hatoyama",        color: "#3b82f6", flag: "japan_democratic" },
+            "Коммунизм":   { name: "Японская НДР",         nameEn: "Japanese People's Republic", leader: "Носака Сандзё",     leaderEn: "Sanzo Nosaka",           color: "#990000", flag: "japan_communist" },
+            "Нейтралитет": { name: "Япония",               nameEn: "Japan",                leader: "Кидзюро Шидехара",        leaderEn: "Kijūrō Shidehara",      color: "#6b7280", flag: "japan_neutral" },
+        }
+    },
+    china: {
+        name: "Китай",
+        nameEn: "China",
+        ideology: "Демократия",
+        ideologies: {
+            "Демократия":  { name: "Китайская Республика",  nameEn: "Republic of China",    leader: "Чан Кайши",              leaderEn: "Chiang Kai-shek",       color: "#3b82f6", flag: "china_democratic" },
+            "Фашизм":      { name: "Китай",                nameEn: "China",                leader: "Ван Цзинвэй",            leaderEn: "Wang Jingwei",          color: "#dc2626", flag: "china_fascist" },
+            "Коммунизм":   { name: "КНР",                  nameEn: "People's Republic of China", leader: "Мао Цзэдун",       leaderEn: "Mao Zedong",            color: "#990000", flag: "china_communist" },
+            "Нейтралитет": { name: "Китай",                nameEn: "China",                leader: "Линь Сэнь",              leaderEn: "Lin Sen",               color: "#6b7280", flag: "china_neutral" },
+        }
+    },
+    india: {
+        name: "Индия",
+        nameEn: "India",
+        ideology: "Демократия",
+        ideologies: {
+            "Демократия":  { name: "Британская Индия",      nameEn: "British India",        leader: "Лорд Линлитгоу",         leaderEn: "Marquess of Linlithgow", color: "#f59e0b", flag: "india_democratic" },
+            "Фашизм":      { name: "Индия",                nameEn: "India",                leader: "Субхас Чандра Бос",      leaderEn: "Subhas Chandra Bose",   color: "#dc2626", flag: "india_fascist" },
+            "Коммунизм":   { name: "Индия",                nameEn: "India",                leader: "Б.Т. Ранадиве",           leaderEn: "B.T. Ranadive",         color: "#990000", flag: "india_communist" },
+            "Нейтралитет": { name: "Индия",                nameEn: "India",                leader: "Махатма Ганди",           leaderEn: "Mahatma Gandhi",        color: "#6b7280", flag: "india_neutral" },
+        }
+    },
+    thailand: {
+        name: "Таиланд",
+        nameEn: "Thailand",
+        ideology: "Нейтралитет",
+        ideologies: {
+            "Нейтралитет": { name: "Таиланд",              nameEn: "Thailand",             leader: "Плек Пибунсонгкрам",      leaderEn: "Plaek Phibunsongkhram", color: "#a855f7", flag: "thailand_neutral" },
+            "Демократия":  { name: "Таиланд",              nameEn: "Thailand",             leader: "Прidi Пхахонмонгкол",     leaderEn: "Pridi Banomyong",       color: "#3b82f6", flag: "thailand_democratic" },
+            "Фашизм":      { name: "Таиланд",              nameEn: "Thailand",             leader: "Плек Пибунсонгкрам",      leaderEn: "Plaek Phibunsongkhram", color: "#dc2626", flag: "thailand_fascist" },
+            "Коммунизм":   { name: "Таиланд",              nameEn: "Thailand",             leader: "Приди Баномйонг",         leaderEn: "Pridi Banomyong",       color: "#990000", flag: "thailand_communist" },
+        }
+    },
+    afghanistan: {
+        name: "Афганистан",
+        nameEn: "Afghanistan",
+        ideology: "Нейтралитет",
+        ideologies: {
+            "Нейтралитет": { name: "Афганистан",           nameEn: "Afghanistan",          leader: "Мохаммед Захир-шах",      leaderEn: "Mohammad Zahir Shah",   color: "#1e40af", flag: "afghanistan_neutral" },
+            "Демократия":  { name: "Афганистан",           nameEn: "Afghanistan",          leader: "Мохаммед Дауд Хан",       leaderEn: "Mohammad Daoud Khan",   color: "#3b82f6", flag: "afghanistan_democratic" },
+            "Фашизм":      { name: "Афганистан",           nameEn: "Afghanistan",          leader: "Хабибулла Калакани",      leaderEn: "Habibullah Kalakani",   color: "#dc2626", flag: "afghanistan_fascist" },
+            "Коммунизм":   { name: "Афганистан",           nameEn: "Afghanistan",          leader: "Нур Мухаммад Тараки",     leaderEn: "Nur Muhammad Taraki",   color: "#990000", flag: "afghanistan_communist" },
+        }
+    },
+    egypt: {
+        name: "Египет",
+        nameEn: "Egypt",
+        ideology: "Демократия",
+        ideologies: {
+            "Демократия":  { name: "Египет",               nameEn: "Egypt",                leader: "Фуад II",                 leaderEn: "Fuad II",               color: "#d97706", flag: "egypt_democratic" },
+            "Фашизм":      { name: "Египет",               nameEn: "Egypt",                leader: "Ахмад Махер",             leaderEn: "Ahmad Maher Pasha",     color: "#dc2626", flag: "egypt_fascist" },
+            "Коммунизм":   { name: "Египет",               nameEn: "Egypt",                leader: "Халид бин Уль-Валид",     leaderEn: "Khaled al-Hakim",       color: "#990000", flag: "egypt_communist" },
+            "Нейтралитет": { name: "Египет",               nameEn: "Egypt",                leader: "Фарук I",                 leaderEn: "King Farouk",           color: "#6b7280", flag: "egypt_neutral" },
+        }
+    },
 };
 
 // Хелпер для получения данных по идеологии
