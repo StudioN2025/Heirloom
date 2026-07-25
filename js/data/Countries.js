@@ -473,7 +473,7 @@ export const COUNTRIES = {
         nameEn: "Taiwan",
         ideology: "Нейтралитет",
         ideologies: {
-            "Нейтралитет": { name: "Тайвань",              nameEn: "Taiwan",               leader: "Линь Сэн',               leaderEn: "Lin Sen",               color: "#1e40af", flag: "taiwan_neutral" },
+            "Нейтралитет": { name: "Тайвань",              nameEn: "Taiwan",               leader: "Линь Сэн",               leaderEn: "Lin Sen",               color: "#1e40af", flag: "taiwan_neutral" },
             "Демократия":  { name: "Тайвань",              nameEn: "Taiwan",               leader: "Чан Кайши",              leaderEn: "Chiang Kai-shek",       color: "#3b82f6", flag: "taiwan_neutral" },
             "Фашизм":      { name: "Тайвань",              nameEn: "Taiwan",               leader: "Чан Кайши",              leaderEn: "Chiang Kai-shek",       color: "#dc2626", flag: "taiwan_neutral" },
             "Коммунизм":   { name: "Тайвань",              nameEn: "Taiwan",               leader: "Те Чжиминь",             leaderEn: "Xie Xuehong",           color: "#990000", flag: "taiwan_neutral" },
