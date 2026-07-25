@@ -37,6 +37,10 @@ const FOCUS_FILES = [
     'focuses/ethiopia.json',
     'focuses/somalia.json',
     'focuses/eritrea.json',
+    'focuses/tuva.json',
+    'focuses/mongolia.json',
+    'focuses/sinkiang.json',
+    'focuses/tibet.json',
 ];
 
 // Определяет эффект по названию и описанию фокуса
@@ -152,6 +156,10 @@ function convertFocusJSON(json, filename) {
     else if (fname.includes('ethiopia')) country = 'ethiopia';
     else if (fname.includes('somalia')) country = 'somalia';
     else if (fname.includes('eritrea')) country = 'eritrea';
+    else if (fname.includes('tuva')) country = 'tuva';
+    else if (fname.includes('mongolia')) country = 'mongolia';
+    else if (fname.includes('sinkiang')) country = 'sinkiang';
+    else if (fname.includes('tibet')) country = 'tibet';
     if (!country) return result;
 
     // Формат 1: Editor — плоский объект { "id": { name, x, y, prereqs, effect } }

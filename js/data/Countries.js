@@ -707,6 +707,50 @@ export const COUNTRIES = {
             "Коммунизм":   { name: "Эритрея",              nameEn: "Eritrea",              leader: "Исайас Афеворки",         leaderEn: "Isaias Afwerki",       color: "#990000", flag: "eritrea_neutral" },
         }
     },
+    tuva: {
+        name: "Тува",
+        nameEn: "Tannu Tuva",
+        ideology: "Коммунизм",
+        ideologies: {
+            "Коммунизм":  { name: "Тува",              nameEn: "Tannu Tuva",        leader: "Хорлоогийн Чойбалан",     leaderEn: "Khorloogiin Choibalsan",  color: "#cc0000", flag: "tuva_communist" },
+            "Фашизм":     { name: "Тува",              nameEn: "Tannu Tuva",        leader: "Хорлоогийн Чойбалан",     leaderEn: "Khorloogiin Choibalsan",  color: "#990000", flag: "tuva_communist" },
+            "Демократия":  { name: "Тува",              nameEn: "Tannu Tuva",        leader: "Хорлоогийн Чойбалан",     leaderEn: "Khorloogiin Choibalsan",  color: "#3b82f6", flag: "tuva_communist" },
+            "Нейтралитет": { name: "Тува",              nameEn: "Tannu Tuva",        leader: "Хорлоогийн Чойбалан",     leaderEn: "Khorloogiin Choibalsan",  color: "#6b7280", flag: "tuva_communist" },
+        }
+    },
+    mongolia: {
+        name: "Монголия",
+        nameEn: "Mongolia",
+        ideology: "Коммунизм",
+        ideologies: {
+            "Коммунизм":  { name: "Монголия",           nameEn: "Mongolia",           leader: "Хорлоогийн Чойбалан",     leaderEn: "Khorloogiin Choibalsan",  color: "#cc0000", flag: "mongolia_communist" },
+            "Фашизм":     { name: "Монголия",           nameEn: "Mongolia",           leader: "Дамдинбазар",             leaderEn: "Damdinbazar",             color: "#990000", flag: "mongolia_communist" },
+            "Демократия":  { name: "Монголия",           nameEn: "Mongolia",           leader: "Бадамдорж",               leaderEn: "Baldandorj",              color: "#3b82f6", flag: "mongolia_communist" },
+            "Нейтралитет": { name: "Монголия",           nameEn: "Mongolia",           leader: "Богд-хан",                leaderEn: "Bogd Khan",               color: "#6b7280", flag: "mongolia_communist" },
+        }
+    },
+    sinkiang: {
+        name: "Синьцзян",
+        nameEn: "Sinkiang",
+        ideology: "Нейтралитет",
+        ideologies: {
+            "Нейтралитет": { name: "Синьцзян",           nameEn: "Sinkiang",           leader: "Шэн Шицай",              leaderEn: "Sheng Shicai",            color: "#1e40af", flag: "sinkiang_neutral" },
+            "Коммунизм":   { name: "Синьцзян",           nameEn: "Sinkiang",           leader: "Шэн Шицай",              leaderEn: "Sheng Shicai",            color: "#cc0000", flag: "sinkiang_neutral" },
+            "Фашизм":      { name: "Синьцзян",           nameEn: "Sinkiang",           leader: "Шэн Шицай",              leaderEn: "Sheng Shicai",            color: "#dc2626", flag: "sinkiang_neutral" },
+            "Демократия":  { name: "Синьцзян",           nameEn: "Sinkiang",           leader: "Шэн Шицай",              leaderEn: "Sheng Shicai",            color: "#3b82f6", flag: "sinkiang_neutral" },
+        }
+    },
+    tibet: {
+        name: "Тибет",
+        nameEn: "Tibet",
+        ideology: "Нейтралитет",
+        ideologies: {
+            "Нейтралитет": { name: "Тибет",              nameEn: "Tibet",              leader: "Далай-Лама XIII",         leaderEn: "13th Dalai Lama",         color: "#dc2626", flag: "tibet_neutral" },
+            "Коммунизм":   { name: "Тибет",              nameEn: "Tibet",              leader: "Далай-Лама XIII",         leaderEn: "13th Dalai Lama",         color: "#cc0000", flag: "tibet_neutral" },
+            "Фашизм":      { name: "Тибет",              nameEn: "Tibet",              leader: "Далай-Лама XIII",         leaderEn: "13th Dalai Lama",         color: "#dc2626", flag: "tibet_neutral" },
+            "Демократия":  { name: "Тибет",              nameEn: "Tibet",              leader: "Далай-Лама XIII",         leaderEn: "13th Dalai Lama",         color: "#3b82f6", flag: "tibet_neutral" },
+        }
+    },
 };
 
 // Хелпер для получения данных по идеологии
