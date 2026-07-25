@@ -71,29 +71,21 @@ export class WindowsManager {
             return;
         }
 
-        var NW = 140, NH = 70, PAD = 10;
-
-        var minX = 99999, minY = 99999, maxX = 0, maxY = 0;
-        for (var i = 0; i < allFocuses.length; i++) {
-            var f = allFocuses[i];
-            var fx = f.x !== undefined ? f.x : 50;
-            var fy = f.y !== undefined ? f.y : 50;
-            if (fx < minX) minX = fx;
-            if (fy < minY) minY = fy;
-            if (fx + NW > maxX) maxX = fx + NW;
-            if (fy + NH > maxY) maxY = fy + NH;
-        }
+        var NW = 140, NH = 70;
 
         var pos = {};
         for (var i = 0; i < allFocuses.length; i++) {
             var f = allFocuses[i];
-            var fx = f.x !== undefined ? f.x : 50;
-            var fy = f.y !== undefined ? f.y : 50;
-            pos[f.id] = { x: fx - minX + PAD, y: fy - minY + PAD };
+            var fx = f.x !== undefined ? f.x : 0;
+            var fy = f.y !== undefined ? f.y : 0;
+            pos[f.id] = { x: fx, y: fy };
         }
 
-        var totalW = maxX - minX + PAD * 2;
-        var totalH = maxY - minY + PAD * 2;
+        var totalW = 0, totalH = 0;
+        for (var k in pos) {
+            if (pos[k].x + NW + 20 > totalW) totalW = pos[k].x + NW + 20;
+            if (pos[k].y + NH + 20 > totalH) totalH = pos[k].y + NH + 20;
+        }
         if (totalW < 400) totalW = 400;
         if (totalH < 300) totalH = 300;
 
