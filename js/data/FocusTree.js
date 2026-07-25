@@ -41,6 +41,11 @@ const FOCUS_FILES = [
     'focuses/mongolia.json',
     'focuses/sinkiang.json',
     'focuses/tibet.json',
+    'focuses/ccp.json',
+    'focuses/ma_clique.json',
+    'focuses/yunnan.json',
+    'focuses/guangxi.json',
+    'focuses/shanxi.json',
 ];
 
 // Определяет эффект по названию и описанию фокуса
@@ -160,6 +165,11 @@ function convertFocusJSON(json, filename) {
     else if (fname.includes('mongolia')) country = 'mongolia';
     else if (fname.includes('sinkiang')) country = 'sinkiang';
     else if (fname.includes('tibet')) country = 'tibet';
+    else if (fname.includes('ccp')) country = 'ccp';
+    else if (fname.includes('ma_clique') || fname.includes('ma-clique')) country = 'ma_clique';
+    else if (fname.includes('yunnan')) country = 'yunnan';
+    else if (fname.includes('guangxi')) country = 'guangxi';
+    else if (fname.includes('shanxi')) country = 'shanxi';
     if (!country) return result;
 
     // Формат 1: Editor — плоский объект { "id": { name, x, y, prereqs, effect } }

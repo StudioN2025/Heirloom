@@ -751,6 +751,61 @@ export const COUNTRIES = {
             "Демократия":  { name: "Тибет",              nameEn: "Tibet",              leader: "Далай-Лама XIII",         leaderEn: "13th Dalai Lama",         color: "#3b82f6", flag: "tibet_neutral" },
         }
     },
+    ccp: {
+        name: "Коммунистический Китай",
+        nameEn: "Chinese Communists",
+        ideology: "Коммунизм",
+        ideologies: {
+            "Коммунизм":  { name: "Коммунистический Китай", nameEn: "Chinese Communists", leader: "Мао Цзэдун",              leaderEn: "Mao Zedong",             color: "#cc0000", flag: "ccp_communist" },
+            "Фашизм":     { name: "Коммунистический Китай", nameEn: "Chinese Communists", leader: "Мао Цзэдун",              leaderEn: "Mao Zedong",             color: "#990000", flag: "ccp_communist" },
+            "Демократия":  { name: "Коммунистический Китай", nameEn: "Chinese Communists", leader: "Чжу Дэ",                  leaderEn: "Zhu De",                 color: "#3b82f6", flag: "ccp_communist" },
+            "Нейтралитет": { name: "Коммунистический Китай", nameEn: "Chinese Communists", leader: "Мао Цзэдун",              leaderEn: "Mao Zedong",             color: "#6b7280", flag: "ccp_communist" },
+        }
+    },
+    ma_clique: {
+        name: "Сибэй Сань-Ма",
+        nameEn: "Ma Clique",
+        ideology: "Нейтралитет",
+        ideologies: {
+            "Нейтралитет": { name: "Сибэй Сань-Ма",    nameEn: "Ma Clique",            leader: "Ма Буфан",               leaderEn: "Ma Bufang",             color: "#8b4513", flag: "ma_clique_neutral" },
+            "Фашизм":      { name: "Сибэй Сань-Ма",    nameEn: "Ma Clique",            leader: "Ма Буфан",               leaderEn: "Ma Bufang",             color: "#dc2626", flag: "ma_clique_neutral" },
+            "Демократия":  { name: "Сибэй Сань-Ма",    nameEn: "Ma Clique",            leader: "Ма Буфан",               leaderEn: "Ma Bufang",             color: "#3b82f6", flag: "ma_clique_neutral" },
+            "Коммунизм":   { name: "Сибэй Сань-Ма",    nameEn: "Ma Clique",            leader: "Ма Буфан",               leaderEn: "Ma Bufang",             color: "#990000", flag: "ma_clique_neutral" },
+        }
+    },
+    yunnan: {
+        name: "Юньнаньская клика",
+        nameEn: "Yunnan Clique",
+        ideology: "Нейтралитет",
+        ideologies: {
+            "Нейтралитет": { name: "Юньнаньская клика", nameEn: "Yunnan Clique",       leader: "Лунь Юнь",               leaderEn: "Long Yun",              color: "#228b22", flag: "yunnan_neutral" },
+            "Фашизм":      { name: "Юньнаньская клика", nameEn: "Yunnan Clique",       leader: "Лунь Юнь",               leaderEn: "Long Yun",              color: "#dc2626", flag: "yunnan_neutral" },
+            "Демократия":  { name: "Юньнаньская клика", nameEn: "Yunnan Clique",       leader: "Лунь Юнь",               leaderEn: "Long Yun",              color: "#3b82f6", flag: "yunnan_neutral" },
+            "Коммунизм":   { name: "Юньнаньская клика", nameEn: "Yunnan Clique",       leader: "Лунь Юнь",               leaderEn: "Long Yun",              color: "#990000", flag: "yunnan_neutral" },
+        }
+    },
+    guangxi: {
+        name: "Новая Гуансийская клика",
+        nameEn: "New Guangxi Clique",
+        ideology: "Нейтралитет",
+        ideologies: {
+            "Нейтралитет": { name: "Новая Гуансийская клика", nameEn: "New Guangxi Clique", leader: "Ли Цзунжэнь",           leaderEn: "Li Zongren",            color: "#2f4f4f", flag: "guangxi_neutral" },
+            "Фашизм":      { name: "Новая Гуансийская клика", nameEn: "New Guangxi Clique", leader: "Ли Цзунжэнь",           leaderEn: "Li Zongren",            color: "#dc2626", flag: "guangxi_neutral" },
+            "Демократия":  { name: "Новая Гуансийская клика", nameEn: "New Guangxi Clique", leader: "Ли Цзунжэнь",           leaderEn: "Li Zongren",            color: "#3b82f6", flag: "guangxi_neutral" },
+            "Коммунизм":   { name: "Новая Гуансийская клика", nameEn: "New Guangxi Clique", leader: "Ли Цзунжэнь",           leaderEn: "Li Zongren",            color: "#990000", flag: "guangxi_neutral" },
+        }
+    },
+    shanxi: {
+        name: "Шаньси",
+        nameEn: "Shanxi Clique",
+        ideology: "Нейтралитет",
+        ideologies: {
+            "Нейтралитет": { name: "Шаньси",             nameEn: "Shanxi Clique",       leader: "Янь Сишань",             leaderEn: "Yan Xishan",            color: "#b8860b", flag: "shanxi_neutral" },
+            "Фашизм":      { name: "Шаньси",             nameEn: "Shanxi Clique",       leader: "Янь Сишань",             leaderEn: "Yan Xishan",            color: "#dc2626", flag: "shanxi_neutral" },
+            "Демократия":  { name: "Шаньси",             nameEn: "Shanxi Clique",       leader: "Янь Сишань",             leaderEn: "Yan Xishan",            color: "#3b82f6", flag: "shanxi_neutral" },
+            "Коммунизм":   { name: "Шаньси",             nameEn: "Shanxi Clique",       leader: "Янь Сишань",             leaderEn: "Yan Xishan",            color: "#990000", flag: "shanxi_neutral" },
+        }
+    },
 };
 
 // Хелпер для получения данных по идеологии
