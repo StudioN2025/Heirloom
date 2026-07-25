@@ -117,7 +117,7 @@ export const COUNTRIES = {
         nameEn: "Luxembourg",
         ideology: "Демократия",
         ideologies: {
-            "Демократия":  { name: "Люксембург",           nameEn: "Luxembourg",           leader: "Шарлотта",                leaderEn: "Charlotte",               color: "#67e8f9", flag: "luxembourg_democratic" },
+            "Демократия":  { name: "Люксембург",           nameEn: "Luxembourg",           leader: "Шарлотта",                leaderEn: "Charlotte",               color: "#06b6d4", flag: "luxembourg_democratic" },
             "Фашизм":      { name: "Люксембург",           nameEn: "Luxembourg",           leader: "Леон Дегрель",            leaderEn: "Léon Degrelle",           color: "#dc2626", flag: "luxembourg_democratic" },
             "Коммунизм":   { name: "Люксембург",           nameEn: "Luxembourg",           leader: "Доминик Орбах",           leaderEn: "Dominique Urbach",        color: "#990000", flag: "luxembourg_democratic" },
             "Нейтралитет": { name: "Люксембург",           nameEn: "Luxembourg",           leader: "Шарлотта",                leaderEn: "Charlotte",               color: "#6b7280", flag: "luxembourg_democratic" },
@@ -383,7 +383,7 @@ export const COUNTRIES = {
         nameEn: "Japan",
         ideology: "Фашизм",
         ideologies: {
-            "Фашизм":      { name: "Японская империя",     nameEn: "Empire of Japan",      leader: "Хирохито",                leaderEn: "Emperor Hirohito",       color: "#8b0000", flag: "japan_fascist" },
+            "Фашизм":      { name: "Японская империя",     nameEn: "Empire of Japan",      leader: "Хирохито",                leaderEn: "Emperor Hirohito",       color: "#bc002d", flag: "japan_fascist" },
             "Демократия":  { name: "Япония",               nameEn: "Japan",                leader: "Хатояма Итиро",           leaderEn: "Ichirō Hatoyama",        color: "#3b82f6", flag: "japan_democratic" },
             "Коммунизм":   { name: "Японская НДР",         nameEn: "Japanese People's Republic", leader: "Носака Сандзё",     leaderEn: "Sanzo Nosaka",           color: "#990000", flag: "japan_communist" },
             "Нейтралитет": { name: "Япония",               nameEn: "Japan",                leader: "Кидзюро Шидехара",        leaderEn: "Kijūrō Shidehara",      color: "#6b7280", flag: "japan_neutral" },
@@ -394,7 +394,7 @@ export const COUNTRIES = {
         nameEn: "China",
         ideology: "Демократия",
         ideologies: {
-            "Демократия":  { name: "Китайская Республика",  nameEn: "Republic of China",    leader: "Чан Кайши",              leaderEn: "Chiang Kai-shek",       color: "#3b82f6", flag: "china_democratic" },
+            "Демократия":  { name: "Китайская Республика",  nameEn: "Republic of China",    leader: "Чан Кайши",              leaderEn: "Chiang Kai-shek",       color: "#00247d", flag: "china_democratic" },
             "Фашизм":      { name: "Китай",                nameEn: "China",                leader: "Ван Цзинвэй",            leaderEn: "Wang Jingwei",          color: "#dc2626", flag: "china_fascist" },
             "Коммунизм":   { name: "КНР",                  nameEn: "People's Republic of China", leader: "Мао Цзэдун",       leaderEn: "Mao Zedong",            color: "#990000", flag: "china_communist" },
             "Нейтралитет": { name: "Китай",                nameEn: "China",                leader: "Линь Сэнь",              leaderEn: "Lin Sen",               color: "#6b7280", flag: "china_neutral" },
@@ -405,7 +405,7 @@ export const COUNTRIES = {
         nameEn: "India",
         ideology: "Демократия",
         ideologies: {
-            "Демократия":  { name: "Британская Индия",      nameEn: "British India",        leader: "Лорд Линлитгоу",         leaderEn: "Marquess of Linlithgow", color: "#f59e0b", flag: "india_democratic" },
+            "Демократия":  { name: "Британская Индия",      nameEn: "British India",        leader: "Лорд Линлитгоу",         leaderEn: "Marquess of Linlithgow", color: "#ff9933", flag: "india_democratic" },
             "Фашизм":      { name: "Индия",                nameEn: "India",                leader: "Субхас Чандра Бос",      leaderEn: "Subhas Chandra Bose",   color: "#dc2626", flag: "india_fascist" },
             "Коммунизм":   { name: "Индия",                nameEn: "India",                leader: "Б.Т. Ранадиве",           leaderEn: "B.T. Ranadive",         color: "#990000", flag: "india_communist" },
             "Нейтралитет": { name: "Индия",                nameEn: "India",                leader: "Махатма Ганди",           leaderEn: "Mahatma Gandhi",        color: "#6b7280", flag: "india_neutral" },
@@ -416,7 +416,7 @@ export const COUNTRIES = {
         nameEn: "Thailand",
         ideology: "Нейтралитет",
         ideologies: {
-            "Нейтралитет": { name: "Таиланд",              nameEn: "Thailand",             leader: "Плек Пибунсонгкрам",      leaderEn: "Plaek Phibunsongkhram", color: "#a855f7", flag: "thailand_neutral" },
+            "Нейтралитет": { name: "Таиланд",              nameEn: "Thailand",             leader: "Плек Пибунсонгкрам",      leaderEn: "Plaek Phibunsongkhram", color: "#0050a0", flag: "thailand_neutral" },
             "Демократия":  { name: "Таиланд",              nameEn: "Thailand",             leader: "Прidi Пхахонмонгкол",     leaderEn: "Pridi Banomyong",       color: "#3b82f6", flag: "thailand_democratic" },
             "Фашизм":      { name: "Таиланд",              nameEn: "Thailand",             leader: "Плек Пибунсонгкрам",      leaderEn: "Plaek Phibunsongkhram", color: "#dc2626", flag: "thailand_fascist" },
             "Коммунизм":   { name: "Таиланд",              nameEn: "Thailand",             leader: "Приди Баномйонг",         leaderEn: "Pridi Banomyong",       color: "#990000", flag: "thailand_communist" },
@@ -427,7 +427,7 @@ export const COUNTRIES = {
         nameEn: "Afghanistan",
         ideology: "Нейтралитет",
         ideologies: {
-            "Нейтралитет": { name: "Афганистан",           nameEn: "Afghanistan",          leader: "Мохаммед Захир-шах",      leaderEn: "Mohammad Zahir Shah",   color: "#1e40af", flag: "afghanistan_neutral" },
+            "Нейтралитет": { name: "Афганистан",           nameEn: "Afghanistan",          leader: "Мохаммед Захир-шах",      leaderEn: "Mohammad Zahir Shah",   color: "#000000", flag: "afghanistan_neutral" },
             "Демократия":  { name: "Афганистан",           nameEn: "Afghanistan",          leader: "Мохаммед Дауд Хан",       leaderEn: "Mohammad Daoud Khan",   color: "#3b82f6", flag: "afghanistan_democratic" },
             "Фашизм":      { name: "Афганистан",           nameEn: "Afghanistan",          leader: "Хабибулла Калакани",      leaderEn: "Habibullah Kalakani",   color: "#dc2626", flag: "afghanistan_fascist" },
             "Коммунизм":   { name: "Афганистан",           nameEn: "Afghanistan",          leader: "Нур Мухаммад Тараки",     leaderEn: "Nur Muhammad Taraki",   color: "#990000", flag: "afghanistan_communist" },
@@ -438,7 +438,7 @@ export const COUNTRIES = {
         nameEn: "Egypt",
         ideology: "Демократия",
         ideologies: {
-            "Демократия":  { name: "Египет",               nameEn: "Egypt",                leader: "Фуад II",                 leaderEn: "Fuad II",               color: "#d97706", flag: "egypt_democratic" },
+            "Демократия":  { name: "Египет",               nameEn: "Egypt",                leader: "Фуад II",                 leaderEn: "Fuad II",               color: "#f59e0b", flag: "egypt_democratic" },
             "Фашизм":      { name: "Египет",               nameEn: "Egypt",                leader: "Ахмад Махер",             leaderEn: "Ahmad Maher Pasha",     color: "#dc2626", flag: "egypt_fascist" },
             "Коммунизм":   { name: "Египет",               nameEn: "Egypt",                leader: "Халид бин Уль-Валид",     leaderEn: "Khaled al-Hakim",       color: "#990000", flag: "egypt_communist" },
             "Нейтралитет": { name: "Египет",               nameEn: "Egypt",                leader: "Фарук I",                 leaderEn: "King Farouk",           color: "#6b7280", flag: "egypt_neutral" },
@@ -462,7 +462,7 @@ export const COUNTRIES = {
         nameEn: "Korea",
         ideology: "Нейтралитет",
         ideologies: {
-            "Нейтралитет": { name: "Корея",                nameEn: "Korea",                leader: "Сонджин",                 leaderEn: "King Sunjong",          color: "#1a1a2e", flag: "korea_neutral" },
+            "Нейтралитет": { name: "Корея",                nameEn: "Korea",                leader: "Сонджин",                 leaderEn: "King Sunjong",          color: "#003478", flag: "korea_neutral" },
             "Демократия":  { name: "Республика Корея",     nameEn: "Republic of Korea",    leader: "Ли Сынман",              leaderEn: "Syngman Rhee",          color: "#3b82f6", flag: "korea_neutral" },
             "Фашизм":      { name: "Корея",                nameEn: "Korea",                leader: "Пак Ёнхё",              leaderEn: "Park Yeong-hyo",        color: "#dc2626", flag: "korea_neutral" },
             "Коммунизм":   { name: "КНДР",                 nameEn: "North Korea",          leader: "Ким Ир Сен",             leaderEn: "Kim Il-sung",           color: "#990000", flag: "korea_neutral" },
@@ -473,7 +473,7 @@ export const COUNTRIES = {
         nameEn: "Taiwan",
         ideology: "Нейтралитет",
         ideologies: {
-            "Нейтралитет": { name: "Тайвань",              nameEn: "Taiwan",               leader: "Линь Сэн",               leaderEn: "Lin Sen",               color: "#1e40af", flag: "taiwan_neutral" },
+            "Нейтралитет": { name: "Тайвань",              nameEn: "Taiwan",               leader: "Линь Сэн",               leaderEn: "Lin Sen",               color: "#fe0000", flag: "taiwan_neutral" },
             "Демократия":  { name: "Тайвань",              nameEn: "Taiwan",               leader: "Чан Кайши",              leaderEn: "Chiang Kai-shek",       color: "#3b82f6", flag: "taiwan_neutral" },
             "Фашизм":      { name: "Тайвань",              nameEn: "Taiwan",               leader: "Чан Кайши",              leaderEn: "Chiang Kai-shek",       color: "#dc2626", flag: "taiwan_neutral" },
             "Коммунизм":   { name: "Тайвань",              nameEn: "Taiwan",               leader: "Те Чжиминь",             leaderEn: "Xie Xuehong",           color: "#990000", flag: "taiwan_neutral" },
@@ -497,7 +497,7 @@ export const COUNTRIES = {
         nameEn: "Burma",
         ideology: "Нейтралитет",
         ideologies: {
-            "Нейтралитет": { name: "Бирма",                nameEn: "Burma",                leader: "Ба Мо",                   leaderEn: "Ba Maw",               color: "#166534", flag: "burma_neutral" },
+            "Нейтралитет": { name: "Бирма",                nameEn: "Burma",                leader: "Ба Мо",                   leaderEn: "Ba Maw",               color: "#fecb00", flag: "burma_neutral" },
             "Демократия":  { name: "Бирма",                nameEn: "Burma",                leader: "У Ну",                    leaderEn: "U Nu",                  color: "#3b82f6", flag: "burma_neutral" },
             "Фашизм":      { name: "Бирма",                nameEn: "Burma",                leader: "Ба Мо",                   leaderEn: "Ba Maw",               color: "#dc2626", flag: "burma_neutral" },
             "Коммунизм":   { name: "Бирма",                nameEn: "Burma",                leader: "Тхакин Со",              leaderEn: "Thakin So",            color: "#990000", flag: "burma_neutral" },
@@ -508,7 +508,7 @@ export const COUNTRIES = {
         nameEn: "Vietnam",
         ideology: "Нейтралитет",
         ideologies: {
-            "Нейтралитет": { name: "Вьетнам",              nameEn: "Vietnam",              leader: "Бао Дай",                 leaderEn: "Bảo Đại",              color: "#f59e0b", flag: "vietnam_neutral" },
+            "Нейтралитет": { name: "Вьетнам",              nameEn: "Vietnam",              leader: "Бао Дай",                 leaderEn: "Bảo Đại",              color: "#da251d", flag: "vietnam_neutral" },
             "Демократия":  { name: "Вьетнам",              nameEn: "Vietnam",              leader: "Нго Динь Зьем",          leaderEn: "Ngô Đình Diệm",        color: "#3b82f6", flag: "vietnam_neutral" },
             "Фашизм":      { name: "Вьетнам",              nameEn: "Vietnam",              leader: "Бао Дай",                 leaderEn: "Bảo Đại",              color: "#dc2626", flag: "vietnam_neutral" },
             "Коммунизм":   { name: "ДРВ",                  nameEn: "North Vietnam",        leader: "Хо Ши Мин",               leaderEn: "Ho Chi Minh",          color: "#990000", flag: "vietnam_neutral" },
@@ -519,7 +519,7 @@ export const COUNTRIES = {
         nameEn: "Laos",
         ideology: "Нейтралитет",
         ideologies: {
-            "Нейтралитет": { name: "Лаос",                 nameEn: "Laos",                 leader: "Сисаванг Вонг",           leaderEn: "Sisavang Vong",        color: "#105d10", flag: "laos_neutral" },
+            "Нейтралитет": { name: "Лаос",                 nameEn: "Laos",                 leader: "Сисаванг Вонг",           leaderEn: "Sisavang Vong",        color: "#ce1126", flag: "laos_neutral" },
             "Демократия":  { name: "Лаос",                 nameEn: "Laos",                 leader: "Сисаванг Вонг",           leaderEn: "Sisavang Vong",        color: "#3b82f6", flag: "laos_neutral" },
             "Фашизм":      { name: "Лаос",                 nameEn: "Laos",                 leader: "Сисаванг Вонг",           leaderEn: "Sisavang Vong",        color: "#dc2626", flag: "laos_neutral" },
             "Коммунизм":   { name: "Лаос",                 nameEn: "Laos",                 leader: "Супханнувонг",            leaderEn: "Suphanouvong",         color: "#990000", flag: "laos_neutral" },
@@ -530,7 +530,7 @@ export const COUNTRIES = {
         nameEn: "Cambodia",
         ideology: "Нейтралитет",
         ideologies: {
-            "Нейтралитет": { name: "Камбоджа",             nameEn: "Cambodia",             leader: "Нородом Сианук",          leaderEn: "Norodom Sihanouk",     color: "#fbbf24", flag: "cambodia_neutral" },
+            "Нейтралитет": { name: "Камбоджа",             nameEn: "Cambodia",             leader: "Нородом Сианук",          leaderEn: "Norodom Sihanouk",     color: "#032ea1", flag: "cambodia_neutral" },
             "Демократия":  { name: "Камбоджа",             nameEn: "Cambodia",             leader: "Нородом Сианук",          leaderEn: "Norodom Sihanouk",     color: "#3b82f6", flag: "cambodia_neutral" },
             "Фашизм":      { name: "Камбоджа",             nameEn: "Cambodia",             leader: "Нородом Сианук",          leaderEn: "Norodom Sihanouk",     color: "#dc2626", flag: "cambodia_neutral" },
             "Коммунизм":   { name: "Камбоджа",             nameEn: "Cambodia",             leader: "Пол Пот",                 leaderEn: "Pol Pot",              color: "#990000", flag: "cambodia_neutral" },
@@ -541,7 +541,7 @@ export const COUNTRIES = {
         nameEn: "Indonesia",
         ideology: "Нейтралитет",
         ideologies: {
-            "Нейтралитет": { name: "Индонезия",            nameEn: "Indonesia",            leader: "Сукарно",                 leaderEn: "Sukarno",              color: "#dc2626", flag: "indonesia_neutral" },
+            "Нейтралитет": { name: "Индонезия",            nameEn: "Indonesia",            leader: "Сукарно",                 leaderEn: "Sukarno",              color: "#ff0000", flag: "indonesia_neutral" },
             "Демократия":  { name: "Индонезия",            nameEn: "Indonesia",            leader: "Сукарно",                 leaderEn: "Sukarno",              color: "#3b82f6", flag: "indonesia_neutral" },
             "Фашизм":      { name: "Индонезия",            nameEn: "Indonesia",            leader: "Сукарно",                 leaderEn: "Sukarno",              color: "#1a1a2e", flag: "indonesia_neutral" },
             "Коммунизм":   { name: "Индонезия",            nameEn: "Indonesia",            leader: "Дипа Нусантара",          leaderEn: "Dipanegara",           color: "#990000", flag: "indonesia_neutral" },
@@ -565,7 +565,7 @@ export const COUNTRIES = {
         nameEn: "Nepal",
         ideology: "Нейтралитет",
         ideologies: {
-            "Нейтралитет": { name: "Непал",                nameEn: "Nepal",                leader: "Трибхуван",               leaderEn: "Tribhuvan",            color: "#dc2626", flag: "nepal_neutral" },
+            "Нейтралитет": { name: "Непал",                nameEn: "Nepal",                leader: "Трибхуван",               leaderEn: "Tribhuvan",            color: "#dc143c", flag: "nepal_neutral" },
             "Демократия":  { name: "Непал",                nameEn: "Nepal",                leader: "Трибхуван",               leaderEn: "Tribhuvan",            color: "#3b82f6", flag: "nepal_neutral" },
             "Фашизм":      { name: "Непал",                nameEn: "Nepal",                leader: "Махендра",                leaderEn: "Mahendra",             color: "#1a1a2e", flag: "nepal_neutral" },
             "Коммунизм":   { name: "Непал",                nameEn: "Nepal",                leader: "Пушпа Лал Шреста",        leaderEn: "Pushpa Lal Shrestha",   color: "#990000", flag: "nepal_neutral" },
@@ -723,7 +723,7 @@ export const COUNTRIES = {
         nameEn: "Mongolia",
         ideology: "Коммунизм",
         ideologies: {
-            "Коммунизм":  { name: "Монголия",           nameEn: "Mongolia",           leader: "Хорлоогийн Чойбалан",     leaderEn: "Khorloogiin Choibalsan",  color: "#cc0000", flag: "mongolia_communist" },
+            "Коммунизм":  { name: "Монголия",           nameEn: "Mongolia",           leader: "Хорлоогийн Чойбалан",     leaderEn: "Khorloogiin Choibalsan",  color: "#0064c8", flag: "mongolia_communist" },
             "Фашизм":     { name: "Монголия",           nameEn: "Mongolia",           leader: "Дамдинбазар",             leaderEn: "Damdinbazar",             color: "#990000", flag: "mongolia_communist" },
             "Демократия":  { name: "Монголия",           nameEn: "Mongolia",           leader: "Бадамдорж",               leaderEn: "Baldandorj",              color: "#3b82f6", flag: "mongolia_communist" },
             "Нейтралитет": { name: "Монголия",           nameEn: "Mongolia",           leader: "Богд-хан",                leaderEn: "Bogd Khan",               color: "#6b7280", flag: "mongolia_communist" },
