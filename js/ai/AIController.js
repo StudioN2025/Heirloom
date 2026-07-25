@@ -459,7 +459,6 @@ export class AIController {
             for (const c of enemyBorder) {
                 const [bx, by] = c.split(',').map(Number);
                 if (Math.abs(bx - cap.x) <= 5 && Math.abs(by - cap.y) <= 5) {
-                    // Враг у столицы! Все войска к столице
                     this._defendCapital(id, units, cap, day);
                     return;
                 }
@@ -471,6 +470,7 @@ export class AIController {
 
         const borderPts = border.map(b => { const [x,y]=b.split(',').map(Number); return {x,y}; });
 
+        // Все юниты — и к границе, и атакуем
         this._moveAttackers(id, units, target, borderPts, mem, day);
     }
 
@@ -517,18 +517,14 @@ export class AIController {
         for (let i = 0; i < units.length; i++) {
             const uid = units[i];
             if (this.entities.inCombat[uid]) continue;
-            // Корабли не участвуют в наземных атаках
             if (this.entities.isShip && this.entities.isShip[uid]) continue;
 
             const ux = this.entities.x[uid];
             const uy = this.entities.y[uid];
             const assignedBorder = borderPts[i % borderPts.length];
 
-            // Уже на границе — атакуем
-            if (ux === assignedBorder.x && uy === assignedBorder.y) {
-                this._attackAdjacent(uid, target);
-                continue;
-            }
+            // Атакуем если рядом с вражеской клеткой
+            if (this._attackAdjacent(uid, target)) continue;
 
             // Ищем ближайшую клетку к цели по 4-связности
             const dx = Math.sign(assignedBorder.x - ux);
@@ -544,7 +540,6 @@ export class AIController {
                     if (!occ || this.entities.owner[occ] === owner || (this.gs.areAllies && this.gs.areAllies(owner, this.entities.owner[occ]))) {
                         this.entities.moveTo(uid, nx, ny);
                     } else {
-                        // Враг на клетке — идём на него для боя
                         this.entities.moveTo(uid, nx, ny);
                     }
                 }
