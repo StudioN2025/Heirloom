@@ -283,7 +283,30 @@ export class AIController {
     }
 
     _spawnUnit(id, cells, profile, atWar, mem) {
-        // Ищем незанятую клетку с заводом или ближе к центру
+        // Спаун у столицы
+        const cap = this.world.getCapital(id);
+        if (cap) {
+            // Ищем свободную клетку рядом со столицей
+            for (const [dx, dy] of [[0,0],[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1],[1,-1],[-1,1]]) {
+                const tx = cap.x + dx, ty = cap.y + dy;
+                const cellOwner = this.world.getCell(tx, ty);
+                if (cellOwner === id && !this.entities.getUnitAt(tx, ty)) {
+                    const useTank = profile.power >= 60 && atWar;
+                    const unitType = useTank ? 'tank' : 'infantry';
+                    const cost = UNIT_MANPOWER[unitType] || 1000;
+                    if (mem && mem.manpower < cost) return;
+                    if (mem) mem.manpower -= cost;
+                    if (this.production) {
+                        this.production.aiEnqueueUnit(id, tx, ty, unitType);
+                    } else {
+                        this.entities.createEntity(id, useTank ? 1 : 0, tx, ty);
+                    }
+                    return;
+                }
+            }
+        }
+
+        // Если столицы нет — спаун как раньше (у завода)
         let best = null, bestScore = -Infinity;
         let sumX = 0, sumY = 0, n = 0;
         for (const c of cells) {
@@ -301,10 +324,8 @@ export class AIController {
         }
         if (!best) return;
 
-        const useTank = profile.power >= 60 && atWar && this.world.hasBuilding(best[0], best[1], 'factory');
+        const useTank = profile.power >= 60 && atWar;
         const unitType = useTank ? 'tank' : 'infantry';
-
-        // Проверяем людские ресурсы
         const cost = UNIT_MANPOWER[unitType] || 1000;
         if (mem && mem.manpower < cost) return;
         if (mem) mem.manpower -= cost;
