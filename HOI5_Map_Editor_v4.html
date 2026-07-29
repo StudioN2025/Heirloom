@@ -428,8 +428,8 @@
                     const owner = gridData[key];
                     
                     // В режиме стран: рисуем только клетки с владельцем
-                    // В режиме местности: рисуем все клетки (и с владельцем, и без)
-                    if (isCountryMode && !owner) continue;
+                    // В режиме местности: рисуем клетки ТОЛЬКО если у них есть владелец (принадлежат стране)
+                    if (!owner) continue;
                     
                     const screenX = x * CELL_SIZE * zoom + camX;
                     const screenY = y * CELL_SIZE * zoom + camY;
