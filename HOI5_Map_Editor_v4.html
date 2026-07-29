@@ -42,7 +42,9 @@
             max-height: calc(100vh - 70px); overflow-y: auto;
             background: #1f2937; border: 1px solid #eab308; border-radius: 8px;
             padding: 8px; z-index: 90; box-shadow: -5px 0 20px rgba(0,0,0,0.5);
+            display: block;
         }
+        #country-panel.hidden { display: none; }
         .country-panel-title {
             font-size: 10px; color: #eab308; text-align: center;
             padding-bottom: 6px; border-bottom: 1px solid #374151; margin-bottom: 6px;
@@ -76,7 +78,9 @@
             background: #1f2937; border: 1px solid #eab308; border-radius: 8px;
             padding: 6px; z-index: 90; display: flex; flex-direction: column; gap: 3px;
             max-height: calc(100vh - 200px); overflow-y: auto;
+            display: none;
         }
+        #terrain-panel.visible { display: flex; }
         .terrain-panel-title {
             font-size: 9px; color: #eab308; text-align: center;
             padding-bottom: 4px; border-bottom: 1px solid #374151; margin-bottom: 4px;
@@ -130,6 +134,9 @@
 </head>
 <body>
     <div id="toolbar">
+        <button id="btn-mode-countries" class="tool-btn active">🌍 Страны</button>
+        <button id="btn-mode-terrain" class="tool-btn">🏔️ Местность</button>
+        <div class="separator"></div>
         <button id="btn-draw" class="tool-btn active">🎨 Рисовать</button>
         <button id="btn-erase" class="tool-btn">🧽 Стереть</button>
         <button id="btn-fill" class="tool-btn">🪣 Заливка</button>
@@ -222,6 +229,9 @@
         let brushMode = 'draw'; // draw, erase, fill
         let capitalMode = false;
         let isDrawing = false;
+        
+        // Режим редактора: countries или terrain
+        let editorMode = 'countries'; // 'countries' или 'terrain'
         
         // Камера
         let camera = { x: 0, y: 0, zoom: 0.8 };
@@ -577,6 +587,28 @@
         //  ИНСТРУМЕНТЫ
         // ============================================================
         
+        function setEditorMode(mode) {
+            editorMode = mode;
+            document.getElementById('btn-mode-countries').classList.toggle('active', mode === 'countries');
+            document.getElementById('btn-mode-terrain').classList.toggle('active', mode === 'terrain');
+            
+            // Показываем/скрываем панели
+            const countryPanel = document.getElementById('country-panel');
+            const terrainPanel = document.getElementById('terrain-panel');
+            
+            if (mode === 'countries') {
+                countryPanel.classList.remove('hidden');
+                terrainPanel.classList.remove('visible');
+            } else {
+                countryPanel.classList.add('hidden');
+                terrainPanel.classList.add('visible');
+            }
+            
+            document.getElementById('status').innerHTML = mode === 'countries' 
+                ? `🌍 Режим: Страны | Клеток: ${Object.keys(gridData).length}`
+                : `🏔️ Режим: Местность`;
+        }
+        
         function setMode(mode) {
             brushMode = mode;
             document.getElementById('btn-draw').classList.toggle('active', mode === 'draw');
@@ -631,8 +663,8 @@
             
             const key = `${worldPos.x},${worldPos.y}`;
             
-            // Ctrl+ЛКМ — завод
-            if (e.ctrlKey && !isContextMenu) {
+            // Ctrl+ЛКМ — завод (только в режиме стран)
+            if (e.ctrlKey && !isContextMenu && editorMode === 'countries') {
                 if (gridData[key]) {
                     const stats = getCellStats(key);
                     stats.factories = (stats.factories || 0) + 1;
@@ -643,8 +675,8 @@
                 return;
             }
             
-            // Shift+ЛКМ — порт
-            if (e.shiftKey && !isContextMenu) {
+            // Shift+ЛКМ — порт (только в режиме стран)
+            if (e.shiftKey && !isContextMenu && editorMode === 'countries') {
                 if (gridData[key]) {
                     const stats = getCellStats(key);
                     if (!stats.buildings) stats.buildings = [];
@@ -658,8 +690,8 @@
                 return;
             }
             
-            // Alt+ЛКМ — удалить постройку
-            if (e.altKey && !isContextMenu) {
+            // Alt+ЛКМ — удалить постройку (только в режиме стран)
+            if (e.altKey && !isContextMenu && editorMode === 'countries') {
                 if (cellStats[key]) {
                     const stats = cellStats[key];
                     if (stats.factories > 0) {
@@ -685,8 +717,8 @@
                 return;
             }
             
-            // ПКМ — стереть страну / удалить столицу
-            if (isContextMenu) {
+            // ПКМ — стереть страну / удалить столицу (только в режиме стран)
+            if (isContextMenu && editorMode === 'countries') {
                 // Удалить столицу если клик по ячейке столицы
                 for (const [cid, cap] of Object.entries(capitals)) {
                     if (cap.x === worldPos.x && cap.y === worldPos.y) {
@@ -704,8 +736,8 @@
                 return;
             }
             
-            // Режим столицы — установить столицу
-            if (capitalMode) {
+            // Режим столицы — установить столицу (только в режиме стран)
+            if (capitalMode && editorMode === 'countries') {
                 if (gridData[key] === selectedCountry) {
                     const name = prompt(`Название столицы для ${countries[selectedCountry]?.name || selectedCountry}:`, '');
                     if (name !== null && name.trim() !== '') {
@@ -724,22 +756,22 @@
                 return;
             }
             
-            // Заливка — по клику
-            if (brushMode === 'fill') {
+            // Заливка — по клику (только в режиме стран)
+            if (brushMode === 'fill' && editorMode === 'countries') {
                 const currentOwner = gridData[key] || null;
                 floodFill(worldPos.x, worldPos.y, currentOwner, selectedCountry);
                 return;
             }
             
-            // Изменение местности — клик без модификаторов
-            if (!e.ctrlKey && !e.shiftKey && !e.altKey && !capitalMode) {
+            // РЕЖИМ МЕСТНОСТИ: изменение местности — клик без модификаторов
+            if (editorMode === 'terrain') {
                 setTerrain(key, selectedTerrain);
                 render();
                 updateInfoDisplay(worldPos.x, worldPos.y);
                 return;
             }
             
-            // Рисование/стирание
+            // РЕЖИМ СТРАН: Рисование/стирание
             if (brushMode === 'draw') {
                 if (gridData[key] !== selectedCountry) {
                     gridData[key] = selectedCountry;
@@ -758,6 +790,18 @@
             if (!isDrawing) return;
             if (brushMode === 'fill') return;
             if (capitalMode) return;
+            
+            // В режиме местности — рисуем местность при перетаскивании
+            if (editorMode === 'terrain') {
+                const worldPos = screenToWorld(e.clientX, e.clientY);
+                if (worldPos.x === undefined || worldPos.y === undefined) return;
+                const key = `${worldPos.x},${worldPos.y}`;
+                setTerrain(key, selectedTerrain);
+                render();
+                return;
+            }
+            
+            // В режиме стран — только рисование/стирание стран
             const worldPos = screenToWorld(e.clientX, e.clientY);
             if (worldPos.x === undefined || worldPos.y === undefined) return;
             
@@ -1338,9 +1382,28 @@
         //  КНОПКИ ИНТЕРФЕЙСА
         // ============================================================
         
+        // Переключение режимов редактора
+        document.getElementById('btn-mode-countries').onclick = () => setEditorMode('countries');
+        document.getElementById('btn-mode-terrain').onclick = () => setEditorMode('terrain');
+        
+        // Инструменты рисования
         document.getElementById('btn-draw').onclick = () => setMode('draw');
         document.getElementById('btn-erase').onclick = () => setMode('erase');
         document.getElementById('btn-fill').onclick = () => setMode('fill');
+        
+        // Кнопки местности
+        document.querySelectorAll('.terrain-btn').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.terrain-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedTerrain = btn.getAttribute('data-terrain');
+                // Автоматически переключаемся в режим местности при выборе типа
+                if (editorMode !== 'terrain') {
+                    setEditorMode('terrain');
+                }
+                document.getElementById('status').innerHTML = `🏔️ Местность: ${TERRAIN_TYPES[selectedTerrain]?.name || selectedTerrain}`;
+            };
+        });
         
         document.getElementById('btn-load').onclick = () => {
             const input = document.createElement('input');
