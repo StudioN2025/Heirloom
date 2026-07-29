@@ -61,7 +61,7 @@
             position: fixed; left: 8px; bottom: 60px;
             background: #1f2937; border: 1px solid #eab308; border-radius: 8px;
             padding: 6px; z-index: 90; display: flex; gap: 4px;
-            flex-wrap: wrap;
+            flex-wrap: wrap; max-width: 280px;
         }
         .build-btn {
             padding: 5px 8px; cursor: pointer; background: #374151; color: white;
@@ -70,6 +70,27 @@
         }
         .build-btn:hover { background: #4b5563; }
         .build-btn.active { background: #2d5a2c; border-color: #8bc34a; }
+        
+        #terrain-panel {
+            position: fixed; left: 8px; top: 60px;
+            background: #1f2937; border: 1px solid #eab308; border-radius: 8px;
+            padding: 6px; z-index: 90; display: flex; flex-direction: column; gap: 3px;
+            max-height: calc(100vh - 200px); overflow-y: auto;
+        }
+        .terrain-panel-title {
+            font-size: 9px; color: #eab308; text-align: center;
+            padding-bottom: 4px; border-bottom: 1px solid #374151; margin-bottom: 4px;
+        }
+        .terrain-btn {
+            width: 100%; padding: 4px 6px; cursor: pointer;
+            background: #374151; color: white; border: 1px solid #4b5563;
+            border-radius: 4px; font-size: 9px; text-align: left;
+            display: flex; align-items: center; gap: 6px;
+            transition: all 0.2s;
+        }
+        .terrain-btn:hover { background: #4b5563; transform: translateX(-2px); }
+        .terrain-btn.active { background: #2d5a2c; border-color: #8bc34a; }
+        .terrain-icon { width: 16px; text-align: center; }
         
         #info {
             position: fixed; bottom: 8px; left: 8px;
@@ -131,6 +152,19 @@
         <div id="country-list"></div>
     </div>
     
+    <div id="terrain-panel">
+        <div class="terrain-panel-title">🏔️ МЕСТНОСТЬ (9 типов)</div>
+        <button class="terrain-btn active" data-terrain="plains"><span class="terrain-icon">🌾</span>Равнина</button>
+        <button class="terrain-btn" data-terrain="forest"><span class="terrain-icon">🌲</span>Лес</button>
+        <button class="terrain-btn" data-terrain="mountain"><span class="terrain-icon">⛰️</span>Горы</button>
+        <button class="terrain-btn" data-terrain="hills"><span class="terrain-icon">🏔️</span>Холмы</button>
+        <button class="terrain-btn" data-terrain="desert"><span class="terrain-icon">🏜️</span>Пустыня</button>
+        <button class="terrain-btn" data-terrain="swamp"><span class="terrain-icon">🪵</span>Болото</button>
+        <button class="terrain-btn" data-terrain="river"><span class="terrain-icon">🌊</span>Река</button>
+        <button class="terrain-btn" data-terrain="urban"><span class="terrain-icon">🏙️</span>Город</button>
+        <button class="terrain-btn" data-terrain="snow"><span class="terrain-icon">❄️</span>Снег</button>
+    </div>
+    
     <div id="build-panel">
         <button id="btn-build-factory" class="build-btn">🏭 Завод</button>
         <button id="btn-build-port" class="build-btn">⚓ Порт</button>
@@ -153,7 +187,8 @@
         🖱️ Alt+ЛКМ — удалить постройку<br>
         ⌨️ WASD — камера | Колесо — зум<br>
         ⌨️ 1-9, 0 — выбор страны<br>
-        ⌨️ Пробел — центрировать
+        ⌨️ Пробел — центрировать<br>
+        🏔️ Клик по местности — изменить тип
     </div>
     
     <div id="mini-map">
@@ -177,6 +212,10 @@
         let gridData = {};
         let cellStats = {};
         let capitals = {};
+        let terrainData = {}; // "x,y" -> тип местности
+        
+        // Выбранная местность
+        let selectedTerrain = 'plains';
         
         // Выбранная страна
         let selectedCountry = 'germany';
@@ -300,6 +339,34 @@
         }
         
         // ============================================================
+        //  ТИПЫ МЕСТНОСТИ
+        // ============================================================
+        
+        const TERRAIN_TYPES = {
+            plains:   { name: 'Равнина',   icon: '🌾', color: '#4a7c23', defense: 1.0, attack: 1.0 },
+            forest:   { name: 'Лес',       icon: '🌲', color: '#2d5a27', defense: 1.35, attack: 0.85 },
+            mountain: { name: 'Горы',      icon: '⛰️', color: '#6b5b4f', defense: 1.5, attack: 0.7 },
+            hills:    { name: 'Холмы',     icon: '🏔️', color: '#8b7355', defense: 1.25, attack: 0.9 },
+            desert:   { name: 'Пустыня',   icon: '🏜️', color: '#c2b280', defense: 0.9, attack: 0.95 },
+            swamp:    { name: 'Болото',    icon: '🪵', color: '#5a4d3e', defense: 1.2, attack: 0.75 },
+            river:    { name: 'Река',      icon: '🌊', color: '#4a90c2', defense: 1.25, attack: 0.85 },
+            urban:    { name: 'Город',     icon: '🏙️', color: '#7a7a7a', defense: 1.4, attack: 0.8 },
+            snow:     { name: 'Снег',      icon: '❄️', color: '#e8f4f8', defense: 1.0, attack: 0.85 }
+        };
+        
+        function getTerrain(key) {
+            return terrainData[key] || 'plains';
+        }
+        
+        function setTerrain(key, terrainType) {
+            if (TERRAIN_TYPES[terrainType]) {
+                terrainData[key] = terrainType;
+            } else {
+                delete terrainData[key];
+            }
+        }
+        
+        // ============================================================
         //  ПРЕОБРАЗОВАНИЕ КООРДИНАТ
         // ============================================================
         
@@ -365,6 +432,32 @@
                 for (let i = 0; i < coords.length; i += 2) {
                     ctx.fillRect(coords[i], coords[i + 1], size, size);
                 }
+            }
+            
+            // Отображение местности (полупрозрачный слой)
+            if (size > 6) {
+                const terrainPath = new Path2D();
+                for (let x = startX; x <= endX; x++) {
+                    for (let y = startY; y <= endY; y++) {
+                        const key = `${x},${y}`;
+                        const owner = gridData[key];
+                        if (!owner) continue;
+                        
+                        const terrainType = getTerrain(key);
+                        const terrainInfo = TERRAIN_TYPES[terrainType];
+                        if (!terrainInfo || terrainType === 'plains') continue;
+                        
+                        const screenX = x * CELL_SIZE * zoom + camX;
+                        const screenY = y * CELL_SIZE * zoom + camY;
+                        
+                        if (screenX + size < -50 || screenX > canvas.width + 50 || 
+                            screenY + size < -50 || screenY > canvas.height + 50) continue;
+                        
+                        terrainPath.rect(screenX, screenY, size, size);
+                    }
+                }
+                ctx.fillStyle = 'rgba(0,0,0,0.15)';
+                ctx.fill(terrainPath);
             }
             
             // Границы
@@ -635,6 +728,14 @@
             if (brushMode === 'fill') {
                 const currentOwner = gridData[key] || null;
                 floodFill(worldPos.x, worldPos.y, currentOwner, selectedCountry);
+                return;
+            }
+            
+            // Изменение местности — клик без модификаторов
+            if (!e.ctrlKey && !e.shiftKey && !e.altKey && !capitalMode) {
+                setTerrain(key, selectedTerrain);
+                render();
+                updateInfoDisplay(worldPos.x, worldPos.y);
                 return;
             }
             
