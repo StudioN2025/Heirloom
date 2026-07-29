@@ -24,6 +24,30 @@ export class RendererWebGL {
         // Кэш полигонов стран (пересчитывается при изменении территории)
         this._polygonCache = null; // { color → Path2D }
         this._polygonCacheVersion = 0; // версия кэша
+        
+        // Режим отображения карты: 'countries' или 'terrain'
+        this.mapMode = 'countries';
+        
+        // Цвета местности
+        this.terrainColors = {
+            'plain': '#4ade80',      // Равнина - зелёный
+            'forest': '#166534',     // Лес - тёмно-зелёный
+            'mountain': '#92400e',   // Горы - коричневый
+            'hills': '#d97706',      // Холмы - светло-коричневый
+            'desert': '#fcd34d',     // Пустыня - песочный
+            'swamp': '#65a30d',      // Болото - болотный
+            'river': '#3b82f6',      // Река - голубой
+            'urban': '#6b7280',      // Город - серый
+            'snow': '#f3f4f6'        // Снег - белый
+        };
+    }
+    
+    setMapMode(mode) {
+        this.mapMode = mode;
+    }
+    
+    getMapMode() {
+        return this.mapMode;
     }
 
     _loadImages() {
@@ -182,7 +206,17 @@ export class RendererWebGL {
             const screenY = wy * zoom + camY;
             if (screenX + size < -10 || screenX > W + 10 || screenY + size < -10 || screenY > H + 10) continue;
 
-            const color = this._getCountryColor(owner, gameState);
+            // Определяем цвет в зависимости от режима карты
+            let color;
+            if (this.mapMode === 'terrain') {
+                // Режим местности - используем цвета местности
+                const terrain = world.getTerrain(cx, cy);
+                color = this.terrainColors[terrain] || this.terrainColors['plain'];
+            } else {
+                // Режим стран - используем цвета стран
+                color = this._getCountryColor(owner, gameState);
+            }
+            
             if (!colorBuckets.has(color)) colorBuckets.set(color, []);
             colorBuckets.get(color).push(screenX, screenY);
 
@@ -204,7 +238,7 @@ export class RendererWebGL {
 
         // Границы — только на десктопе и при достаточном зуме
         if (!this.isMobile && size > 4) {
-            ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+            ctx.strokeStyle = this.mapMode === 'terrain' ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)';
             ctx.lineWidth = 0.5;
             const bp = new Path2D();
             for (const [color, coords] of colorBuckets) {

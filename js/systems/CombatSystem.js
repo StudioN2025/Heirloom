@@ -96,7 +96,7 @@ const UNIT_STATS = {
 
 // Бонусы местности
 const TERRAIN_BONUS = {
-    plains: { defense: 1.0, attack: 1.0, movement: 1.0 },
+    plain: { defense: 1.0, attack: 1.0, movement: 1.0 },
     forest: { defense: 1.35, attack: 0.85, movement: 0.7 },
     mountain: { defense: 1.5, attack: 0.7, movement: 0.5 },
     desert: { defense: 0.9, attack: 0.95, movement: 0.9 },
@@ -411,8 +411,8 @@ export class CombatSystem {
             const [bx, by] = cellKey.split(',').map(Number);
             
             // Бонус местности
-            const terrainType = this.world.getTerrainType ? this.world.getTerrainType(bx, by) : 'plains';
-            const terrainBonus = TERRAIN_BONUS[terrainType] || TERRAIN_BONUS.plains;
+            const terrainType = this.world.getTerrain ? this.world.getTerrain(bx, by) : 'plain';
+            const terrainBonus = TERRAIN_BONUS[terrainType] || TERRAIN_BONUS.plain;
             
             // Бонус окопов
             const trenchBonus = 1 + (this.getTrenchLevel(bx, by) * 0.15);
