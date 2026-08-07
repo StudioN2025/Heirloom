@@ -1026,6 +1026,7 @@
             gridData = {};
             cellStats = {};
             capitals = {};
+            terrainData = {};
             
             // Германия
             for (let x = -3; x <= 3; x++) {
@@ -1084,6 +1085,7 @@
             gridData = {};
             cellStats = {};
             capitals = {};
+            terrainData = {};
             
             // ===== ГЕРМАНИЯ (центр Европы) =====
             for (let x = -2; x <= 4; x++) {
@@ -1503,6 +1505,7 @@
                         gridData = data.gridData || {};
                         cellStats = data.cellStats || {};
                         capitals = data.capitals || {};
+                        terrainData = data.terrainData || {};
                         updateWorldBounds();
                         
                         if (Object.keys(gridData).length > 0) {
@@ -1536,6 +1539,7 @@
                 gridData,
                 cellStats,
                 capitals,
+                terrainData,
                 created: new Date().toISOString()
             };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -1554,7 +1558,7 @@
 
         function autoSave() {
             try {
-                const data = { gridData, cellStats, capitals, version: "4.0", saved: Date.now() };
+                const data = { gridData, cellStats, capitals, terrainData, version: "4.0", saved: Date.now() };
                 localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(data));
             } catch(e) {}
         }
@@ -1576,6 +1580,7 @@
                 gridData = data.gridData || {};
                 cellStats = data.cellStats || {};
                 capitals = data.capitals || {};
+                terrainData = data.terrainData || {};
                 updateWorldBounds();
                 if (Object.keys(gridData).length > 0) {
                     let sumX = 0, sumY = 0, count = 0;
@@ -1618,6 +1623,7 @@
                 gridData = {};
                 cellStats = {};
                 capitals = {};
+                terrainData = {};
                 localStorage.removeItem(AUTOSAVE_KEY);
                 updateWorldBounds();
                 render();
