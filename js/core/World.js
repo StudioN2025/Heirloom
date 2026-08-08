@@ -1,8 +1,18 @@
 // World.js — Карта с клетками, зданиями и рельефом
 
-const TERRAIN_TYPES = ['plain', 'forest', 'mountain', 'urban', 'desert'];
-const TERRAIN_WEIGHTS = [50, 20, 10, 10, 10]; // процент вероятности
-const TERRAIN_BONUS = { plain: 1.0, forest: 1.3, mountain: 1.5, urban: 1.4, desert: 0.9 };
+const TERRAIN_TYPES = ['plain', 'forest', 'mountain', 'hills', 'desert', 'swamp', 'river', 'urban', 'snow'];
+const TERRAIN_WEIGHTS = [50, 20, 10, 5, 5, 3, 2, 3, 2]; // процент вероятности
+const TERRAIN_BONUS = { 
+    plain: 1.0, 
+    forest: 1.3, 
+    mountain: 1.5, 
+    hills: 1.2,
+    desert: 0.9,
+    swamp: 1.4,
+    river: 1.1,
+    urban: 1.4,
+    snow: 0.85
+};
 
 export class World {
     constructor() {
