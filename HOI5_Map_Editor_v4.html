@@ -42,7 +42,9 @@
             max-height: calc(100vh - 70px); overflow-y: auto;
             background: #1f2937; border: 1px solid #eab308; border-radius: 8px;
             padding: 8px; z-index: 90; box-shadow: -5px 0 20px rgba(0,0,0,0.5);
+            display: block;
         }
+        #country-panel.hidden { display: none; }
         .country-panel-title {
             font-size: 10px; color: #eab308; text-align: center;
             padding-bottom: 6px; border-bottom: 1px solid #374151; margin-bottom: 6px;
@@ -61,7 +63,7 @@
             position: fixed; left: 8px; bottom: 60px;
             background: #1f2937; border: 1px solid #eab308; border-radius: 8px;
             padding: 6px; z-index: 90; display: flex; gap: 4px;
-            flex-wrap: wrap;
+            flex-wrap: wrap; max-width: 280px;
         }
         .build-btn {
             padding: 5px 8px; cursor: pointer; background: #374151; color: white;
@@ -70,6 +72,29 @@
         }
         .build-btn:hover { background: #4b5563; }
         .build-btn.active { background: #2d5a2c; border-color: #8bc34a; }
+        
+        #terrain-panel {
+            position: fixed; left: 8px; top: 60px;
+            background: #1f2937; border: 1px solid #eab308; border-radius: 8px;
+            padding: 6px; z-index: 90; display: flex; flex-direction: column; gap: 3px;
+            max-height: calc(100vh - 200px); overflow-y: auto;
+            display: none;
+        }
+        #terrain-panel.visible { display: flex; }
+        .terrain-panel-title {
+            font-size: 9px; color: #eab308; text-align: center;
+            padding-bottom: 4px; border-bottom: 1px solid #374151; margin-bottom: 4px;
+        }
+        .terrain-btn {
+            width: 100%; padding: 4px 6px; cursor: pointer;
+            background: #374151; color: white; border: 1px solid #4b5563;
+            border-radius: 4px; font-size: 9px; text-align: left;
+            display: flex; align-items: center; gap: 6px;
+            transition: all 0.2s;
+        }
+        .terrain-btn:hover { background: #4b5563; transform: translateX(-2px); }
+        .terrain-btn.active { background: #2d5a2c; border-color: #8bc34a; }
+        .terrain-icon { width: 16px; text-align: center; }
         
         #info {
             position: fixed; bottom: 8px; left: 8px;
@@ -109,6 +134,9 @@
 </head>
 <body>
     <div id="toolbar">
+        <button id="btn-mode-countries" class="tool-btn active">🌍 Страны</button>
+        <button id="btn-mode-terrain" class="tool-btn">🏔️ Местность</button>
+        <div class="separator"></div>
         <button id="btn-draw" class="tool-btn active">🎨 Рисовать</button>
         <button id="btn-erase" class="tool-btn">🧽 Стереть</button>
         <button id="btn-fill" class="tool-btn">🪣 Заливка</button>
@@ -129,6 +157,19 @@
     <div id="country-panel">
         <div class="country-panel-title">🎖️ СТРАНЫ (45)</div>
         <div id="country-list"></div>
+    </div>
+    
+    <div id="terrain-panel">
+        <div class="terrain-panel-title">🏔️ МЕСТНОСТЬ (9 типов)</div>
+        <button class="terrain-btn active" data-terrain="plains"><span class="terrain-icon">🌾</span>Равнина</button>
+        <button class="terrain-btn" data-terrain="forest"><span class="terrain-icon">🌲</span>Лес</button>
+        <button class="terrain-btn" data-terrain="mountain"><span class="terrain-icon">⛰️</span>Горы</button>
+        <button class="terrain-btn" data-terrain="hills"><span class="terrain-icon">🏔️</span>Холмы</button>
+        <button class="terrain-btn" data-terrain="desert"><span class="terrain-icon">🏜️</span>Пустыня</button>
+        <button class="terrain-btn" data-terrain="swamp"><span class="terrain-icon">🪵</span>Болото</button>
+        <button class="terrain-btn" data-terrain="river"><span class="terrain-icon">🌊</span>Река</button>
+        <button class="terrain-btn" data-terrain="urban"><span class="terrain-icon">🏙️</span>Город</button>
+        <button class="terrain-btn" data-terrain="snow"><span class="terrain-icon">❄️</span>Снег</button>
     </div>
     
     <div id="build-panel">
@@ -153,7 +194,8 @@
         🖱️ Alt+ЛКМ — удалить постройку<br>
         ⌨️ WASD — камера | Колесо — зум<br>
         ⌨️ 1-9, 0 — выбор страны<br>
-        ⌨️ Пробел — центрировать
+        ⌨️ Пробел — центрировать<br>
+        🏔️ Клик по местности — изменить тип
     </div>
     
     <div id="mini-map">
@@ -177,12 +219,19 @@
         let gridData = {};
         let cellStats = {};
         let capitals = {};
+        let terrainData = {}; // "x,y" -> тип местности
+        
+        // Выбранная местность
+        let selectedTerrain = 'plains';
         
         // Выбранная страна
         let selectedCountry = 'germany';
         let brushMode = 'draw'; // draw, erase, fill
         let capitalMode = false;
         let isDrawing = false;
+        
+        // Режим редактора: countries или terrain
+        let editorMode = 'countries'; // 'countries' или 'terrain'
         
         // Камера
         let camera = { x: 0, y: 0, zoom: 0.8 };
@@ -300,6 +349,34 @@
         }
         
         // ============================================================
+        //  ТИПЫ МЕСТНОСТИ
+        // ============================================================
+        
+        const TERRAIN_TYPES = {
+            plains:   { name: 'Равнина',   icon: '🌾', color: '#4a7c23', defense: 1.0, attack: 1.0 },
+            forest:   { name: 'Лес',       icon: '🌲', color: '#2d5a27', defense: 1.35, attack: 0.85 },
+            mountain: { name: 'Горы',      icon: '⛰️', color: '#6b5b4f', defense: 1.5, attack: 0.7 },
+            hills:    { name: 'Холмы',     icon: '🏔️', color: '#8b7355', defense: 1.25, attack: 0.9 },
+            desert:   { name: 'Пустыня',   icon: '🏜️', color: '#c2b280', defense: 0.9, attack: 0.95 },
+            swamp:    { name: 'Болото',    icon: '🪵', color: '#5a4d3e', defense: 1.2, attack: 0.75 },
+            river:    { name: 'Река',      icon: '🌊', color: '#4a90c2', defense: 1.25, attack: 0.85 },
+            urban:    { name: 'Город',     icon: '🏙️', color: '#7a7a7a', defense: 1.4, attack: 0.8 },
+            snow:     { name: 'Снег',      icon: '❄️', color: '#e8f4f8', defense: 1.0, attack: 0.85 }
+        };
+        
+        function getTerrain(key) {
+            return terrainData[key] || 'plains';
+        }
+        
+        function setTerrain(key, terrainType) {
+            if (TERRAIN_TYPES[terrainType]) {
+                terrainData[key] = terrainType;
+            } else {
+                delete terrainData[key];
+            }
+        }
+        
+        // ============================================================
         //  ПРЕОБРАЗОВАНИЕ КООРДИНАТ
         // ============================================================
         
@@ -340,12 +417,18 @@
             const camX = canvas.width / 2 - camera.x * zoom;
             const camY = canvas.height / 2 - camera.y * zoom;
             
+            // Режим редактирования: страны или местность
+            const isCountryMode = editorMode === 'countries';
+            
             const colorBuckets = new Map();
             
             for (let x = startX; x <= endX; x++) {
                 for (let y = startY; y <= endY; y++) {
                     const key = `${x},${y}`;
                     const owner = gridData[key];
+                    
+                    // В режиме стран: рисуем только клетки с владельцем
+                    // В режиме местности: рисуем клетки ТОЛЬКО если у них есть владелец (принадлежат стране)
                     if (!owner) continue;
                     
                     const screenX = x * CELL_SIZE * zoom + camX;
@@ -354,17 +437,54 @@
                     if (screenX + size < -50 || screenX > canvas.width + 50 || 
                         screenY + size < -50 || screenY > canvas.height + 50) continue;
                     
-                    const color = countries[owner]?.color || '#666';
+                    // Определяем цвет клетки в зависимости от режима
+                    let color;
+                    if (isCountryMode) {
+                        // Режим стран: цвет страны
+                        color = countries[owner]?.color || '#666';
+                    } else {
+                        // Режим местности: ТОЛЬКО цвет местности, независимо от владельца
+                        const terrainType = getTerrain(key);
+                        color = TERRAIN_TYPES[terrainType]?.color || TERRAIN_TYPES.plains.color;
+                    }
+                    
                     if (!colorBuckets.has(color)) colorBuckets.set(color, []);
                     colorBuckets.get(color).push(screenX, screenY);
                 }
             }
             
+            // Рисуем клетки основным цветом
             for (const [color, coords] of colorBuckets) {
                 ctx.fillStyle = color;
                 for (let i = 0; i < coords.length; i += 2) {
                     ctx.fillRect(coords[i], coords[i + 1], size, size);
                 }
+            }
+            
+            // В режиме стран: отображаем местность как полупрозрачный слой поверх
+            if (isCountryMode && size > 6) {
+                const terrainPath = new Path2D();
+                for (let x = startX; x <= endX; x++) {
+                    for (let y = startY; y <= endY; y++) {
+                        const key = `${x},${y}`;
+                        const owner = gridData[key];
+                        if (!owner) continue;
+                        
+                        const terrainType = getTerrain(key);
+                        const terrainInfo = TERRAIN_TYPES[terrainType];
+                        if (!terrainInfo || terrainType === 'plains') continue;
+                        
+                        const screenX = x * CELL_SIZE * zoom + camX;
+                        const screenY = y * CELL_SIZE * zoom + camY;
+                        
+                        if (screenX + size < -50 || screenX > canvas.width + 50 || 
+                            screenY + size < -50 || screenY > canvas.height + 50) continue;
+                        
+                        terrainPath.rect(screenX, screenY, size, size);
+                    }
+                }
+                ctx.fillStyle = 'rgba(0,0,0,0.15)';
+                ctx.fill(terrainPath);
             }
             
             // Границы
@@ -378,6 +498,25 @@
                 ctx.strokeStyle = 'rgba(0,0,0,0.15)';
                 ctx.lineWidth = 0.5;
                 ctx.stroke(borderPath);
+            }
+            
+            // В режиме местности: рисуем сетку поверх для лучшей видимости клеток
+            if (!isCountryMode && size > 3) {
+                const gridPath = new Path2D();
+                for (let x = startX; x <= endX; x++) {
+                    for (let y = startY; y <= endY; y++) {
+                        const screenX = x * CELL_SIZE * zoom + camX;
+                        const screenY = y * CELL_SIZE * zoom + camY;
+                        
+                        if (screenX + size < -50 || screenX > canvas.width + 50 || 
+                            screenY + size < -50 || screenY > canvas.height + 50) continue;
+                        
+                        gridPath.rect(screenX, screenY, size, size);
+                    }
+                }
+                ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+                ctx.lineWidth = Math.max(0.5, Math.min(1.5, size * 0.05));
+                ctx.stroke(gridPath);
             }
             
             // Иконки построек
@@ -459,30 +598,86 @@
             miniCtx.fillRect(0, 0, 140, 140);
             
             const allPoints = Object.keys(gridData).map(p => p.split(',').map(Number));
-            if (allPoints.length === 0) return;
+            // Также учитываем клетки с местностью
+            const terrainPoints = Object.keys(terrainData).map(p => p.split(',').map(Number));
+            const combinedPoints = [...allPoints, ...terrainPoints];
             
-            const minX = Math.min(...allPoints.map(p => p[0]));
-            const maxX = Math.max(...allPoints.map(p => p[0]));
-            const minY = Math.min(...allPoints.map(p => p[1]));
-            const maxY = Math.max(...allPoints.map(p => p[1]));
+            if (combinedPoints.length === 0) return;
+            
+            const minX = Math.min(...combinedPoints.map(p => p[0]));
+            const maxX = Math.max(...combinedPoints.map(p => p[0]));
+            const minY = Math.min(...combinedPoints.map(p => p[1]));
+            const maxY = Math.max(...combinedPoints.map(p => p[1]));
             const width = maxX - minX + 1;
             const height = maxY - minY + 1;
             const scaleX = 140 / width;
             const scaleY = 140 / height;
+            
+            // Определяем режим для мини-карты
+            const isCountryMode = editorMode === 'countries';
             
             for (const [pos, owner] of Object.entries(gridData)) {
                 const [x, y] = pos.split(',').map(Number);
                 const mx = (x - minX) * scaleX;
                 const my = (y - minY) * scaleY;
                 const size = Math.max(1, Math.min(3, Math.floor(scaleX)));
-                miniCtx.fillStyle = countries[owner]?.color || '#555';
+                
+                if (isCountryMode) {
+                    // Режим стран: цвет страны
+                    miniCtx.fillStyle = countries[owner]?.color || '#555';
+                } else {
+                    // Режим местности: ТОЛЬКО цвет местности
+                    const terrainType = getTerrain(pos);
+                    miniCtx.fillStyle = TERRAIN_TYPES[terrainType]?.color || TERRAIN_TYPES.plains.color;
+                }
                 miniCtx.fillRect(mx, my, size, size);
             }
+            
+            // В режиме местности показываем также клетки без владельца
+            if (!isCountryMode) {
+                for (const pos of Object.keys(terrainData)) {
+                    if (gridData[pos]) continue; // Уже нарисовано
+                    const [x, y] = pos.split(',').map(Number);
+                    const mx = (x - minX) * scaleX;
+                    const my = (y - minY) * scaleY;
+                    const size = Math.max(1, Math.min(3, Math.floor(scaleX)));
+                    const terrainType = getTerrain(pos);
+                    miniCtx.fillStyle = TERRAIN_TYPES[terrainType]?.color || TERRAIN_TYPES.plains.color;
+                    miniCtx.fillRect(mx, my, size, size);
+                }
+            }
+            
+            // Рамка режима
+            miniCtx.strokeStyle = isCountryMode ? '#3b82f6' : '#22c55e';
+            miniCtx.lineWidth = 2;
+            miniCtx.strokeRect(0, 0, 140, 140);
         }
         
         // ============================================================
         //  ИНСТРУМЕНТЫ
         // ============================================================
+        
+        function setEditorMode(mode) {
+            editorMode = mode;
+            document.getElementById('btn-mode-countries').classList.toggle('active', mode === 'countries');
+            document.getElementById('btn-mode-terrain').classList.toggle('active', mode === 'terrain');
+            
+            // Показываем/скрываем панели
+            const countryPanel = document.getElementById('country-panel');
+            const terrainPanel = document.getElementById('terrain-panel');
+            
+            if (mode === 'countries') {
+                countryPanel.classList.remove('hidden');
+                terrainPanel.classList.remove('visible');
+            } else {
+                countryPanel.classList.add('hidden');
+                terrainPanel.classList.add('visible');
+            }
+            
+            document.getElementById('status').innerHTML = mode === 'countries' 
+                ? `🌍 Режим: Страны | Клеток: ${Object.keys(gridData).length}`
+                : `🏔️ Режим: Местность`;
+        }
         
         function setMode(mode) {
             brushMode = mode;
@@ -538,8 +733,8 @@
             
             const key = `${worldPos.x},${worldPos.y}`;
             
-            // Ctrl+ЛКМ — завод
-            if (e.ctrlKey && !isContextMenu) {
+            // Ctrl+ЛКМ — завод (только в режиме стран)
+            if (e.ctrlKey && !isContextMenu && editorMode === 'countries') {
                 if (gridData[key]) {
                     const stats = getCellStats(key);
                     stats.factories = (stats.factories || 0) + 1;
@@ -550,8 +745,8 @@
                 return;
             }
             
-            // Shift+ЛКМ — порт
-            if (e.shiftKey && !isContextMenu) {
+            // Shift+ЛКМ — порт (только в режиме стран)
+            if (e.shiftKey && !isContextMenu && editorMode === 'countries') {
                 if (gridData[key]) {
                     const stats = getCellStats(key);
                     if (!stats.buildings) stats.buildings = [];
@@ -565,8 +760,8 @@
                 return;
             }
             
-            // Alt+ЛКМ — удалить постройку
-            if (e.altKey && !isContextMenu) {
+            // Alt+ЛКМ — удалить постройку (только в режиме стран)
+            if (e.altKey && !isContextMenu && editorMode === 'countries') {
                 if (cellStats[key]) {
                     const stats = cellStats[key];
                     if (stats.factories > 0) {
@@ -592,8 +787,8 @@
                 return;
             }
             
-            // ПКМ — стереть страну / удалить столицу
-            if (isContextMenu) {
+            // ПКМ — стереть страну / удалить столицу (только в режиме стран)
+            if (isContextMenu && editorMode === 'countries') {
                 // Удалить столицу если клик по ячейке столицы
                 for (const [cid, cap] of Object.entries(capitals)) {
                     if (cap.x === worldPos.x && cap.y === worldPos.y) {
@@ -611,8 +806,8 @@
                 return;
             }
             
-            // Режим столицы — установить столицу
-            if (capitalMode) {
+            // Режим столицы — установить столицу (только в режиме стран)
+            if (capitalMode && editorMode === 'countries') {
                 if (gridData[key] === selectedCountry) {
                     const name = prompt(`Название столицы для ${countries[selectedCountry]?.name || selectedCountry}:`, '');
                     if (name !== null && name.trim() !== '') {
@@ -631,14 +826,22 @@
                 return;
             }
             
-            // Заливка — по клику
-            if (brushMode === 'fill') {
+            // Заливка — по клику (только в режиме стран)
+            if (brushMode === 'fill' && editorMode === 'countries') {
                 const currentOwner = gridData[key] || null;
                 floodFill(worldPos.x, worldPos.y, currentOwner, selectedCountry);
                 return;
             }
             
-            // Рисование/стирание
+            // РЕЖИМ МЕСТНОСТИ: изменение местности — клик без модификаторов
+            if (editorMode === 'terrain') {
+                setTerrain(key, selectedTerrain);
+                render();
+                updateInfoDisplay(worldPos.x, worldPos.y);
+                return;
+            }
+            
+            // РЕЖИМ СТРАН: Рисование/стирание
             if (brushMode === 'draw') {
                 if (gridData[key] !== selectedCountry) {
                     gridData[key] = selectedCountry;
@@ -657,6 +860,18 @@
             if (!isDrawing) return;
             if (brushMode === 'fill') return;
             if (capitalMode) return;
+            
+            // В режиме местности — рисуем местность при перетаскивании
+            if (editorMode === 'terrain') {
+                const worldPos = screenToWorld(e.clientX, e.clientY);
+                if (worldPos.x === undefined || worldPos.y === undefined) return;
+                const key = `${worldPos.x},${worldPos.y}`;
+                setTerrain(key, selectedTerrain);
+                render();
+                return;
+            }
+            
+            // В режиме стран — только рисование/стирание стран
             const worldPos = screenToWorld(e.clientX, e.clientY);
             if (worldPos.x === undefined || worldPos.y === undefined) return;
             
@@ -680,11 +895,24 @@
             const key = `${x},${y}`;
             const owner = gridData[key];
             const stats = cellStats[key] || { factories: 0, buildings: [] };
+            const terrainType = getTerrain(key);
+            const terrainName = TERRAIN_TYPES[terrainType]?.name || terrainType;
+            
             document.getElementById('coord-x').innerText = x;
             document.getElementById('coord-y').innerText = y;
-            document.getElementById('cell-owner').innerText = owner ? (countries[owner]?.name || owner) : '—';
-            document.getElementById('cell-factories').innerText = stats.factories || 0;
-            document.getElementById('cell-port').innerText = stats.buildings?.includes('port') ? 'да' : 'нет';
+            
+            // Показываем информацию в зависимости от режима
+            const isCountryMode = editorMode === 'countries';
+            
+            if (isCountryMode) {
+                document.getElementById('cell-owner').innerText = owner ? (countries[owner]?.name || owner) : '—';
+                document.getElementById('cell-factories').innerText = stats.factories || 0;
+                document.getElementById('cell-port').innerText = stats.buildings?.includes('port') ? 'да' : 'нет';
+            } else {
+                document.getElementById('cell-owner').innerText = `🏔️ ${terrainName}`;
+                document.getElementById('cell-factories').innerText = '-';
+                document.getElementById('cell-port').innerText = '-';
+            }
             
             let capitalInfo = '';
             for (const [cid, cap] of Object.entries(capitals)) {
@@ -693,13 +921,15 @@
                     break;
                 }
             }
+            
             document.getElementById('info').innerHTML =
                 `📍 X: <span id="coord-x">${x}</span>, Y: <span id="coord-y">${y}</span>` +
-                ` | 🏭 <span id="cell-factories">${stats.factories || 0}</span>` +
-                ` | ⚓ <span id="cell-port">${stats.buildings?.includes('port') ? 'да' : 'нет'}</span>` +
-                ` | 👑 <span id="cell-owner">${owner ? (countries[owner]?.name || owner) : '—'}</span>` +
-                (capitalInfo ? ` | 👑${capitalInfo}` : '') +
-                ` | Клеток: <span id="total-cells">${Object.keys(gridData).length}</span>`;
+                (isCountryMode ? ` | 🏭 <span id="cell-factories">${stats.factories || 0}</span>` : '' ) +
+                (isCountryMode ? ` | ⚓ <span id="cell-port">${stats.buildings?.includes('port') ? 'да' : 'нет'}</span>` : '' ) +
+                (isCountryMode ? ` | 👑 <span id="cell-owner">${owner ? (countries[owner]?.name || owner) : '—'}</span>` : ` | 🏔️ <span id="cell-terrain">${terrainName}</span>` ) +
+                (capitalInfo && isCountryMode ? ` | 👑${capitalInfo}` : '' ) +
+                ` | Клеток: <span id="total-cells">${Object.keys(gridData).length}</span>` +
+                ` | Режим: <span style="color:${isCountryMode ? '#3b82f6' : '#22c55e'}">${isCountryMode ? 'Страны' : 'Местность'}</span>`;
         }
         
         // ============================================================
@@ -796,6 +1026,7 @@
             gridData = {};
             cellStats = {};
             capitals = {};
+            terrainData = {};
             
             // Германия
             for (let x = -3; x <= 3; x++) {
@@ -854,6 +1085,7 @@
             gridData = {};
             cellStats = {};
             capitals = {};
+            terrainData = {};
             
             // ===== ГЕРМАНИЯ (центр Европы) =====
             for (let x = -2; x <= 4; x++) {
@@ -1237,9 +1469,28 @@
         //  КНОПКИ ИНТЕРФЕЙСА
         // ============================================================
         
+        // Переключение режимов редактора
+        document.getElementById('btn-mode-countries').onclick = () => setEditorMode('countries');
+        document.getElementById('btn-mode-terrain').onclick = () => setEditorMode('terrain');
+        
+        // Инструменты рисования
         document.getElementById('btn-draw').onclick = () => setMode('draw');
         document.getElementById('btn-erase').onclick = () => setMode('erase');
         document.getElementById('btn-fill').onclick = () => setMode('fill');
+        
+        // Кнопки местности
+        document.querySelectorAll('.terrain-btn').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.terrain-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedTerrain = btn.getAttribute('data-terrain');
+                // Автоматически переключаемся в режим местности при выборе типа
+                if (editorMode !== 'terrain') {
+                    setEditorMode('terrain');
+                }
+                document.getElementById('status').innerHTML = `🏔️ Местность: ${TERRAIN_TYPES[selectedTerrain]?.name || selectedTerrain}`;
+            };
+        });
         
         document.getElementById('btn-load').onclick = () => {
             const input = document.createElement('input');
@@ -1254,6 +1505,7 @@
                         gridData = data.gridData || {};
                         cellStats = data.cellStats || {};
                         capitals = data.capitals || {};
+                        terrainData = data.terrainData || {};
                         updateWorldBounds();
                         
                         if (Object.keys(gridData).length > 0) {
@@ -1287,6 +1539,7 @@
                 gridData,
                 cellStats,
                 capitals,
+                terrainData,
                 created: new Date().toISOString()
             };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -1305,7 +1558,7 @@
 
         function autoSave() {
             try {
-                const data = { gridData, cellStats, capitals, version: "4.0", saved: Date.now() };
+                const data = { gridData, cellStats, capitals, terrainData, version: "4.0", saved: Date.now() };
                 localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(data));
             } catch(e) {}
         }
@@ -1327,6 +1580,7 @@
                 gridData = data.gridData || {};
                 cellStats = data.cellStats || {};
                 capitals = data.capitals || {};
+                terrainData = data.terrainData || {};
                 updateWorldBounds();
                 if (Object.keys(gridData).length > 0) {
                     let sumX = 0, sumY = 0, count = 0;
@@ -1369,6 +1623,7 @@
                 gridData = {};
                 cellStats = {};
                 capitals = {};
+                terrainData = {};
                 localStorage.removeItem(AUTOSAVE_KEY);
                 updateWorldBounds();
                 render();
