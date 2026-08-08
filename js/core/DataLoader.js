@@ -35,10 +35,12 @@ export class DataLoader {
             }
         }
         
-        // Загружаем фабрики и порты из cellStats
+        // Загружаем фабрики, порты и terrain из cellStats и terrainData
         const cellStats = data.cellStats || {};
+        const terrainData = data.terrainData || {}; // terrain может быть в отдельном поле
         let factoriesLoaded = 0;
         let portsLoaded = 0;
+        let terrainLoaded = 0;
         
         // Если в JSON нет cellStats, создаём тестовые фабрики для крупных стран
         const hasCellStats = Object.keys(cellStats).length > 0;
@@ -46,6 +48,12 @@ export class DataLoader {
         if (hasCellStats) {
             for (const [pos, stats] of Object.entries(cellStats)) {
                 const [x, y] = pos.split(',').map(Number);
+                
+                // Загружаем terrain из cellStats
+                if (stats.terrain) {
+                    world.setTerrain(x, y, stats.terrain);
+                    terrainLoaded++;
+                }
                 
                 if (stats.factories && stats.factories > 0) {
                     for (let i = 0; i < stats.factories; i++) {
@@ -94,7 +102,14 @@ export class DataLoader {
             }
         }
         
-        console.log(`✅ Загружено построек: ${factoriesLoaded} заводов, ${portsLoaded} портов`);
+        // Загружаем terrain из terrainData (отдельное поле)
+        for (const [pos, terrainType] of Object.entries(terrainData)) {
+            const [x, y] = pos.split(',').map(Number);
+            world.setTerrain(x, y, terrainType);
+            terrainLoaded++;
+        }
+        
+        console.log(`✅ Загружено построек: ${factoriesLoaded} заводов, ${portsLoaded} портов, ${terrainLoaded} terrain`);
 
         // Автоматически добавляем порты на побережье (если их нет)
         if (portsLoaded === 0) {
