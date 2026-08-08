@@ -170,6 +170,20 @@ function setupEvents() {
     };
     if (closeSidebarBtn) closeSidebarBtn.onclick = () => uiManager.closeSidebar();
     
+    // Кнопка переключения режима карты
+    document.getElementById('btn-map-mode')?.addEventListener('click', () => {
+        const currentMode = renderer.getMapMode();
+        const newMode = currentMode === 'countries' ? 'terrain' : 'countries';
+        renderer.setMapMode(newMode);
+        
+        // Обновляем иконку кнопки
+        const btn = document.getElementById('btn-map-mode');
+        if (btn) {
+            btn.textContent = newMode === 'countries' ? '🗺️' : '🏔️';
+            btn.title = newMode === 'countries' ? 'Режим: Страны' : 'Режим: Местность';
+        }
+    });
+
     // Кнопки скорости
     document.querySelectorAll('.speed-btn').forEach(btn => {
         btn.onclick = () => {
