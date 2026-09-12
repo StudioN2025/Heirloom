@@ -1,4 +1,4 @@
-// EntityManager.js — Компонентная система (массивы вместо объектов) v2
+// EntityManager.js — Компонентная система (массивы вместо объектов) v3
 
 export const UNIT_TYPE = {
     INFANTRY: 0,
@@ -10,10 +10,8 @@ export class EntityManager {
         this.maxEntities = maxEntities;
         this.nextId = 1;
 
-        // Плоские массивы (быстрый доступ)
         this.active = new Uint8Array(maxEntities);
 
-        // Компоненты
         this.owner = new Array(maxEntities).fill(null);
         this.type = new Uint8Array(maxEntities);
         this.x = new Int16Array(maxEntities);
@@ -23,16 +21,13 @@ export class EntityManager {
         this.training = new Uint8Array(maxEntities);
         this.inCombat = new Uint8Array(maxEntities);
         this.moveCooldown = new Uint8Array(maxEntities);
-        this.isShip = new Uint8Array(maxEntities); // 1 = корабль (в воде)
+        this.isShip = new Uint8Array(maxEntities);
 
-        // Пути
         this.paths = new Map();
 
-        // Индексы для быстрого поиска
-        this.positionIndex = new Map(); // "x,y" -> Set<unitId> (стак)
-        this.ownerIndex = new Map();   // ownerId -> Set<unitId>
+        this.positionIndex = new Map();
+        this.ownerIndex = new Map();
 
-        // Кэш активных ID (пересоздаётся при изменении)
         this._activeIds = null;
         this._activeIdsDirty = true;
     }
@@ -54,7 +49,15 @@ export class EntityManager {
         return this._activeIds;
     }
 
-    createEntity(owner, type, x, y) {
+    /**
+     * Создать юнита.
+     * @param {string} owner
+     * @param {number} type
+     * @param {number} x
+     * @param {number} y
+     * @param {number} trainingDays — 0 = готов сразу (ИИ/фокусы), >0 = обучается
+     */
+    createEntity(owner, type, x, y, trainingDays = 0) {
         const id = this.nextId++;
 
         if (id >= this.maxEntities) {
@@ -69,21 +72,30 @@ export class EntityManager {
         this.y[id] = y;
         this.hp[id] = type === UNIT_TYPE.INFANTRY ? 100 : 50;
         this.maxHp[id] = type === UNIT_TYPE.INFANTRY ? 100 : 50;
-        this.training[id] = 10;
+        this.training[id] = trainingDays | 0;
         this.inCombat[id] = 0;
         this.moveCooldown[id] = 0;
 
-        // Стак — добавляем в Set
         const pkey = `${x},${y}`;
         if (!this.positionIndex.has(pkey)) this.positionIndex.set(pkey, new Set());
         this.positionIndex.get(pkey).add(id);
 
-        // Owner index
         if (!this.ownerIndex.has(owner)) this.ownerIndex.set(owner, new Set());
         this.ownerIndex.get(owner).add(id);
 
         this._markActiveDirty();
         return id;
+    }
+
+    /**
+     * Уменьшить training у всех юнитов. Вызывается раз в игровой день.
+     */
+    tickTraining() {
+        for (let i = 1; i < this.nextId; i++) {
+            if (this.active[i] && this.training[i] > 0) {
+                this.training[i]--;
+            }
+        }
     }
 
     removeEntity(id) {
@@ -199,6 +211,7 @@ export class EntityManager {
                 hp: this.hp[id],
                 training: this.training[id],
                 inCombat: this.inCombat[id],
+                isShip: this.isShip[id],
                 path: this.getPath(id)
             });
         }
@@ -219,8 +232,9 @@ export class EntityManager {
             this.y[e.id] = e.y;
             this.hp[e.id] = e.hp;
             this.maxHp[e.id] = e.type === UNIT_TYPE.INFANTRY ? 100 : 50;
-            this.training[e.id] = e.training;
-            this.inCombat[e.id] = e.inCombat;
+            this.training[e.id] = e.training || 0;
+            this.inCombat[e.id] = e.inCombat || 0;
+            this.isShip[e.id] = e.isShip || 0;
 
             const pkey = `${e.x},${e.y}`;
             if (!this.positionIndex.has(pkey)) this.positionIndex.set(pkey, new Set());
