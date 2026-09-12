@@ -7,7 +7,7 @@ export class MovementSystem {
         this.world    = world;
         this.entities = entities;
         this.gs       = gameState;
-        this.orders   = new Map(); // unitId → { path, targetX, targetY }
+        this.orders   = new Map();
     }
 
     _areAllied(c1, c2) {
@@ -16,12 +16,15 @@ export class MovementSystem {
         return this.gs.alliances.some(a => a.has && a.has(c1) && a.has(c2));
     }
 
-    // Выдать приказ на движение
     giveOrder(unitId, targetX, targetY) {
         const e = this.entities;
         if (!e.active[unitId]) return false;
         if (e.inCombat[unitId]) {
             addNotification('Юнит в бою!', 'war');
+            return false;
+        }
+        if (e.training && e.training[unitId] > 0) {
+            addNotification('Юнит ещё обучается!', 'war');
             return false;
         }
 
@@ -35,7 +38,6 @@ export class MovementSystem {
         const sameOwner = targetOwner === e.owner[unitId]
             || this._areAllied(e.owner[unitId], targetOwner);
 
-        // Порт → Порт (мгновенная переброска)
         const endPort = this.world.hasBuilding(targetX, targetY, 'port');
         if (startPort && endPort && sameOwner) {
             e.moveTo(unitId, targetX, targetY);
@@ -45,7 +47,6 @@ export class MovementSystem {
             return true;
         }
 
-        // Соседняя клетка — двигаемся без поиска пути
         const dx = Math.abs(targetX - sx);
         const dy = Math.abs(targetY - sy);
         if (dx + dy === 1) {
@@ -59,7 +60,6 @@ export class MovementSystem {
             }
         }
 
-        // Длинный путь — A*
         const isShip = e.isShip[unitId];
         const allowWater = isShip === 1 || (targetIsWater && startPort);
 
@@ -80,7 +80,6 @@ export class MovementSystem {
     hasOrder(unitId) { return this.orders.has(unitId); }
     cancelOrder(unitId) { this.orders.delete(unitId); }
 
-    // Вызывается раз в игровой день из main.js
     update() {
         this._moveUnits();
     }
@@ -96,7 +95,6 @@ export class MovementSystem {
             const hasPort = this.world.hasBuilding(e.x[unitId], e.y[unitId], 'port');
             const isShip = e.isShip[unitId];
 
-            // Двигаем 2 клетки за день
             for (let step = 0; step < 2; step++) {
                 if (!order.path.length) { this.orders.delete(unitId); break; }
 
@@ -107,62 +105,49 @@ export class MovementSystem {
                 const cellOwner = this.world.getCell(nx, ny);
                 const isLand = cellOwner !== 0;
 
-                // Пехота входит в воду — становится кораблём
                 if (!e.isShip[unitId] && isWater && hasPort) {
                     e.isShip[unitId] = 1;
                 }
 
-                // Корабль — только по воде, на сушу только высадка/возврат к порту
                 if (e.isShip[unitId]) {
                     if (isWater) {
-                        // по воде — ок
+                        // ok
                     } else if (isLand) {
-                        // На суше: проверяем можно ли высадиться
                         const isFriendly = cellOwner === e.owner[unitId] || this._areAllied(e.owner[unitId], cellOwner);
                         const isEnemy = cellOwner !== 0 && cellOwner !== e.owner[unitId] && !isFriendly;
-                        const hasPort = this.world.hasBuilding(nx, ny, 'port');
+                        const hasPort2 = this.world.hasBuilding(nx, ny, 'port');
 
-                        if (isFriendly || hasPort) {
-                            // Высадка на свою/союзную территорию или в порт
+                        if (isFriendly || hasPort2) {
                             e.moveTo(unitId, nx, ny);
                             e.isShip[unitId] = 0;
                             order.path.shift();
                             continue;
                         } else if (isEnemy) {
-                            // Вражеское побережье — высадка десанта
                             const enemy = e.getUnitAt(nx, ny);
                             if (enemy && e.active[enemy]) {
                                 this.orders.delete(unitId);
                                 break;
                             }
-                            this.world.setCell(nx, ny, e.owner[unitId]);
                             e.moveTo(unitId, nx, ny);
                             e.isShip[unitId] = 0;
+                            this.world.setCell(nx, ny, e.owner[unitId]);
                             order.path.shift();
                             addNotification('⚓ Десант!', 'info');
                             continue;
                         } else {
-                            break; // Пустая клетка в море — не высаживаемся
+                            break;
                         }
                     } else {
-                        break; // Ни вода ни суша
+                        break;
                     }
                 }
 
-                // Пехота — захват вражеской территории
-                if (!isShip && isLand && cellOwner !== 0 && cellOwner !== e.owner[unitId]
-                    && !this._areAllied(e.owner[unitId], cellOwner)) {
-                    // Вражеская клетка — захватываем и идём дальше
-                    this.world.setCell(nx, ny, e.owner[unitId]);
-                }
-
-                // Занята другим юнитом
+                // Занята другим юнитом? Проверяем ДО захвата клетки
                 const occupant = e.getUnitAt(nx, ny);
                 if (occupant && occupant !== unitId) {
                     const occOwner = e.owner[occupant];
                     const myOwner = e.owner[unitId];
                     if (occOwner !== myOwner && !this._areAllied(myOwner, occOwner)) {
-                        // Враг — CombatSystem сам начнёт бой, просто идём на клетку
                         if (!e.inCombat[unitId] && !e.inCombat[occupant]) {
                             e.moveTo(unitId, nx, ny);
                             order.path.shift();
@@ -171,7 +156,13 @@ export class MovementSystem {
                     }
                 }
 
-                // Делаем шаг
+                // Захват вражеской клетки — только если на ней нет чужого юнита
+                if (!e.isShip[unitId] && isLand && cellOwner !== 0
+                    && cellOwner !== e.owner[unitId]
+                    && !this._areAllied(e.owner[unitId], cellOwner)) {
+                    this.world.setCell(nx, ny, e.owner[unitId]);
+                }
+
                 e.moveTo(unitId, nx, ny);
                 if (isLand) e.isShip[unitId] = 0;
                 order.path.shift();
@@ -179,7 +170,6 @@ export class MovementSystem {
         }
     }
 
-    // A* поиск пути
     _findPath(sx, sy, ex, ey, ownerId, allowWater = false) {
         const MAX = 1500;
         const h = (x, y) => Math.abs(x - ex) + Math.abs(y - ey);
@@ -210,25 +200,22 @@ export class MovementSystem {
                 const cellOwner = this.world.getCell(nx, ny);
                 const isWater = this.world.isWater(nx, ny);
 
-                // Пехота — только по суше
                 if (!allowWater) {
                     if (isWater) continue;
                     if (cellOwner === 0 && !isWater) continue;
 
-                    // Проверка территории: можно идти по своей, союзной, нейтральной
                     if (cellOwner !== 0 && cellOwner !== ownerId) {
                         const isAllied = this._areAllied(ownerId, cellOwner);
                         const isAtWar = this.gs && this.gs.isAtWar && this.gs.isAtWar(ownerId, cellOwner);
-                        if (!isAllied && !isAtWar) continue; // чужая территория — обходим
+                        if (!isAllied && !isAtWar) continue;
                     }
                 }
 
-                // Корабль — ТОЛЬКО по воде
                 if (allowWater) {
                     if (isWater) {
-                        // ok — по воде
+                        // ok
                     } else {
-                        continue; // суша — пропускаем
+                        continue;
                     }
                 }
 
