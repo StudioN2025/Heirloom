@@ -27,6 +27,8 @@ const translations = {
             recruitInfantry: '➕ ПЕХОТА',
             recruitTank: '➕ ТАНК',
             createArmy: '🎖️ АРМИЯ',
+            myTroops: 'МОИ ВОЙСКА',
+            create: '🎖️ СОЗДАТЬ АРМИЮ',
             unitCount: 'юнитов',
             statusReady: '✅ Готов',
             statusCombat: '⚔️ БОЙ',
@@ -59,9 +61,10 @@ const translations = {
             title: '⭐ НАЦИОНАЛЬНЫЕ ФОКУСЫ',
             noFocus: 'Нет фокусов для ',
             startFocus: 'Начать',
+            start: 'Начать',
             locked: '🔒',
             available: 'Доступен',
-            researching: '⏳',
+            researching: 'Исследуется',
             daysLeft: 'д',
             completed: '✓'
         },
@@ -72,6 +75,9 @@ const translations = {
             vassals: '👑 Вассалы',
             lord: '👑 Вы вассал ',
             callToArms: '⚔️ Оружие',
+            allyJoinWhichWar: 'В какую войну вступить?',
+            allyJoinedYourWar: 'вступает в вашу войну против',
+            joinedWar: 'Вы вступили в войну!',
             kickAlly: '✕',
             releaseVassal: 'Освободить',
             declareWar: '⚔️ ОБЪЯВИТЬ ВОЙНУ',
@@ -81,6 +87,7 @@ const translations = {
             atWar: '⚔️ В СОСТОЯНИИ ВОЙНЫ',
             peace: 'Мирное время',
             capitulation: 'Капитуляция',
+            capitulationProgress: 'Прогресс капитуляции',
             ideology: '⚡ Идеология',
             changeIdeology: 'Смена на ',
             cancel: 'Отменить',
@@ -147,6 +154,8 @@ const translations = {
             autosave: 'Автосохранение каждые 30 дней',
             autosaveOn: 'ВКЛ',
             autosaveOff: 'ВЫКЛ',
+            on: 'ВКЛ',
+            off: 'ВЫКЛ',
             savedFile: '💾 Файл .hrl скачан!',
             loadedGame: '📂 Игра загружена!',
             autoSaveToggle: '💾 Автосохранение: ',
@@ -366,6 +375,8 @@ const translations = {
             recruitInfantry: '➕ INFANTRY',
             recruitTank: '➕ TANK',
             createArmy: '🎖️ ARMY',
+            myTroops: 'MY TROOPS',
+            create: '🎖️ CREATE ARMY',
             unitCount: 'units',
             statusReady: '✅ Ready',
             statusCombat: '⚔️ COMBAT',
@@ -398,9 +409,10 @@ const translations = {
             title: '⭐ NATIONAL FOCUSES',
             noFocus: 'No focuses for ',
             startFocus: 'Start',
+            start: 'Start',
             locked: '🔒',
             available: 'Available',
-            researching: '⏳',
+            researching: 'Researching',
             daysLeft: 'd',
             completed: '✓'
         },
@@ -411,6 +423,9 @@ const translations = {
             vassals: '👑 Vassals',
             lord: '👑 You are a vassal of ',
             callToArms: '⚔️ Arms',
+            allyJoinWhichWar: 'Which war to join?',
+            allyJoinedYourWar: 'joins your war against',
+            joinedWar: 'You joined the war!',
             kickAlly: '✕',
             releaseVassal: 'Release',
             declareWar: '⚔️ DECLARE WAR',
@@ -420,6 +435,7 @@ const translations = {
             atWar: '⚔️ AT WAR',
             peace: 'Peace time',
             capitulation: 'Capitulation',
+            capitulationProgress: 'Capitulation progress',
             ideology: '⚡ Ideology',
             changeIdeology: 'Changing to ',
             cancel: 'Cancel',
@@ -486,6 +502,8 @@ const translations = {
             autosave: 'Autosave every 30 days',
             autosaveOn: 'ON',
             autosaveOff: 'OFF',
+            on: 'ON',
+            off: 'OFF',
             savedFile: '💾 .hrl file downloaded!',
             loadedGame: '📂 Game loaded!',
             autoSaveToggle: '💾 Autosave: ',
@@ -691,13 +709,12 @@ export function t(key) {
         if (value && typeof value === 'object' && k in value) {
             value = value[k];
         } else {
-            // Fallback to Russian if key not found
             let fallback = translations.ru;
             for (const fk of keys) {
                 if (fallback && typeof fallback === 'object' && fk in fallback) {
                     fallback = fallback[fk];
                 } else {
-                    return key; // Return key if not found in any language
+                    return key;
                 }
             }
             return typeof fallback === 'string' ? fallback : key;
