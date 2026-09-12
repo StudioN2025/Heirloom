@@ -5,14 +5,14 @@ import { addNotification } from '../utils/helpers.js';
 const FRONT_WIDTH = 4;
 
 const UNIT_STATS = {
-    0: { // пехота
+    0: {
         softAttack: 30, hardAttack: 5,
         defense: 25, breakthrough: 8,
         hardness: 0,
         maxOrg: 100, orgRecovery: 3,
         maxHp: 100, hpPerDay: 1,
     },
-    1: { // танки
+    1: {
         softAttack: 80, hardAttack: 60,
         defense: 15, breakthrough: 40,
         hardness: 70,
@@ -29,11 +29,13 @@ export class CombatSystem {
         this.tech = null;
         this.battles = new Map();
         this.org = new Float32Array(entities.maxEntities || 50000);
+        this._initialized = new Uint8Array(entities.maxEntities || 50000);
     }
 
     initUnit(uid) {
         const s = UNIT_STATS[this.entities.type[uid]] || UNIT_STATS[0];
         this.org[uid] = s.maxOrg;
+        this._initialized[uid] = 1;
     }
 
     getOrg(uid) { return Math.round(this.org[uid] || 0); }
@@ -43,8 +45,6 @@ export class CombatSystem {
         this._resolveBattles();
         this._recoverOrg();
     }
-
-    // ── Формирование боёв ────────────────────────────────────────────────────
 
     _formBattles() {
         const e = this.entities;
@@ -63,11 +63,10 @@ export class CombatSystem {
 
                 const jIsShip = e.isShip ? e.isShip[j] : 0;
 
-                // Пехота не атакует корабли
                 if (!iIsShip && jIsShip) continue;
 
-                const attacker = iIsShip && !jIsShip ? i : i;
-                const defender = iIsShip && !jIsShip ? j : j;
+                const attacker = i;
+                const defender = j;
 
                 const battleCell = `${e.x[defender]},${e.y[defender]}`;
 
@@ -82,8 +81,10 @@ export class CombatSystem {
                         e.inCombat[defender] = 1;
                     }
                 } else {
-                    if (this.org[attacker] === 0) this.initUnit(attacker);
-                    if (this.org[defender] === 0) this.initUnit(defender);
+                    // Гарантируем инициализацию org
+                    if (!this._initialized[attacker]) this.initUnit(attacker);
+                    if (!this._initialized[defender]) this.initUnit(defender);
+
                     e.inCombat[attacker] = 1;
                     e.inCombat[defender] = 1;
 
@@ -102,7 +103,6 @@ export class CombatSystem {
                         addNotification(`${t} Бой: ${e.owner[attacker]} атакует ${e.owner[defender]}!`, 'war');
                     }
 
-                    // Битва на клетке столицы?
                     if (this.world.capitals) {
                         for (const [cid, cap] of Object.entries(this.world.capitals)) {
                             if (cap.x === e.x[defender] && cap.y === e.y[defender]) {
@@ -126,17 +126,17 @@ export class CombatSystem {
             for (const uid of nearby) {
                 if (!e.active[uid] || e.inCombat[uid]) continue;
                 if (b.attackers.length < FRONT_WIDTH && e.owner[uid] === b.attackerCountry && !b.attackers.includes(uid)) {
+                    if (!this._initialized[uid]) this.initUnit(uid);
                     b.attackers.push(uid);
                     e.inCombat[uid] = 1;
                 } else if (b.defenders.length < FRONT_WIDTH && e.owner[uid] === b.defenderCountry && !b.defenders.includes(uid)) {
+                    if (!this._initialized[uid]) this.initUnit(uid);
                     b.defenders.push(uid);
                     e.inCombat[uid] = 1;
                 }
             }
         }
     }
-
-    // ── Разрешение боёв ──────────────────────────────────────────────────────
 
     _resolveBattles() {
         const e = this.entities;
@@ -154,10 +154,8 @@ export class CombatSystem {
             const aOrgAvg = this._avgOrg(b.attackers);
             const dOrgAvg = this._avgOrg(b.defenders);
 
-            // Прорыв при преимуществе org
             const breakthroughBonus = aOrgAvg > dOrgAvg * 1.3 ? 1.25 : 1.0;
 
-            // Численное превосходство
             const numAdvA = Math.min(1.5, 1 + (b.attackers.length - b.defenders.length) * 0.15);
             const numAdvD = Math.min(1.5, 1 + (b.defenders.length - b.attackers.length) * 0.15);
 
@@ -165,23 +163,21 @@ export class CombatSystem {
             const aPenalty = this._getCapitulationPenalty(b.attackerCountry);
             const dPenalty = this._getCapitulationPenalty(b.defenderCountry);
 
-            // Бонус столицы — защитники на клетке столицы получают +40% защиту и +20% атаку
             let capitalBonus = 1.0;
             if (this.world.capitals) {
-                const [bx, by] = b.cell.split(',').map(Number);
+                const [bx2, by2] = b.cell.split(',').map(Number);
                 for (const [cid, cap] of Object.entries(this.world.capitals)) {
-                    if (cap.x === bx && cap.y === by && cid === b.defenderCountry) {
+                    if (cap.x === bx2 && cap.y === by2 && cid === b.defenderCountry) {
                         capitalBonus = 1.4;
                         break;
                     }
-                    if (cap.x === bx && cap.y === by && cid === b.attackerCountry) {
+                    if (cap.x === bx2 && cap.y === by2 && cid === b.attackerCountry) {
                         capitalBonus = 0.85;
                         break;
                     }
                 }
             }
 
-            // Урон защитникам
             const aRawAttack = this._totalAttack(b.attackers, b.defenders, b.cell);
             const avgDefDefense = this._avgStat(b.defenders, 'defense');
             let defTechMult = 1.0;
@@ -196,7 +192,6 @@ export class CombatSystem {
                 e.damage(uid, hpDmg);
             }
 
-            // Урон атакующим
             const dRawAttack = this._totalAttack(b.defenders, b.attackers, b.cell) * capitalBonus;
             const avgAtkBreakthrough = this._avgStat(b.attackers, 'breakthrough');
             let atkTechMult = 1.0;
@@ -211,7 +206,6 @@ export class CombatSystem {
                 e.damage(uid, hpDmg);
             }
 
-            // Чистим мёртвых
             b.attackers = b.attackers.filter(id => e.active[id]);
             b.defenders = b.defenders.filter(id => e.active[id]);
 
@@ -231,7 +225,6 @@ export class CombatSystem {
                 this._attackerRouted(b);
                 toDelete.push(cellKey);
             } else if (newAOrg <= 0 && newDOrg <= 0) {
-                // Оба проиграли — все умирают
                 for (const uid of [...b.attackers, ...b.defenders]) {
                     if (e.active[uid]) e.removeEntity(uid);
                 }
@@ -242,27 +235,20 @@ export class CombatSystem {
         for (const k of toDelete) this.battles.delete(k);
     }
 
-    // ── Восстановление org + HP ─────────────────────────────────────────────
-
     _recoverOrg() {
         const e = this.entities;
         for (let i = 1; i < e.nextId; i++) {
             if (!e.active[i] || e.inCombat[i]) continue;
             const s = UNIT_STATS[e.type[i]] || UNIT_STATS[0];
-            // Org восстанавливается когда стоишь на месте
+            if (!this._initialized[i]) this.initUnit(i);
             if (this.org[i] < s.maxOrg) {
                 this.org[i] = Math.min(s.maxOrg, (this.org[i] || s.maxOrg) + s.orgRecovery);
-            } else if (this.org[i] === 0) {
-                this.org[i] = s.maxOrg;
             }
-            // HP +1 в день
             if (e.hp[i] < s.maxHp) {
                 e.hp[i] = Math.min(s.maxHp, e.hp[i] + (s.hpPerDay || 1));
             }
         }
     }
-
-    // ── Расчёт атаки ────────────────────────────────────────────────────────
 
     _totalAttack(attackers, defenders, battleCell) {
         const e = this.entities;
@@ -308,8 +294,6 @@ export class CombatSystem {
         return 1.0;
     }
 
-    // ── Результаты боя ──────────────────────────────────────────────────────
-
     _defenderRouted(b, cellKey) {
         const e = this.entities;
         const [cx, cy] = cellKey.split(',').map(Number);
@@ -321,7 +305,6 @@ export class CombatSystem {
         this._endBattle(b);
         if (b.attackerCountry === this.gs.myCountryId || b.defenderCountry === this.gs.myCountryId)
             addNotification(`💀 ${b.defenderCountry} уничтожен! ${b.attackerCountry} захватывает.`, 'war');
-        this._checkCapitulation(b.defenderCountry, b.attackerCountry);
     }
 
     _attackerRouted(b) {
@@ -336,24 +319,6 @@ export class CombatSystem {
         const e = this.entities;
         for (const uid of [...b.attackers, ...b.defenders]) {
             if (e.active[uid]) e.inCombat[uid] = 0;
-        }
-    }
-
-    _checkCapitulation(loser, winner) {
-        const cells = this.world.getCountryCells(loser);
-        if (cells.size > 20) return;
-        for (const c of [...cells]) {
-            const [x, y] = c.split(',').map(Number);
-            this.world.setCell(x, y, winner);
-        }
-        for (const uid of this.entities.getEntitiesByOwner(loser)) this.entities.removeEntity(uid);
-        this.gs.wars = this.gs.wars.filter(w => w.a !== loser && w.b !== loser);
-        this.gs.alliances = (this.gs.alliances || []).map(a => { const s = new Set(a); s.delete(loser); return s; }).filter(a => a.size > 1);
-        addNotification(`💀 ${loser} капитулировал перед ${winner}!`, 'war');
-        if (loser === this.gs.myCountryId) {
-            addNotification('💀 Игра окончена!', 'war');
-            this.gs.setGameSpeed(0);
-            this.gs.isGameActive = false;
         }
     }
 }
