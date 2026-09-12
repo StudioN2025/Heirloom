@@ -32,7 +32,7 @@ export class TopBar {
         if (equipmentElem) equipmentElem.innerText = Math.floor(this.gameState.equipment).toLocaleString();
         if (dateElem) dateElem.innerText = this.gameState.getDateString();
 
-        // Индикаторы
+        // Индикаторы — берём из актуальных полей GameState
         const researchInd = document.getElementById('research-indicator');
         const focusInd = document.getElementById('focus-indicator');
 
