@@ -2,23 +2,19 @@
 
 import { addNotification } from '../utils/helpers.js';
 
-// Простое дерево: ветка → 5 уровней
 export const TECH_TREE = {
-    // Промышленность
     industry_1: { id: 'industry_1', name: 'Базовая промышленность', desc: '+5% производство', branch: 'industry', level: 1, cost: 60,  effect: { productionBonus: 0.05 }, icon: '🏭' },
     industry_2: { id: 'industry_2', name: 'Массовое производство', desc: '+10% производство', branch: 'industry', level: 2, cost: 80,  effect: { productionBonus: 0.10 }, icon: '🏭' },
     industry_3: { id: 'industry_3', name: 'Сборочные линии', desc: '+15% производство', branch: 'industry', level: 3, cost: 100, effect: { productionBonus: 0.15 }, icon: '⚙️' },
     industry_4: { id: 'industry_4', name: 'Автоматизация', desc: '+20% производство', branch: 'industry', level: 4, cost: 130, effect: { productionBonus: 0.20 }, icon: '🤖' },
     industry_5: { id: 'industry_5', name: 'Нанотехнологии', desc: '+25% производство', branch: 'industry', level: 5, cost: 160, effect: { productionBonus: 0.25 }, icon: '🔬' },
 
-    // Пехота
     infantry_1: { id: 'infantry_1', name: 'Стандартное оружие', desc: '+5% атака/защита', branch: 'infantry', level: 1, cost: 60,  effect: { infantryAttack: 0.05, infantryDefense: 0.05 }, icon: '🔫' },
     infantry_2: { id: 'infantry_2', name: 'Автоматическое оружие', desc: '+10% атака', branch: 'infantry', level: 2, cost: 80,  effect: { infantryAttack: 0.10 }, icon: '🔫' },
     infantry_3: { id: 'infantry_3', name: 'Мотопехота', desc: '+15% атака, +5% защита', branch: 'infantry', level: 3, cost: 100, effect: { infantryAttack: 0.15, infantryDefense: 0.05 }, icon: '🛻' },
     infantry_4: { id: 'infantry_4', name: 'Десант', desc: '+20% атака, +10% защита', branch: 'infantry', level: 4, cost: 130, effect: { infantryAttack: 0.20, infantryDefense: 0.10 }, icon: '🪂' },
     infantry_5: { id: 'infantry_5', name: 'Элитные части', desc: '+25% атака, +15% защита', branch: 'infantry', level: 5, cost: 160, effect: { infantryAttack: 0.25, infantryDefense: 0.15 }, icon: '⭐' },
 
-    // Танки
     tank_1: { id: 'tank_1', name: 'Лёгкие танки', desc: '+5% атака/защита', branch: 'tank', level: 1, cost: 70,  effect: { tankAttack: 0.05, tankDefense: 0.05 }, icon: '🚜' },
     tank_2: { id: 'tank_2', name: 'Средние танки', desc: '+10% атака', branch: 'tank', level: 2, cost: 90,  effect: { tankAttack: 0.10 }, icon: '🚜' },
     tank_3: { id: 'tank_3', name: 'Тяжёлые танки', desc: '+15% атака, +10% броня', branch: 'tank', level: 3, cost: 120, effect: { tankAttack: 0.15, tankArmor: 10 }, icon: '🛡️' },
@@ -73,6 +69,10 @@ export class TechSystem {
 
     setResearchForCountry(countryId, research) {
         this.gameState.countryResearch.set(countryId, research);
+        // Синхронизируем activeResearch для TopBar
+        if (countryId === this.gameState.myCountryId) {
+            this.gameState.activeResearch = research;
+        }
     }
 
     startResearch(countryId, techId) {
