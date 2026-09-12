@@ -996,7 +996,7 @@ body {
     .hq-folder {
         padding: 1.5rem;
     }
-    
+
     #top-bar {
         height: auto;
         min-height: 44px;
@@ -1004,35 +1004,34 @@ body {
         gap: 6px;
         font-size: 10px;
     }
-    
+
     .separator {
         display: none;
     }
-    
+
     .speed-btn {
         padding: 3px 6px;
         font-size: 9px;
     }
-    
+
     .date-display {
         font-size: 9px;
         min-width: 90px;
     }
-    
+
     #game-tabs {
         left: 8px;
         right: 8px;
-        top: auto;
         top: 48px;
     }
-    
+
     .tab-btn {
         flex: 1;
         text-align: center;
         padding: 6px 8px;
         font-size: 8px;
     }
-    
+
     #info-window {
         width: 95vw;
         height: 90vh;
@@ -1041,7 +1040,7 @@ body {
         transform: translate(-50%, -50%);
         max-width: none;
     }
-    
+
     #info-window,
     #info-sidebar {
         left: 8px;
@@ -1049,27 +1048,27 @@ body {
         width: auto;
         top: 90px;
     }
-    
+
     .select-card {
         width: 90vw;
         padding: 1rem;
     }
-    
+
     .resources-grid {
         grid-template-columns: repeat(3, 1fr);
         gap: 4px;
     }
-    
+
     .recruit-card {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .btn-recruit {
         text-align: center;
         margin-top: 8px;
     }
-    
+
     #army-panel {
         left: 4px;
         right: 4px;
@@ -1077,17 +1076,17 @@ body {
         max-width: none;
         border-radius: 8px 8px 0 0;
     }
-    
+
     .army-card {
         padding: 4px 6px;
         font-size: 9px;
         min-height: 28px;
     }
-    
+
     .army-card-name {
         font-size: 9px;
     }
-    
+
     #btn-create-army {
         width: 20px;
         height: 20px;
@@ -1100,12 +1099,14 @@ body {
         font-size: 12px;
         min-width: 60px;
     }
-    
+
     #country-list button {
         font-size: 10px;
         padding: 8px;
     }
-    /* ========== ЭКРАН ЗАГРУЗКИ ========== */
+}
+
+/* ========== ЭКРАН ЗАГРУЗКИ ========== */
 #loading-screen {
     animation: fadeIn 0.3s ease;
 }
@@ -1119,7 +1120,7 @@ body {
     transition: width 0.3s ease;
     box-shadow: 0 0 10px rgba(234, 179, 8, 0.5);
 }
-}
+
 /* Флаги */
 .flag-icon {
     width: 32px;
