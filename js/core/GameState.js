@@ -7,67 +7,70 @@ export class GameState {
         this.gameSpeed = 1;
         this.gameDate = new Date(1936, 0, 1);
         this.days = 0;
-        
+
         this.equipment = 5000;
         this.manpower = 500000;
         this.maxManpower = 500000;
         this.factories = 0;
-        
-        // Глобальные технологии (для совместимости)
+
         this.tech = { industry: 1, infantry: 1, tank: 1 };
-        
-        // Технологии по странам
+
         this.countryTech = new Map();
         this.countryResearch = new Map();
-        
+
+        // Для TopBar — текущее исследование игрока
+        this.activeResearch = null;
+
         this.wars = [];
         this.alliances = [];
-        this.vassals = {}; // { overlordId: [vassalId, ...] }
-        this.warStartCells = {}; // { countryId: originalCellCount }
+        this.vassals = {};
+        this.warStartCells = {};
         this.warOriginalCells = {};
-        this.warInvitations = []; // [{ from, enemy, time }]
-        this.allianceInvitations = []; // [{ from, time }]
+        this.warInvitations = [];
+        this.allianceInvitations = [];
         this.ideologyChange = null;
-        this.justifications = null; // { target, daysLeft, totalDays }
-        this.relations = {}; // { countryId: number (-100..+100) }
+        this.justifications = null;
+        this.relations = {};
         this.relationsInit = false;
-        
+
         this.activeFocus = null;
         this.completedFocuses = new Set();
-        
+
         this.selectedUnitId = null;
         this.activeBattles = [];
 
-        // Очереди производства игрока
-        // { x, y, type, daysLeft, totalDays }
-        this.trainingQueue    = [];
-        // { x, y, buildingType, daysLeft, totalDays }
+        this.trainingQueue = [];
         this.constructionQueue = [];
+
+        // Отклонённые приглашения: { countryId: day }
+        this._declinedInvites = {};
+        this._declinedAlliance = {};
+        this._capitulationPending = false;
     }
-    
+
     advanceDay() {
         this.gameDate.setDate(this.gameDate.getDate() + 1);
         this.days++;
     }
-    
+
     getDateString() {
         const months = ["ЯНВ", "ФЕВ", "МАР", "АПР", "МАЙ", "ИЮН", "ИЮЛ", "АВГ", "СЕН", "ОКТ", "НОЯ", "ДЕК"];
         return `${this.gameDate.getDate()} ${months[this.gameDate.getMonth()]} ${this.gameDate.getFullYear()}`;
     }
-    
+
     setGameSpeed(speed) {
         this.gameSpeed = speed;
     }
-    
+
     isAtWar(c1, c2) {
         return this.wars.some(w => (w.a === c1 && w.b === c2) || (w.b === c1 && w.a === c2));
     }
-    
+
     areAllies(c1, c2) {
         if (c1 === c2) return true;
         return this.alliances.some(a => a.has(c1) && a.has(c2));
     }
-    
+
     addWar(a, b, world) {
         if (this.isAtWar(a, b)) return;
 
@@ -79,7 +82,6 @@ export class GameState {
             if (!this.warOriginalCells[b]) this.warOriginalCells[b] = Array.from(world.getCountryCells(b));
         }
 
-        // Отношения: война
         this.changeRelation(b, -50);
         this.changeRelation(a, -50);
         var my = this.myCountryId;
@@ -91,12 +93,10 @@ export class GameState {
             }
         }
 
-        // Вассалы лорда вступают в войну (НО не против своего лорда)
         for (const lord of [a, b]) {
             const vassals = this.getVassals(lord);
             for (const v of vassals) {
                 const enemy = lord === a ? b : a;
-                // Вассал не воюет со своим лордом
                 if (enemy === lord) continue;
                 if (!this.isAtWar(v, enemy)) {
                     this.wars.push({ a: v, b: enemy });
@@ -108,16 +108,13 @@ export class GameState {
             }
         }
 
-        // Приглашение игроку — только если союзник воюет и враг не игрок и не вассал игрока
         if (my && a !== my && b !== my) {
             for (const side of [a, b]) {
                 const enemy = side === a ? b : a;
                 if (this.areAllies(my, side) && !this.isAtWar(my, enemy)) {
                     var myVassals = this.getVassals(my);
                     if (myVassals.indexOf(enemy) === -1) {
-                        // Проверяем отклонённые — повторяем через 30 дней
-                        var declined = this._declinedInvites || {};
-                        var lastDeclined = declined[enemy];
+                        var lastDeclined = this._declinedInvites[enemy];
                         if (!lastDeclined || this.days >= lastDeclined) {
                             this.warInvitations.push({ from: side, enemy: enemy, time: Date.now() });
                         }
@@ -145,17 +142,16 @@ export class GameState {
     }
 
     getCapitulationThreshold(ideology) {
-        if (ideology === 'Фашизм' || ideology === 'Коммунизм') return 95;
+        if (ideology === 'Фазизм' || ideology === 'Фашизм' || ideology === 'Коммунизм') return 95;
         if (ideology === 'Нейтралитет') return 80;
-        return 70; // Демократия
+        return 70;
     }
-    
+
     addAlliance(a, b) {
         if (!this.areAllies(a, b)) {
             this.alliances.push(new Set([a, b]));
             this.changeRelation(a, 30);
             this.changeRelation(b, 30);
-            // Враги альянса тоже недовольны
             for (var i = 0; i < this.wars.length; i++) {
                 var w = this.wars[i];
                 if (w.a === a || w.b === a) {
@@ -197,6 +193,60 @@ export class GameState {
         return this.getOverlord(countryId) !== null;
     }
 
+    // ── ЕДИНАЯ КАПИТУЛЯЦИЯ ────────────────────────────────────────────────
+    /**
+     * Обрабатывает капитуляцию страны.
+     * @param {string} loserId
+     * @param {string} winnerId
+     * @param {World} world
+     * @param {EntityManager} entities
+     * @param {string} mode — 'annex' | 'vassal' | 'release'
+     */
+    handleCapitulation(loserId, winnerId, world, entities, mode = 'vassal') {
+        if (!world || !entities) return;
+        if (world.getCountryCells(loserId).size === 0) return;
+
+        if (mode === 'annex') {
+            const origCells = this.warOriginalCells ? this.warOriginalCells[loserId] : null;
+            const cellsToAnnex = origCells || Array.from(world.getCountryCells(loserId));
+            for (const cell of cellsToAnnex) {
+                const [x, y] = cell.split(',').map(Number);
+                if (world.getCell(x, y) === loserId) {
+                    world.setCell(x, y, winnerId);
+                }
+            }
+            for (const uid of entities.getEntitiesByOwner(loserId)) entities.removeEntity(uid);
+            delete world.capitals[loserId];
+        } else if (mode === 'vassal') {
+            const originalCells = this.warOriginalCells ? this.warOriginalCells[loserId] : null;
+            if (originalCells) {
+                for (const cell of originalCells) {
+                    const [x, y] = cell.split(',').map(Number);
+                    if (world.getCell(x, y) !== loserId) {
+                        world.setCell(x, y, loserId);
+                    }
+                }
+            }
+            this.addVassal(winnerId, loserId);
+            this.addAlliance(winnerId, loserId);
+        }
+        // mode === 'release' — ничего не делаем с территорией
+
+        // Убираем войны
+        this.wars = this.wars.filter(w => w.a !== loserId && w.b !== loserId);
+
+        // Сбрасываем цели ИИ (если есть)
+        // (вызывающий код сам сбросит mem)
+
+        // Если капитулировал игрок
+        if (loserId === this.myCountryId) {
+            this.setGameSpeed(0);
+            this.isGameActive = false;
+        }
+
+        this._capitulationPending = false;
+    }
+
     // ── ОТНОШЕНИЯ ──
     initRelations(world) {
         if (this.relationsInit) return;
@@ -212,12 +262,10 @@ export class GameState {
             if (this.relations[c] !== undefined) continue;
             var base = 0;
             var cIdeology = COUNTRIES_DATA[c] ? COUNTRIES_DATA[c].ideology : 'Нейтралитет';
-            // Идеологическая совместимость
             if (myIdeology === cIdeology) base += 25;
             else if ((myIdeology === 'Фашизм' && cIdeology === 'Нейтралитет') || (myIdeology === 'Нейтралитет' && cIdeology === 'Фашизм')) base += 10;
             else if ((myIdeology === 'Демократия' && cIdeology === 'Коммунизм') || (myIdeology === 'Коммунизм' && cIdeology === 'Демократия')) base -= 20;
             else base -= 10;
-            // Соседство
             var borderLen = world.getBorderWith(my, c).length;
             if (borderLen > 10) base -= 5;
             this.relations[c] = Math.max(-100, Math.min(100, base));
@@ -232,7 +280,7 @@ export class GameState {
         if (this.relations[countryId] === undefined) this.relations[countryId] = 0;
         this.relations[countryId] = Math.max(-100, Math.min(100, this.relations[countryId] + amount));
     }
-    
+
     serialize() {
         return {
             myCountryId: this.myCountryId,
@@ -247,6 +295,7 @@ export class GameState {
             tech: { ...this.tech },
             countryTech: Array.from(this.countryTech.entries()),
             countryResearch: Array.from(this.countryResearch.entries()),
+            activeResearch: this.activeResearch,
             wars: [...this.wars],
             alliances: this.alliances.map(a => [...a]),
             vassals: { ...this.vassals },
@@ -265,6 +314,8 @@ export class GameState {
             autosave: this.autosave,
             ideologyChange: this.ideologyChange,
             justifications: this.justifications,
+            _declinedInvites: this._declinedInvites || {},
+            _declinedAlliance: this._declinedAlliance || {},
         };
     }
 
@@ -281,6 +332,7 @@ export class GameState {
         this.tech = data.tech || { industry: 1, infantry: 1, tank: 1 };
         this.countryTech = new Map(data.countryTech || []);
         this.countryResearch = new Map(data.countryResearch || []);
+        this.activeResearch = data.activeResearch || null;
         this.wars = data.wars || [];
         this.alliances = (data.alliances || []).map(a => new Set(a));
         this.vassals = data.vassals || {};
@@ -299,6 +351,8 @@ export class GameState {
         this.autosave = data.autosave !== undefined ? data.autosave : true;
         this.ideologyChange = data.ideologyChange || null;
         this.justifications = data.justifications || null;
+        this._declinedInvites = data._declinedInvites || {};
+        this._declinedAlliance = data._declinedAlliance || {};
         this._capitulationPending = false;
     }
 }
